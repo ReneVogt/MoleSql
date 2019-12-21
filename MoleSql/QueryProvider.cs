@@ -7,7 +7,7 @@ using System.Reflection;
 namespace MoleSql {
     abstract class QueryProvider : IQueryProvider
     {
-        static class TypeSystem
+        protected static class TypeSystem
         {
             internal static Type GetElementType(Type seqType)
             {

@@ -54,9 +54,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MoleSqlDataContext.cs" />
+    <Compile Include="MoleSqlQueryProvider.cs" />
+    <Compile Include="ObjectReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query.cs" />
     <Compile Include="QueryProvider.cs" />
+    <Compile Include="QueryTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
