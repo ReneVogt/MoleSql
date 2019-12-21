@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoleSql", "MoleSql\MoleSql.csproj", "{7E554145-79C5-4FED-9522-41C844D3BE6D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7E554145-79C5-4FED-9522-41C844D3BE6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E554145-79C5-4FED-9522-41C844D3BE6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E554145-79C5-4FED-9522-41C844D3BE6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E554145-79C5-4FED-9522-41C844D3BE6D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AF3040BC-3C47-4975-A535-D11AB54118F9}
+	EndGlobalSection
+EndGlobal
