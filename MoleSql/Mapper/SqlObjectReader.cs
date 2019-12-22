@@ -5,10 +5,18 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace MoleSql
+namespace MoleSql.Mapper
 {
-    static class ObjectReader
+    static class SqlObjectReader
     {
+        internal static MethodInfo GetReaderMethod(Type elementType) => typeof(SqlObjectReader).GetMethod(
+                                                                                                   nameof(SqlObjectReader.ReadObjects),
+                                                                                                   BindingFlags.Static | BindingFlags.NonPublic,
+                                                                                                   null,
+                                                                                                   new[] {typeof(SqlDataReader)},
+                                                                                                   null)
+                                                                                               ?.MakeGenericMethod(elementType);
+
         internal static IEnumerable<T> ReadObjects<T>([NotNull] this SqlDataReader reader) where T : class, new()
         {
             if (reader == null)

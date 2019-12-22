@@ -30,6 +30,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>MoleSql.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>MoleSql.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -39,6 +40,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>MoleSql.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>MoleSql.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="JetBrains.Annotations, Version=2019.1.3.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
@@ -54,15 +56,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MoleSqlDataContext.cs" />
-    <Compile Include="MoleSqlQueryProvider.cs" />
-    <Compile Include="ObjectReader.cs" />
+    <Compile Include="Translators\LocalEvaluator.cs" />
+    <Compile Include="MoleDataContext.cs" />
+    <Compile Include="QueryProviders\SqlQueryProvider.cs" />
+    <Compile Include="Mapper\SqlObjectReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Query.cs" />
-    <Compile Include="QueryProvider.cs" />
-    <Compile Include="QueryTranslator.cs" />
+    <Compile Include="MoleQuery.cs" />
+    <Compile Include="QueryProviders\MoleQueryProvider.cs" />
+    <Compile Include="Translators\SqlQueryTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MoleSql.ruleset" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +80,7 @@
     <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.NetFramework.Analyzers.2.9.8\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

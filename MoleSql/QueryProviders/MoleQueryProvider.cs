@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace MoleSql {
-    abstract class QueryProvider : IQueryProvider
+namespace MoleSql.QueryProviders {
+    abstract class MoleQueryProvider : IQueryProvider
     {
         protected static class TypeSystem
         {
@@ -43,37 +44,35 @@ namespace MoleSql {
             }
         }
 
+        internal TextWriter Log { get; set; }
+
         IQueryable<S> IQueryProvider.CreateQuery<S>(Expression expression)
         {
-            return new Query<S>(this, expression);
+            return new MoleQuery<S>(this, expression);
         }
-
         IQueryable IQueryProvider.CreateQuery(Expression expression)
         {
             Type elementType = TypeSystem.GetElementType(expression.Type);
 
             try
             {
-                return (IQueryable)Activator.CreateInstance(typeof(Query<>).MakeGenericType(elementType), this, expression);
+                return (IQueryable)Activator.CreateInstance(typeof(MoleQuery<>).MakeGenericType(elementType), this, expression);
             }
             catch (TargetInvocationException tie) when (tie.InnerException != null)
             {
                 throw tie.InnerException;
             }
         }
-
         S IQueryProvider.Execute<S>(Expression expression)
         {
             return (S)Execute(expression);
         }
-
         object IQueryProvider.Execute(Expression expression)
         {
             return Execute(expression);
         }
 
         public abstract string GetQueryText(Expression expression);
-
         public abstract object Execute(Expression expression);
     }
 }

@@ -3,16 +3,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace MoleSql
+namespace MoleSql.Translators
 {
-    sealed class QueryTranslator : ExpressionVisitor
+    sealed class SqlQueryTranslator : ExpressionVisitor
     {
         StringBuilder queryStringBuilder;
 
         internal string Translate(Expression expression)
         {
             queryStringBuilder = new StringBuilder();
-            Visit(expression);
+            Visit(expression.EvaluateLocally());
             return queryStringBuilder.ToString();
         }
         private static Expression StripQuotes(Expression e)
@@ -35,7 +35,6 @@ namespace MoleSql
             Visit(lambda.Body);
             return callExpression;
         }
-
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             switch (unaryExpression.NodeType)
@@ -51,15 +50,14 @@ namespace MoleSql
 
             return unaryExpression;
         }
-
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             queryStringBuilder.Append("(");
             Visit(binaryExpression.Left);
             queryStringBuilder.Append(binaryExpression.NodeType switch
             {
-                ExpressionType.And => " AND ",
-                ExpressionType.Or => " OR ",
+                var nt when nt == ExpressionType.And || nt == ExpressionType.AndAlso => " AND ",
+                var nt when nt == ExpressionType.Or || nt == ExpressionType.OrElse => " OR ",
                 ExpressionType.Equal => " = ",
                 ExpressionType.NotEqual => " <> ",
                 ExpressionType.LessThan => " < ",
@@ -75,7 +73,6 @@ namespace MoleSql
 
             return binaryExpression;
         }
-
         protected override Expression VisitConstant(ConstantExpression constant)
         {
             if (constant.Value is IQueryable queryable)
