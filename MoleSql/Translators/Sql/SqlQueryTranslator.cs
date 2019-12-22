@@ -3,21 +3,23 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace MoleSql.Translators
+namespace MoleSql.Translators.Sql
 {
     sealed class SqlQueryTranslator : ExpressionVisitor
     {
         StringBuilder queryStringBuilder;
+        readonly ParameterExpression row = Expression.Parameter(typeof(ProjectionRow), "row");
+        Expression projection;
 
-        internal string Translate(Expression expression)
+        internal (string commandText, LambdaExpression projector) Translate(Expression expression)
         {
             queryStringBuilder = new StringBuilder();
             Visit(expression.EvaluateLocally());
-            return queryStringBuilder.ToString();
+            return (queryStringBuilder.ToString(), projection != null ? Expression.Lambda(projection, row) : null);
         }
         private static Expression StripQuotes(Expression e)
         {
-            while (e.NodeType == ExpressionType.Quote) 
+            while (e?.NodeType == ExpressionType.Quote) 
                 e = ((UnaryExpression)e).Operand;
 
             return e;
@@ -25,15 +27,31 @@ namespace MoleSql.Translators
 
         protected override Expression VisitMethodCall(MethodCallExpression callExpression)
         {
-            if (callExpression.Method.DeclaringType != typeof(Queryable) || callExpression.Method.Name != nameof(Queryable.Where))
+            if (callExpression.Method.DeclaringType != typeof(Queryable))
                 throw new NotSupportedException($"The method '{callExpression.Method.Name}' is not supported");
 
-            queryStringBuilder.Append("SELECT * FROM (");
-            Visit(callExpression.Arguments[0]);
-            queryStringBuilder.Append(") AS T WHERE ");
-            LambdaExpression lambda = (LambdaExpression)StripQuotes(callExpression.Arguments[1]);
-            Visit(lambda.Body);
-            return callExpression;
+            var firstLambda = StripQuotes(callExpression.Arguments[1]) as LambdaExpression;
+            switch (callExpression.Method.Name)
+            {
+                case nameof(Queryable.Where):
+                    queryStringBuilder.Append("SELECT * FROM (");
+                    Visit(callExpression.Arguments[0]);
+                    queryStringBuilder.Append(") AS T WHERE ");
+                    Visit(firstLambda?.Body);
+                    return callExpression;
+                case nameof(Queryable.Select):
+                    (string columnsList, var selector) = new ColumnProjector().ProjectColumns(firstLambda?.Body, row);
+                    queryStringBuilder.Append("SELECT ");
+                    queryStringBuilder.Append(columnsList);
+                    queryStringBuilder.Append(" FROM (");
+                    Visit(callExpression.Arguments[0]);
+                    queryStringBuilder.Append(") AS T ");
+                    projection = selector;
+                    return callExpression;
+
+            }
+
+            throw new NotSupportedException($"The method '{callExpression.Method.Name}' is not supported");
         }
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {

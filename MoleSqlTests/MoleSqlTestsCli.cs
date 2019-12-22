@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MoleSql;
@@ -12,6 +10,8 @@ namespace MoleSqlTests
         public string Category { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
+        /// <inheritdoc />
+        public override string ToString() => $"{Category ?? "<null>"} {Name ?? "<null>"} {Value ?? "<null>"} ";
     }
 
     public class PrinTaurusContext : MoleDataContext
@@ -27,7 +27,6 @@ namespace MoleSqlTests
     [ExcludeFromCodeCoverage]
     static class MoleSqlTestsCli
     {
-
         static void Main()
         {
             try
@@ -36,9 +35,9 @@ namespace MoleSqlTests
 
                 string ldap = "LDAP";
                 string license = "License";
-                var query = context.Configuration.Where(c => c.Category == license || c.Category == ldap);
+                var query = context.Configuration.Where(c => c.Category == license || c.Category == ldap).Select(c => new { c.Category, c.Name});
                 Console.WriteLine(string.Join(Environment.NewLine,
-                                              query.AsEnumerable().Select(c => $"{c.Category} {c.Name} {c.Value}")));
+                                              query.AsEnumerable()));
             }
             catch (Exception e)
             {

@@ -1,52 +1,129 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
+using MoleSql.Translators.Sql;
+
+#pragma warning disable CA1812
 
 namespace MoleSql.Mapper
 {
     static class SqlObjectReader
     {
-        internal static MethodInfo GetReaderMethod(Type elementType) => typeof(SqlObjectReader).GetMethod(
-                                                                                                   nameof(SqlObjectReader.ReadObjects),
-                                                                                                   BindingFlags.Static | BindingFlags.NonPublic,
-                                                                                                   null,
-                                                                                                   new[] {typeof(SqlDataReader)},
-                                                                                                   null)
-                                                                                               ?.MakeGenericMethod(elementType);
-
-        internal static IEnumerable<T> ReadObjects<T>([NotNull] this SqlDataReader reader) where T : class, new()
+        [SuppressMessage("Design", "CA1001", Justification = "The enumerator will be disposed by user code.")]
+        class ObjectReader<T> : IEnumerable<T> where T : class, new()
         {
-            if (reader == null)
-                throw new ArgumentNullException(nameof(reader));
-
-            return ObjectsIterator();
-
-            IEnumerable<T> ObjectsIterator()
+            class Enumerator : IEnumerator<T>
             {
-                using(reader)
-                {
-                    var fieldsToProps = CreatePropertyMapping<T>(reader);
-                    while (reader.Read())
-                    {
-                        T element = new T();
-                        foreach((int fieldIndex, PropertyInfo property) in fieldsToProps)
-                            property.SetValue(element, reader.GetValue(fieldIndex));
+                readonly SqlDataReader reader;
+                readonly (int index, PropertyInfo property)[] fieldMappings;
 
-                        yield return element;
-                    }
+                internal Enumerator(SqlDataReader reader)
+                {
+                    this.reader = reader;
+                    var propertiesByName = typeof(T).GetProperties().ToDictionary(prop => prop.Name, prop => prop);
+                    fieldMappings = Enumerable.Range(0, reader.FieldCount)
+                                              .Select(i => (i, propertiesByName.TryGetValue(reader.GetName(i), out var p) ? p : null))
+                                              .Where(((int fieldIndex, PropertyInfo property) x) => x.property != null)
+                                              .ToArray();
+                }
+
+                public T Current { get; private set; }
+                object IEnumerator.Current => Current;
+                public bool MoveNext()
+                {
+                    if (!reader.Read()) return false;
+                    T element = new T();
+                    foreach ((int fieldIndex, PropertyInfo property) in fieldMappings)
+                        property.SetValue(element, reader.GetValue(fieldIndex));
+                    Current = element;
+                    return true;
+                }
+                public void Reset() { }
+                public void Dispose()
+                {
+                    reader.Dispose();
                 }
             }
+            Enumerator enumerator;
+            internal ObjectReader(SqlDataReader reader)
+            {
+                enumerator = new Enumerator(reader);
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                var e = enumerator;
+                enumerator = null;
+                if (e == null)
+                    throw new ObjectDisposedException(nameof(ObjectReader<T>), "Cannot enumerate the SqlDataReader more than once.");
+                return e;
+            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
-        private static (int fieldIndex, PropertyInfo property)[] CreatePropertyMapping<T>(SqlDataReader reader)
+
+        [SuppressMessage("Design", "CA1001", Justification = "The enumerator will be disposed by user code.")]
+        class ProjectionReader<T> : IEnumerable<T>
         {
-            var propertiesByName = typeof(T).GetProperties().ToDictionary(prop => prop.Name, prop => prop);
-            return Enumerable.Range(0, reader.FieldCount)
-                             .Select(i => (i, propertiesByName.TryGetValue(reader.GetName(i), out var p) ? p : null))
-                             .Where(((int fieldIndex, PropertyInfo property) x) => x.property != null)
-                             .ToArray();
+            class Enumerator : ProjectionRow, IEnumerator<T>
+            {
+                readonly SqlDataReader reader;
+                readonly Func<ProjectionRow, T> projector;
+
+                internal Enumerator(SqlDataReader reader, Func<ProjectionRow, T> projector)
+                {
+                    this.reader = reader;
+                    this.projector = projector;
+                }
+
+                internal override object GetValue(int index) => reader.IsDBNull(index) ? null : reader.GetValue(index);
+
+                public T Current { get; private set; }
+                object IEnumerator.Current => Current;
+                public bool MoveNext()
+                {
+                    if (!reader.Read()) return false;
+                    Current = projector(this);
+                    return true;
+                }
+                public void Reset() { }
+                public void Dispose()
+                {
+                    reader.Dispose();
+                }
+            }
+            Enumerator enumerator;
+            internal ProjectionReader(SqlDataReader reader, Func<ProjectionRow, T> projector)
+            {
+                enumerator = new Enumerator(reader, projector);
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                var e = enumerator;
+                enumerator = null;
+                if (e == null)
+                    throw new ObjectDisposedException(nameof(ProjectionReader<T>), "Cannot enumerate the SqlDataReader more than once.");
+                return e;
+            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
+
+        internal static object GetReader(Type elementType, LambdaExpression projector, SqlDataReader reader) =>
+            projector == null
+                ? Activator.CreateInstance(
+                    typeof(ObjectReader<>).MakeGenericType(elementType),
+                    BindingFlags.Instance | BindingFlags.NonPublic, null,
+                    new object[] {reader},
+                    null)
+                : Activator.CreateInstance(
+                    typeof(ProjectionReader<>).MakeGenericType(elementType),
+                    BindingFlags.Instance | BindingFlags.NonPublic, null,
+                    new object[] {reader, projector.Compile()},
+                    null);
     }
 }

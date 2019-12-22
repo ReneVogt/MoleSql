@@ -63,7 +63,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MoleQuery.cs" />
     <Compile Include="QueryProviders\MoleQueryProvider.cs" />
-    <Compile Include="Translators\SqlQueryTranslator.cs" />
+    <Compile Include="Translators\Sql\ColumnProjector.cs" />
+    <Compile Include="Translators\Sql\ProjectionRow.cs" />
+    <Compile Include="Translators\Sql\SqlQueryTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MoleSql.ruleset" />
