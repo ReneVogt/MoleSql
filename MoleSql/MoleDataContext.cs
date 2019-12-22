@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -27,6 +29,14 @@ namespace MoleSql
             get => provider.Log;
             set => provider.Log = value;
         }
+        /// <summary>
+        /// Gets or sets the transaction to use when interacting with the database.
+        /// </summary>
+        public IDbTransaction Transaction
+        {
+            get => provider.Transaction;
+            set => provider.Transaction = value;
+        }
 
         /// <summary>
         /// Creates a new <see cref="MoleDataContext"/> for the specified connection.
@@ -50,7 +60,6 @@ namespace MoleSql
             this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
             provider = new SqlQueryProvider(connection);
         }
-
         /// <inheritdoc />
         public void Dispose()
         {
@@ -79,7 +88,25 @@ namespace MoleSql
             CheckDisposed();
             return new MoleQuery<T>(provider);
         }
-
+        /// <summary>
+        /// Executes the given query and returns a sequence of results.
+        /// </summary>
+        /// <typeparam name="T">The result type of the queried enumeration.</typeparam>
+        /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
+        /// <returns>An enumerator for the query results.</returns>
+        public IEnumerable<T> ExecuteQuery<T>(FormattableString query) => provider.ExecuteQuery<T>(query);
+        /// <summary>
+        /// Executes the given query and returns a sequence of dynmic instances.
+        /// </summary>
+        /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
+        /// <returns>An enumerator for the query results. Those will be dynamic objects.</returns>
+        public IEnumerable ExecuteQuery(FormattableString query) => provider.ExecuteQuery(query);
+        /// <summary>
+        /// Executes the given query or command and returns the number of affected rows.
+        /// </summary>
+        /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
+        /// <returns>The number of affected rows.</returns>
+        public int ExecuteNonQuery(FormattableString query) => provider.ExecuteNonQuery(query);
         void CheckDisposed()
         {
             if (disposed) throw new ObjectDisposedException(nameof(MoleDataContext));

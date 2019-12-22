@@ -110,7 +110,7 @@ namespace MoleSql.Translators.Sql
             switch (Type.GetTypeCode(constant.Value.GetType()))
             {
                 case TypeCode.Boolean:
-                    queryStringBuilder.Append(((bool)constant.Value) ? 1 : 0);
+                    queryStringBuilder.Append((bool)constant.Value ? 1 : 0);
                     break;
 
                 case TypeCode.String:
