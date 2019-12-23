@@ -34,7 +34,8 @@ namespace MoleSqlTests
                 using var context = new PrinTaurusContext {Log = Console.Out};
 
                 string[] categories = {"License", "LDAP"};
-                var query = context.Configuration.Where(c => c.Category == categories[0] || c.Category == categories[1]).Select(c => new { c.Category, c.Name });
+                var query = context.Configuration.Select(c => new {Cat = c.Category, Misc = new {c.Name, c.Value}})
+                                   .Where(c => c.Cat == categories[1]).Select(x => x.Misc.Value);
                 //var query = context.ExecuteQuery<Configuration>("SELECT * FROM Configuration WHERE Category = {0}", categories[0]);
                 Console.WriteLine(string.Join(Environment.NewLine,
                                               query.AsEnumerable()));

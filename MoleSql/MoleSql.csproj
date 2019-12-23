@@ -56,7 +56,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expressions\DbExpressionType.cs" />
+    <Compile Include="Expressions\ColumnExpression.cs" />
+    <Compile Include="Expressions\ExpressionExtensions.cs" />
+    <Compile Include="Expressions\ProjectionExpressoin.cs" />
+    <Compile Include="Expressions\SelectExpression.cs" />
+    <Compile Include="Expressions\TableExpression.cs" />
     <Compile Include="MoleSqlDataContextExtensions.cs" />
+    <Compile Include="Translators\ColumnDeclaration.cs" />
+    <Compile Include="Translators\DbExpressionVisitor.cs" />
     <Compile Include="Translators\LocalEvaluator.cs" />
     <Compile Include="MoleSqlDataContext.cs" />
     <Compile Include="QueryProviders\MoleSqlQueryProvider.cs" />
@@ -65,8 +73,12 @@
     <Compile Include="MoleQuery.cs" />
     <Compile Include="QueryProviders\QueryProvider.cs" />
     <Compile Include="Translators\ColumnProjector.cs" />
+    <Compile Include="Translators\ProjectedColumns.cs" />
+    <Compile Include="Translators\ProjectionBuilder.cs" />
     <Compile Include="Translators\ProjectionRow.cs" />
+    <Compile Include="Translators\QueryBinder.cs" />
     <Compile Include="Translators\SqlFormattableString.cs" />
+    <Compile Include="Translators\SqlQueryFormatter.cs" />
     <Compile Include="Translators\SqlQueryTranslator.cs" />
     <Compile Include="Translators\TranslationResult.cs" />
   </ItemGroup>
