@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Text;
 
-namespace MoleSql.Translators.Sql {
+namespace MoleSql.Translators {
     sealed class ColumnProjector : ExpressionVisitor
     {
         static readonly MethodInfo getValueMethod = typeof(ProjectionRow).GetMethod("GetValue", BindingFlags.NonPublic | BindingFlags.Instance);

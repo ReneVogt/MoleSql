@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -15,15 +14,15 @@ namespace MoleSql
     /// <typeparam name="T">The type of the table.</typeparam>
     public class MoleQuery<T> : IOrderedQueryable<T>
     {
-        readonly MoleQueryProvider provider;
+        readonly QueryProvider provider;
 
-        internal MoleQuery([NotNull] MoleQueryProvider provider)
+        internal MoleQuery([NotNull] QueryProvider provider)
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
             Expression = Expression.Constant(this);
         }
 
-        internal MoleQuery([NotNull] MoleQueryProvider provider, [NotNull] Expression expression)
+        internal MoleQuery([NotNull] QueryProvider provider, [NotNull] Expression expression)
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
@@ -45,8 +44,5 @@ namespace MoleSql
             return ((IEnumerable<T>)provider.Execute(Expression)).GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        /// <inheritdoc />
-        public override string ToString() => Debugger.IsAttached ? base.ToString() : provider.GetQueryText(Expression);
     }
 }

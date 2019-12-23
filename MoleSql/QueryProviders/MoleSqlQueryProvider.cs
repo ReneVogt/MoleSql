@@ -4,31 +4,54 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
 using MoleSql.Mapper;
-using MoleSql.Translators.Sql;
+using MoleSql.Translators;
 
 namespace MoleSql.QueryProviders {
-    sealed class SqlQueryProvider : MoleQueryProvider
+    sealed class MoleSqlQueryProvider : QueryProvider, IDisposable
     {
         readonly SqlConnection connection;
+        readonly bool disposeConnection;
 
-        public SqlQueryProvider([NotNull] SqlConnection connection)
+        bool disposed;
+
+        internal SqlTransaction Transaction { get; set; }
+        internal TextWriter Log { get; set; }
+
+        internal MoleSqlQueryProvider(string connectionString) : this(new SqlConnection(connectionString), true)
         {
+        }
+        internal MoleSqlQueryProvider([NotNull] SqlConnection connection) : this (connection, false)
+        {
+        }
+        internal MoleSqlQueryProvider([NotNull] SqlConnection connection, bool ownConnection)
+        {
+            disposeConnection = ownConnection;
             this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
         }
+        public void Dispose()
+        {
+            if (disposed) return;
+            if (disposeConnection) connection.Dispose();
+            disposed = true;
+        }
 
-        public override string GetQueryText(Expression expression) => Translate(expression).sql;
         [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
         public override object Execute(Expression expression)
         {
-            using var cmd = connection.CreateCommand();
-            cmd.Transaction = (SqlTransaction)Transaction;
+            CheckDisposed();
 
-            (string sql, LambdaExpression projection) = Translate(expression);
+            using var cmd = connection.CreateCommand();
+            cmd.Transaction = Transaction;
+
+            (string sql, var projection, var parameters) = new SqlQueryTranslator().Translate(expression);
+            
             cmd.CommandText = sql;
+            parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
 
             LogCommand(cmd);
 
@@ -40,28 +63,34 @@ namespace MoleSql.QueryProviders {
 
             return SqlObjectReader.GetReader(elementType, projection, reader);
         }
-        public override IEnumerable<T> ExecuteQuery<T>(FormattableString query)
+        public IEnumerable<T> ExecuteQuery<T>(FormattableString query)
         {
+            CheckDisposed();
+
             using var cmd = connection.CreateParameterizedCommand(query);
-            cmd.Transaction = (SqlTransaction)Transaction;
+            cmd.Transaction = Transaction;
             LogCommand(cmd);
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
             return (IEnumerable<T>)SqlObjectReader.GetReader(typeof(T), null, cmd.ExecuteReader());
         }
-        public override IEnumerable ExecuteQuery(FormattableString query)
+        public IEnumerable ExecuteQuery(FormattableString query)
         {
+            CheckDisposed();
+
             using var cmd = connection.CreateParameterizedCommand(query);
-            cmd.Transaction = (SqlTransaction)Transaction;
+            cmd.Transaction = Transaction;
             LogCommand(cmd);
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
             return (IEnumerable)SqlObjectReader.GetReader(null, null, cmd.ExecuteReader());
         }
-        public override int ExecuteNonQuery(FormattableString query)
+        public int ExecuteNonQuery(FormattableString query)
         {
+            CheckDisposed();
+
             using var cmd = connection.CreateParameterizedCommand(query);
-            cmd.Transaction = (SqlTransaction)Transaction;
+            cmd.Transaction = Transaction;
             LogCommand(cmd);
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
@@ -82,7 +111,9 @@ namespace MoleSql.QueryProviders {
 
             log.Write(logbuilder.ToString());
         }
-        static (string sql, LambdaExpression projection) Translate(Expression expression) => new SqlQueryTranslator().Translate(expression);
-
+        void CheckDisposed()
+        {
+            if (disposed) throw new ObjectDisposedException(nameof(MoleSqlQueryProvider), "The query provider has already been disposed of.");
+        }
     }
 }

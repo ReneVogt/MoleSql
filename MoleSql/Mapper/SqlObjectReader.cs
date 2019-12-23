@@ -7,7 +7,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using MoleSql.Translators.Sql;
+using MoleSql.Translators;
 
 #pragma warning disable CA1812
 

@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 
-namespace MoleSql.Translators.Sql
+namespace MoleSql.Translators
 {
     static class SqlFormattableString
     {

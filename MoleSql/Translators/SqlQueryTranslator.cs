@@ -1,21 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace MoleSql.Translators.Sql
+namespace MoleSql.Translators
 {
     sealed class SqlQueryTranslator : ExpressionVisitor
     {
+        static readonly ParameterExpression row = Expression.Parameter(typeof(ProjectionRow), "row");
+        
         StringBuilder queryStringBuilder;
-        readonly ParameterExpression row = Expression.Parameter(typeof(ProjectionRow), "row");
+        List<(string name, object value)> parameters;
         Expression projection;
 
-        internal (string commandText, LambdaExpression projector) Translate(Expression expression)
+        internal TranslationResult Translate(Expression expression)
         {
             queryStringBuilder = new StringBuilder();
+            parameters = new List<(string name, object value)>();
             Visit(expression.EvaluateLocally());
-            return (queryStringBuilder.ToString(), projection != null ? Expression.Lambda(projection, row) : null);
+            return new TranslationResult(
+                queryStringBuilder.ToString(), 
+                projection != null ? Expression.Lambda(projection, row) : null, 
+                parameters);
         }
         private static Expression StripQuotes(Expression e)
         {
@@ -107,25 +114,9 @@ namespace MoleSql.Translators.Sql
                 return constant;
             }
 
-            switch (Type.GetTypeCode(constant.Value.GetType()))
-            {
-                case TypeCode.Boolean:
-                    queryStringBuilder.Append((bool)constant.Value ? 1 : 0);
-                    break;
-
-                case TypeCode.String:
-                    queryStringBuilder.Append("'");
-                    queryStringBuilder.Append(constant.Value);
-                    queryStringBuilder.Append("'");
-                    break;
-
-                case TypeCode.Object:
-                    throw new NotSupportedException($"The constant for '{constant.Value}' is not supported");
-
-                default:
-                    queryStringBuilder.Append(constant.Value);
-                    break;
-            }
+            string name = $"@p{parameters.Count}";
+            queryStringBuilder.Append(name);
+            parameters.Add((name, constant.Value));
 
             return constant;
         }

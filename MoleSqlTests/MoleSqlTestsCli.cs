@@ -14,7 +14,7 @@ namespace MoleSqlTests
         public override string ToString() => $"{Category ?? "<null>"} {Name ?? "<null>"} {Value ?? "<null>"} ";
     }
 
-    public class PrinTaurusContext : MoleDataContext
+    public class PrinTaurusContext : MoleSqlDataContext
     {
         const string CONNECTIONSTRING = "Data Source=sql12dev01;Initial Catalog=RVo_PrinTaurus;Integrated Security=true";
         public PrinTaurusContext() : base(CONNECTIONSTRING)
@@ -34,7 +34,7 @@ namespace MoleSqlTests
                 using var context = new PrinTaurusContext {Log = Console.Out};
 
                 string[] categories = {"License", "LDAP"};
-                var query = context.Configuration.Where(c => c.Category == categories[0]).Select(c => new { c.Category, c.Name });
+                var query = context.Configuration.Where(c => c.Category == categories[0] || c.Category == categories[1]).Select(c => new { c.Category, c.Name });
                 //var query = context.ExecuteQuery<Configuration>("SELECT * FROM Configuration WHERE Category = {0}", categories[0]);
                 Console.WriteLine(string.Join(Environment.NewLine,
                                               query.AsEnumerable()));

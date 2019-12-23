@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace MoleSql.QueryProviders {
-    abstract class MoleQueryProvider : IQueryProvider
+    abstract class QueryProvider : IQueryProvider
     {
         protected static class TypeSystem
         {
@@ -46,9 +43,6 @@ namespace MoleSql.QueryProviders {
             }
         }
 
-        internal TextWriter Log { get; set; }
-        internal IDbTransaction Transaction { get; set; }
-
         IQueryable<S> IQueryProvider.CreateQuery<S>(Expression expression)
         {
             return new MoleQuery<S>(this, expression);
@@ -75,10 +69,6 @@ namespace MoleSql.QueryProviders {
             return Execute(expression);
         }
 
-        public abstract string GetQueryText(Expression expression);
         public abstract object Execute(Expression expression);
-        public abstract IEnumerable<T> ExecuteQuery<T>(FormattableString query);
-        public abstract IEnumerable ExecuteQuery(FormattableString query);
-        public abstract int ExecuteNonQuery(FormattableString query);
     }
 }
