@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -40,7 +41,7 @@ namespace MoleSql.Translators
         {
             Expression source = Visit(member.Expression);
 
-            switch (source.NodeType)
+            switch (source?.NodeType)
             {
                 case ExpressionType.MemberInit:
                     MemberInitExpression memberInit = (MemberInitExpression)source;
@@ -60,10 +61,11 @@ namespace MoleSql.Translators
             return MakeMemberAccess(source, member.Member);
         }
 
-
         Expression BindWhere(Type resultType, Expression source, LambdaExpression predicate)
         {
             ProjectionExpression projection = (ProjectionExpression)Visit(source);
+            Debug.Assert(projection != null);
+
             map[predicate.Parameters[0]] = projection.Projector;
             Expression where = Visit(predicate.Body); 
             
@@ -77,6 +79,8 @@ namespace MoleSql.Translators
         Expression BindSelect(Type resultType, Expression source, LambdaExpression selector)
         {
             ProjectionExpression projection = (ProjectionExpression)Visit(source);
+            Debug.Assert(projection != null);
+
             map[selector.Parameters[0]] = projection.Projector; 
             Expression expression = Visit(selector.Body);
 

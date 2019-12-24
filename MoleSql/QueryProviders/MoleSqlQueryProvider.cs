@@ -48,7 +48,7 @@ namespace MoleSql.QueryProviders {
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            (string sql, var projection, var parameters) =SqlQueryTranslator.Translate(expression);
+            (string sql, var projection, var parameters) = SqlQueryTranslator.Translate(expression);
             
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -107,7 +107,7 @@ namespace MoleSql.QueryProviders {
             logbuilder.AppendLine(command.CommandText);
 
             foreach (SqlParameter parameter in command.Parameters)
-                logbuilder.AppendLine($"- {parameter.ParameterName} {parameter.SqlDbType} {parameter.Direction} [{parameter.Value}]");
+                logbuilder.AppendLine($"- {parameter.ParameterName} {parameter.SqlDbType} {parameter.Direction} [{parameter.SqlValue}]");
 
             log.Write(logbuilder.ToString());
         }
