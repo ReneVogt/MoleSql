@@ -13,6 +13,8 @@
     <Copyright>René Vogt</Copyright>
     <PackageProjectUrl>https://github.com/ReneVogt/MoleSql</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ReneVogt/MoleSql</RepositoryUrl>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>MoleSql.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
