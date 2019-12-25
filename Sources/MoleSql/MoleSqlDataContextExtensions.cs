@@ -22,7 +22,7 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>An enumerator for the query results.</returns>
-        public static IEnumerable<T> ExecuteQuery<T>([NotNull] this MoleSqlDataContext context, string query, params object[] parameters)
+        public static IEnumerable<T> ExecuteQuery<T>([NotNull] this MoleSqlDataContext context, string query, params object[] parameters) where T : class, new()
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));

@@ -85,7 +85,7 @@ namespace MoleSql
         /// <typeparam name="T">The result type of the queried enumeration.</typeparam>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <returns>An enumerator for the query results.</returns>
-        public IEnumerable<T> ExecuteQuery<T>(FormattableString query) => provider.ExecuteQuery<T>(query);
+        public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new() => provider.ExecuteQuery<T>(query);
         /// <summary>
         /// Executes the given query and returns a sequence of dynmic instances.
         /// </summary>

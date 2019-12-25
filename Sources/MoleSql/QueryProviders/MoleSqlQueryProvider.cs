@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 using MoleSql.Mapper;
@@ -60,10 +61,15 @@ namespace MoleSql.QueryProviders {
 
             SqlDataReader reader = cmd.ExecuteReader();
             Type elementType = TypeSystem.GetElementType(expression.Type);
+            var projector = projection.Compile();
 
-            return SqlObjectReader.GetReader(elementType, projection, reader);
+            return Activator.CreateInstance(
+                typeof(ProjectionReader<>).MakeGenericType(elementType),
+                BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new object[] { reader, projector },
+                null);
         }
-        public IEnumerable<T> ExecuteQuery<T>(FormattableString query)
+        public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new()
         {
             CheckDisposed();
 
@@ -72,7 +78,7 @@ namespace MoleSql.QueryProviders {
             LogCommand(cmd);
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
-            return (IEnumerable<T>)SqlObjectReader.GetReader(typeof(T), null, cmd.ExecuteReader());
+            return cmd.ExecuteReader().ReadObjects<T>();
         }
         public IEnumerable ExecuteQuery(FormattableString query)
         {
@@ -83,7 +89,7 @@ namespace MoleSql.QueryProviders {
             LogCommand(cmd);
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
-            return (IEnumerable)SqlObjectReader.GetReader(null, null, cmd.ExecuteReader());
+            return new DynamicReader(cmd.ExecuteReader());
         }
         public int ExecuteNonQuery(FormattableString query)
         {
