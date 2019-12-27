@@ -1,18 +1,18 @@
 # MoleSQL
 My Own Linq (example/experimental/experience/...?) SQL provider.
 
-René Vogt, Dresden 2019/12/25
+René Vogt, Dresden 2019/12/27
 
 ---
 
-**THIS PROJECT IS STILL IN CREATION PHASE**  
+**THIS PROJECT IS STILL IN ITS CREATION PHASE**  
 This means that this README, the [documentation](Documentation/index.md), the source code documentation and especially the source code itself
 are in a transient state and not ready to be used by others.
 
-As soon as the code is in a ready-to-use with a **minimal** feature set, and the code is documented and the documentation got some content and maybe even this README 
+As soon as the code _is_ ready to use with a _minimal_ feature set, and the code is documented and the documentation got some content and maybe even this README 
 contains a real project description, the project will be published via nuget.org.
 
-So if you think you might use this code or parts of it right now, please don't be suprised how much is missing.
+So if you think you might use this code or parts of it right now, please don't be suprised how much is missing or not working properly.
 
 However, constructive comments will already be appreciated.
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MoleSql;
@@ -33,13 +34,13 @@ namespace MoleSqlTests
             {
                 using var context = new PrinTaurusContext { Log = Console.Out };
 
-                string[] categories = { "License", "LDAP" };
+                List<string> categories = new List<string> { "License", "LDAP" };
                 //var query = context.Configuration.Select(c => new { Cat = c.Category, Misc = new { c.Name, c.Value } })
                 //                   .Where(c => c.Cat == categories[1]).Select(x => x.Misc.Value);
-                //var query = context.ExecuteQuery<Configuration>("SELECT * FROM Configuration WHERE Category = {0}", categories[0]);
-                var query = context.ExecuteQuery("SELECT * FROM Configuration WHERE Category = {0}", categories[0]);
+                var query = context.ExecuteQuery<Configuration>($"SELECT * FROM Configuration WHERE Category IN {categories}");
+                //var query = context.ExecuteQuery($"SELECT * FROM Configuration WHERE Category in {categories}");
                 Console.WriteLine(string.Join(Environment.NewLine,
-                                              query.Cast<dynamic>().AsEnumerable().Select(d => $"{d.Category} {d.Name} {d.Value}")));
+                                              query.AsEnumerable().Select(d => $"{d.Category} {d.Name} {d.Value}")));
             }
             catch (Exception e)
             {
