@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,6 +13,10 @@ using System.Dynamic;
 
 namespace MoleSql.Mapper 
 {
+    /// <summary>
+    /// Reads rows from a <see cref="SqlDataReader"/> and stores the values in <see cref="ExpandoObject"/> instances
+    /// to be used as dynamic objects.
+    /// </summary>
     [SuppressMessage("Design", "CA1001", Justification = "The enumerator will be disposed by user code.")]
     class DynamicReader : IEnumerable
     {

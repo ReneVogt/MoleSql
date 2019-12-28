@@ -1,7 +1,7 @@
 # MoleSQL
-My Own Linq (example/experimental/experience/...?) SQL provider.
+My Own Linq (er...?) SQL provider.
 
-René Vogt, Dresden 2019/12/27
+René Vogt, Dresden 2019/12/28
 
 ---
 

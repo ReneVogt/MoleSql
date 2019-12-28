@@ -1,10 +1,23 @@
-﻿using System;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
+ *
+ */
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace MoleSql.QueryProviders {
+namespace MoleSql.QueryProviders 
+{
+    /// <summary>
+    /// An abstract base class for query providers, handling the generic and non-generic <see cref="IQueryProvider.CreateQuery"/> calls
+    /// and directing the <see cref="IQueryProvider.Execute"/> calls to the abstract <see cref="QueryProvider.Execute"/> method.
+    /// </summary>
     abstract class QueryProvider : IQueryProvider
     {
         protected static class TypeSystem

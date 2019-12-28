@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -12,7 +18,8 @@ using JetBrains.Annotations;
 using MoleSql.Mapper;
 using MoleSql.Translators;
 
-namespace MoleSql.QueryProviders {
+namespace MoleSql.QueryProviders 
+{
     sealed class MoleSqlQueryProvider : QueryProvider, IDisposable
     {
         readonly SqlConnection connection;
