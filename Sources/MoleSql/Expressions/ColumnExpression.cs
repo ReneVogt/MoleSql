@@ -1,8 +1,19 @@
-﻿using System;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
+ *
+ */
+using System;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
 {
+    /// <summary>
+    /// Represents a column expression in an SQL/CLR hybrid expression tree.
+    /// </summary>
     sealed class ColumnExpression : Expression
     {
         internal string Alias { get; }

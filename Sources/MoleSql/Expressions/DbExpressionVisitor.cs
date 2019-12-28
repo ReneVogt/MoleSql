@@ -1,11 +1,23 @@
-﻿using System.Collections.Generic;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
+ *
+ */
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using MoleSql.Expressions;
+using MoleSql.Translators;
 
-namespace MoleSql.Translators
+namespace MoleSql.Expressions
 {
+    /// <summary>
+    /// Extends the <see cref="ExpressionVisitor"/> class to handle CLR/SQL-hybrid expression trees
+    /// and the extended <see cref="ExpressionType"/> values in <see cref="DbExpressionType"/>.
+    /// </summary>
     class DbExpressionVisitor : ExpressionVisitor
     {
         public override Expression Visit(Expression expression) =>
@@ -21,6 +33,12 @@ namespace MoleSql.Translators
                       };
         protected virtual Expression VisitTable(TableExpression table) => table;
         protected virtual Expression VisitColumn(ColumnExpression column) => column;
+        /// <summary>
+        /// Visits a <see cref="SelectExpression"/> by visiting its <see cref="SelectExpression.From"/> and
+        /// <see cref="SelectExpression.Where"/> expressions and the expressions for the column declarations (<see cref="SelectExpression.Columns"/>).
+        /// </summary>
+        /// <param name="select">The <see cref="SelectExpression"/> to visit.</param>
+        /// <returns>The resulting <see cref="SelectExpression"/>.</returns>
         protected virtual Expression VisitSelect(SelectExpression select)
         {
             Expression from = VisitSource(select.From);
@@ -33,6 +51,12 @@ namespace MoleSql.Translators
                        : select;
         }
         protected virtual Expression VisitSource(Expression source) => source;
+        /// <summary>
+        /// Visits a <see cref="ProjectionExpression"/> by visiting its <see cref="SelectExpression"/> <see cref="ProjectionExpression.Source"/>
+        /// and its <see cref="ProjectionExpression.Projector"/>.
+        /// </summary>
+        /// <param name="projection">The <see cref="ProjectionExpression"/> to visit.</param>
+        /// <returns>The resulting <see cref="ProjectionExpression"/>.</returns>
         protected virtual Expression VisitProjection(ProjectionExpression projection)
         {
             SelectExpression source = (SelectExpression)Visit(projection.Source);
@@ -42,6 +66,11 @@ namespace MoleSql.Translators
                        ? new ProjectionExpression(source, projector)
                        : projection;
         }
+        /// <summary>
+        /// Visits the expression of each <see cref="ColumnDeclaration"/> of a <see cref="SelectExpression"/>.
+        /// </summary>
+        /// <param name="columns">The list of <see cref="ColumnDeclaration"/>s to visit.</param>
+        /// <returns>The resulting list of <see cref="ColumnDeclaration"/>s.</returns>
         protected ReadOnlyCollection<ColumnDeclaration> VisitColumnDeclarations(ReadOnlyCollection<ColumnDeclaration> columns)
         {
             List<ColumnDeclaration> alternate = null;
