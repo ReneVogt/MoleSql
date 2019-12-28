@@ -4,10 +4,12 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
 {
+    [ExcludeFromCodeCoverage]
     static class ExpressionExtensions
     {
         /// <summary>

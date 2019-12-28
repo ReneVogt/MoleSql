@@ -83,13 +83,13 @@ namespace MoleSql.Translators
         }
 
         [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
-        internal static SqlCommand CreateParameterizedCommand(this SqlConnection connection, FormattableString formattableString)
+        internal static SqlCommand CreateParameterizedCommand(this SqlConnection connection, FormattableString formattableQueryString)
         {
             int parameters = 0;
-            var formatArguments = formattableString.GetArguments()
+            var formatArguments = formattableQueryString.GetArguments()
                                        .Select(arg => new FormatCapturingParameter(arg, ref parameters))
                                        .ToArray();
-            string sql = string.Format(CultureInfo.InvariantCulture, formattableString.Format, formatArguments.Cast<object>().ToArray());
+            string sql = string.Format(CultureInfo.InvariantCulture, formattableQueryString.Format, formatArguments.Cast<object>().ToArray());
             var command = new SqlCommand(sql, connection);
             command.Parameters.AddRange(formatArguments.SelectMany(arg => arg.Parameters).ToArray());
             return command;

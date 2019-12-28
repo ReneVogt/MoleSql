@@ -6,6 +6,7 @@ using MoleSql;
 
 namespace MoleSqlTests
 {
+    [ExcludeFromCodeCoverage]
     class Configuration
     {
         public string Category { get; set; }
@@ -15,6 +16,7 @@ namespace MoleSqlTests
         public override string ToString() => $"{Category ?? "<null>"} {Name ?? "<null>"} {Value ?? "<null>"} ";
     }
 
+    [ExcludeFromCodeCoverage]
     public class PrinTaurusContext : MoleSqlDataContext
     {
         const string CONNECTIONSTRING = "Data Source=sql12dev01;Initial Catalog=RVo_PrinTaurus;Integrated Security=true";

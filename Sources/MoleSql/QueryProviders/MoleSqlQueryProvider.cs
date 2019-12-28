@@ -20,6 +20,7 @@ using MoleSql.Translators;
 
 namespace MoleSql.QueryProviders 
 {
+    [ExcludeFromCodeCoverage]
     sealed class MoleSqlQueryProvider : QueryProvider, IDisposable
     {
         readonly SqlConnection connection;

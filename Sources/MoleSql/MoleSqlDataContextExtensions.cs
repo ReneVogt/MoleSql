@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 
@@ -28,6 +29,7 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>An enumerator for the query results.</returns>
+        [ExcludeFromCodeCoverage]
         public static IEnumerable<T> ExecuteQuery<T>([NotNull] this MoleSqlDataContext context, string query, params object[] parameters) where T : class, new()
         {
             if (context == null)
@@ -42,6 +44,7 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>An enumerator for the query results. Those will be dynamic objects.</returns>
+        [ExcludeFromCodeCoverage]
         public static IEnumerable ExecuteQuery([NotNull] this MoleSqlDataContext context, string query, params object[] parameters)
         {
             if (context == null)
@@ -55,6 +58,7 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>The number of affected rows.</returns>
+        [ExcludeFromCodeCoverage]
         public static int ExecuteNonQuery([NotNull] this MoleSqlDataContext context, string query, params object[] parameters)
         {
             if (context == null)

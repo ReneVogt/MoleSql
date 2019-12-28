@@ -2,17 +2,17 @@
  * (C)2020 by René Vogt
  *
  * Published under MIT license as described in the LICENSE.md file.
-  *
- * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
-*
+ *
  */
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
 namespace MoleSql.Mapper
 {
+    [ExcludeFromCodeCoverage]
     static class ObjectReader
     {
         /// <summary>
@@ -22,10 +22,11 @@ namespace MoleSql.Mapper
         /// <typeparam name="T">The type of the row objects to generate.</typeparam>
         /// <param name="reader">The <see cref="SqlDataReader"/> to read from.</param>
         /// <returns>A sequence of objects of type <typeparamref name="T"/> representing the rows from the <paramref name="reader"/>.</returns>
+        [ExcludeFromCodeCoverage]
         internal static IEnumerable<T> ReadObjects<T>(this SqlDataReader reader) where T : class, new()
         {
-            var propertiesByName = typeof(T).GetProperties().ToDictionary(prop => prop.Name, prop => prop);
-            var fieldMappings = Enumerable.Range(0, reader.FieldCount)
+            var propertiesByName = typeof(T).GetProperties().Where(prop => prop.CanWrite).ToDictionary(prop => prop.Name, prop => prop);
+            var propertyMappings = Enumerable.Range(0, reader.FieldCount)
                                       .Select(i => (i, propertiesByName.TryGetValue(reader.GetName(i), out var p) ? p : null))
                                       .Where(((int fieldIndex, PropertyInfo property) x) => x.property != null)
                                       .ToArray();
@@ -33,7 +34,7 @@ namespace MoleSql.Mapper
             while (reader.Read())
             {
                 T element = new T();
-                foreach ((int fieldIndex, PropertyInfo property) in fieldMappings)
+                foreach ((int fieldIndex, PropertyInfo property) in propertyMappings)
                     property.SetValue(element, reader.GetValue(fieldIndex));
                 yield return element;
             }

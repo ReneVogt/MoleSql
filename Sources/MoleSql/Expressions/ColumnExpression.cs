@@ -7,6 +7,7 @@
  *
  */
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
@@ -14,6 +15,7 @@ namespace MoleSql.Expressions
     /// <summary>
     /// Represents a column expression in an SQL/CLR hybrid expression tree.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     sealed class ColumnExpression : Expression
     {
         internal string Alias { get; }

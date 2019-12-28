@@ -3,6 +3,8 @@
  *
  * Published under MIT license as described in the LICENSE.md file.
  *
+ * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
+ *
  */
 using System;
 using System.Collections;
@@ -11,12 +13,11 @@ using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using MoleSql.Translators;
 
-
-
 namespace MoleSql.Mapper
 {
     [SuppressMessage("Design", "CA1001", Justification = "The enumerator will be disposed by user code.")]
     [SuppressMessage("Microsoft.Performance", "CA1812", Justification = "This class is instantiated via Activator.CreateInstance.")]
+    [ExcludeFromCodeCoverage]
     class ProjectionReader<T> : IEnumerable<T>
     {
         class Enumerator : ProjectionRow, IEnumerator<T>

@@ -1,8 +1,20 @@
-﻿using System.Collections.Generic;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
+ *
+ */
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace MoleSql.Translators
 {
+    /// <summary>
+    /// This class visits an expression and will evaluate all parts of it that already can be evaluated.
+    /// That is, all parts that don't refer to an parameter expression (hence requiring the database to be queried first).
+    /// </summary>
     static class LocalEvaluator
     {
         class Nominator : ExpressionVisitor
@@ -53,6 +65,15 @@ namespace MoleSql.Translators
                 return Expression.Constant(function.DynamicInvoke(null), expression.Type);
             }
         }
+        /// <summary>
+        /// Traverses the given <paramref name="expression"/> and evaluates all parts of it that can be
+        /// evaluated locally without querying the database. That means that all constant expressions,
+        /// local method calls, calculations etc. are evaluated and represented in the final expression tree
+        /// as primitive constants.<br/>
+        /// This needs to be done before translating the expression tree into SQL.
+        /// </summary>
+        /// <param name="expression">The <see cref="Expression"/> to evaluate.</param>
+        /// <returns>The resulting <see cref="Expression"/> that no longer contains anything else but parameter or primitive constant expressions.</returns>
         internal static Expression EvaluateLocally(this Expression expression) =>
             new Evaluator().Evaluate(expression, new Nominator().Nominate(expression));
     }

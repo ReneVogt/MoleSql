@@ -6,27 +6,21 @@
  * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
  *
  */
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
 {
     [ExcludeFromCodeCoverage]
-    sealed class TableExpression : Expression
+    sealed class ColumnDeclaration
     {
-        internal string Alias { get; }
         internal string Name { get; }
+        internal Expression Expression { get; }
 
-        public override Type Type { get; }
-        public override ExpressionType NodeType { get; }
-
-        internal TableExpression(Type type, string alias, string name)
+        public ColumnDeclaration(string name, Expression expression)
         {
-            Alias = alias;
             Name = name;
-            Type = type;
-            NodeType = (ExpressionType)DbExpressionType.Table;
+            Expression = expression;
         }
     }
 }

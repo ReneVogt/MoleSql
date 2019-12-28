@@ -8,9 +8,9 @@
  */
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using MoleSql.Translators;
 
 namespace MoleSql.Expressions
 {
@@ -18,6 +18,7 @@ namespace MoleSql.Expressions
     /// Extends the <see cref="ExpressionVisitor"/> class to handle CLR/SQL-hybrid expression trees
     /// and the extended <see cref="ExpressionType"/> values in <see cref="DbExpressionType"/>.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     class DbExpressionVisitor : ExpressionVisitor
     {
         public override Expression Visit(Expression expression) =>

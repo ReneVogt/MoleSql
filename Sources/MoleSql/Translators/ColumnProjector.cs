@@ -1,8 +1,17 @@
-﻿using System.Collections.Generic;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
+ *
+ */
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using MoleSql.Expressions;
 
-namespace MoleSql.Translators {
+namespace MoleSql.Translators
+{
     sealed class ColumnProjector : DbExpressionVisitor
     {
         class Nominator : DbExpressionVisitor

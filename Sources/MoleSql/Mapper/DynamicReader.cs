@@ -18,6 +18,7 @@ namespace MoleSql.Mapper
     /// to be used as dynamic objects.
     /// </summary>
     [SuppressMessage("Design", "CA1001", Justification = "The enumerator will be disposed by user code.")]
+    [ExcludeFromCodeCoverage]
     class DynamicReader : IEnumerable
     {
         class Enumerator : IEnumerator, IDisposable
