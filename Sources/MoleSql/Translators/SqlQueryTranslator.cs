@@ -19,7 +19,7 @@ namespace MoleSql.Translators
     static class SqlQueryTranslator
     {
         /// <summary>
-        /// Translates the given expression tree (<paramref name="expression"/>) into an SQL query.
+        /// Translates the given <paramref name="expression"/> into an SQL query.
         /// </summary>
         /// <param name="expression">The expression tree to translate.</param>
         /// <returns>A <see cref="TranslationResult"/> holding the information required to build a <see cref="SqlCommand"/> to execute the query.</returns>

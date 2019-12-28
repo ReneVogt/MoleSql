@@ -7,6 +7,7 @@
  *
  */
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using MoleSql.Expressions;
 
@@ -54,7 +55,7 @@ namespace MoleSql.Translators
         string aliasNew;
         int column;
 
-        internal ProjectedColumns ProjectColumns(Expression expression, string newAlias, string existingAlias)
+        internal (Expression projector, ReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, string existingAlias)
         {
             map = new Dictionary<ColumnExpression, ColumnExpression>(); 
             columns = new List<ColumnDeclaration>(); 
@@ -62,7 +63,7 @@ namespace MoleSql.Translators
             aliasNew = newAlias;
             aliasExisting = existingAlias;
             candidates = nominator.Nominate(expression);
-            return new ProjectedColumns(Visit(expression), columns.AsReadOnly());
+            return (Visit(expression), columns.AsReadOnly());
         }
 
         public override Expression Visit(Expression expression)

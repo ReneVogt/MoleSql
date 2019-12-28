@@ -16,6 +16,14 @@ using MoleSql.Expressions;
 
 namespace MoleSql.Translators
 {
+    /// <summary>
+    /// This class converts a pure CLR expression tree into a CLR/SQL-hybrid expression tree
+    /// by binding its restructuring calls to linq operators into <see cref="ProjectionExpression"/>
+    /// nodes consisting of <see cref="SelectExpression"/>, <see cref="TableExpression"/> and
+    /// <see cref="ColumnExpression"/> nodes.<br/>
+    /// Call the <see cref="Bind"/> method to transform an expresion tree into an CLR/SQL hybrid.
+    /// The expression must be evaluated by the <see cref="LocalEvaluator"/> before.<br/>
+    /// </summary>
     sealed class QueryBinder : ExpressionVisitor
     {
         readonly ColumnProjector columnProjector = new ColumnProjector();
@@ -78,11 +86,11 @@ namespace MoleSql.Translators
             Expression where = Visit(predicate.Body); 
             
             string alias = GetNextAlias();
-            ProjectedColumns projectedColumns = ProjectColumns(projection.Projector, alias, GetExistingAlias(projection.Source));
+            var (projector, columns) = ProjectColumns(projection.Projector, alias, GetExpressionAlias(projection.Source));
 
             return new ProjectionExpression(
-                new SelectExpression(resultType, alias, projectedColumns.Columns, projection.Source, where),
-                projectedColumns.Projector);
+                new SelectExpression(resultType, alias, columns, projection.Source, where),
+                projector);
         }
         Expression BindSelect(Type resultType, Expression source, LambdaExpression selector)
         {
@@ -92,30 +100,21 @@ namespace MoleSql.Translators
             map[selector.Parameters[0]] = projection.Projector; 
             Expression expression = Visit(selector.Body);
 
-            string alias = GetNextAlias(); 
-            ProjectedColumns projectedColumns = ProjectColumns(expression, alias, GetExistingAlias(projection.Source));
+            string alias = GetNextAlias();
+            var (projector, columns) = ProjectColumns(expression, alias, GetExpressionAlias(projection.Source));
 
             return new ProjectionExpression(
-                new SelectExpression(resultType, alias, projectedColumns.Columns, projection.Source, null),
-                projectedColumns.Projector);
+                new SelectExpression(resultType, alias, columns, projection.Source, null),
+                projector);
         }
 
-        ProjectedColumns ProjectColumns(Expression expression, string newAlias, string existingAlias) => columnProjector.ProjectColumns(expression, newAlias, existingAlias);
-
-        static string GetExistingAlias(Expression source) => source.NodeType switch
-        {
-            (ExpressionType)DbExpressionType.Select => ((SelectExpression)source).Alias,
-            (ExpressionType)DbExpressionType.Table => ((TableExpression)source).Alias,
-            _ => throw new InvalidOperationException($"Invalid source node type '{source.NodeType}'")
-        };
-
-        string GetNextAlias() => $"t{aliasCount++}";
-        private ProjectionExpression GetTableProjection(object value)
+        (Expression projector, IReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, string existingAlias) => columnProjector.ProjectColumns(expression, newAlias, existingAlias);
+        ProjectionExpression GetTableProjection(object value)
         {
             IQueryable table = (IQueryable)value;
             string tableAlias = GetNextAlias();
             string selectAlias = GetNextAlias();
-            
+
             List<MemberBinding> bindings = new List<MemberBinding>();
             List<ColumnDeclaration> columns = new List<ColumnDeclaration>();
 
@@ -124,7 +123,7 @@ namespace MoleSql.Translators
                 string columnName = GetColumnName(mi);
                 Type columnType = GetColumnType(mi);
                 int ordinal = columns.Count;
-                
+
                 bindings.Add(Expression.Bind(mi, new ColumnExpression(columnType, selectAlias, columnName, ordinal)));
                 columns.Add(new ColumnDeclaration(columnName, new ColumnExpression(columnType, tableAlias, columnName, ordinal)));
             }
@@ -139,12 +138,19 @@ namespace MoleSql.Translators
                                      null),
                 projector);
         }
+        string GetNextAlias() => $"t{aliasCount++}";
 
+        static string GetExpressionAlias(Expression source) => source switch
+        {
+            SelectExpression selectExpression => selectExpression.Alias,
+            TableExpression tableExpression => tableExpression.Alias,
+            _ => throw new InvalidOperationException($"Invalid source node type '{source.NodeType}'")
+        };
         static bool IsTable(object value) => value is IQueryable query && query.Expression.NodeType == ExpressionType.Constant;
         static string GetTableName(object table) => ((IQueryable)table).ElementType.Name;
         static string GetColumnName(MemberInfo member) => member.Name;
         static Type GetColumnType(MemberInfo member) => ((PropertyInfo)member).PropertyType;
-        static IEnumerable<MemberInfo> GetMappedMembers(Type rowType) => rowType.GetProperties();
+        static IEnumerable<MemberInfo> GetMappedMembers(Type rowType) => rowType.GetProperties().Where(prop => prop.CanWrite);
         static bool MembersMatch(MemberInfo a, MemberInfo b)
         {
             if (a == b) return true;

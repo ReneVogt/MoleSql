@@ -37,12 +37,14 @@ namespace MoleSqlTests
                 using var context = new PrinTaurusContext { Log = Console.Out };
 
                 List<string> categories = new List<string> { "License", "LDAP" };
-                //var query = context.Configuration.Select(c => new { Cat = c.Category, Misc = new { c.Name, c.Value } })
-                //                   .Where(c => c.Cat == categories[1]).Select(x => x.Misc.Value);
-                var query = context.ExecuteQuery<Configuration>($"SELECT * FROM Configuration WHERE Category IN {categories}");
+                var query = context.Configuration.Select(c => new { c.Category, c.Name })
+                                   .Where(c => c.Category == categories[0])
+                                   .Select(c => new { c.Name, Karl = 5 });
+                //var query = context.Configuration;
+                //var query = context.ExecuteQuery<Configuration>($"SELECT * FROM Configuration WHERE Category IN {categories}");
                 //var query = context.ExecuteQuery($"SELECT * FROM Configuration WHERE Category in {categories}");
                 Console.WriteLine(string.Join(Environment.NewLine,
-                                              query.AsEnumerable().Select(d => $"{d.Category} {d.Name} {d.Value}")));
+                                              query.AsEnumerable()));
             }
             catch (Exception e)
             {
