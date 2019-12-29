@@ -8,6 +8,7 @@
  */
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using MoleSql.Expressions;
 
 namespace MoleSql.Translators
 {
@@ -17,7 +18,7 @@ namespace MoleSql.Translators
     /// </summary>
     static class LocalEvaluator
     {
-        class Nominator : ExpressionVisitor
+        class Nominator : DbExpressionVisitor
         {
             HashSet<Expression> candidates;
             bool canBeEvaluated;
@@ -43,9 +44,9 @@ namespace MoleSql.Translators
                 return node;
             }
 
-            static bool CanBeEvaluated(Expression node) => node.NodeType != ExpressionType.Parameter;
+            static bool CanBeEvaluated(Expression node) => node.NodeType != ExpressionType.Parameter && !node.IsDbExpression();
         }
-        class Evaluator : ExpressionVisitor
+        class Evaluator : DbExpressionVisitor
         {
             HashSet<Expression> candidates;
             internal Expression Evaluate(Expression expression, HashSet<Expression> nominees)

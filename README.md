@@ -9,9 +9,9 @@ René Vogt, Dresden 2019/12/29
 
 I'm finally trying to develop my own IQueryProvider/Mini-ORM to understand how all this really works. I started by reading the well known blog by Matt Warren and use his
 [iqtoolkit](https://github.com/mattwar/iqtoolkit) code.  
-Currently I'm trying to understand what happened in part V of that blog, and although I think I understood the basic concept, I don't seem to get my head around the details
-of how that column binding really works.  
-At least I was able to add query parameterization already. And array support to Jon Skeet's `SqlFormattableString` class.
+So far I advanced to part VI of Warren's blog, implementing nested queries (which probably won't work since you cannot execute another reader while still reading the outer one). 
+But I also already implemented query parameterization (to avoid SQL injection) and added array support
+to Jon Skeet's `SqlFormattableString` class.
 
 With this project I hope to get a deeper understanding of how query providers and ORMs work under the hood. And I have a little bit of hope that I'll be able to create a provider
 that supports my daily work somewhat better and more customized than Linq2Sql or EF do.

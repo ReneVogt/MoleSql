@@ -25,11 +25,10 @@ namespace MoleSql.Translators
         /// <returns>A <see cref="TranslationResult"/> holding the information required to build a <see cref="SqlCommand"/> to execute the query.</returns>
         internal static TranslationResult Translate(Expression expression)
         {
-            expression = expression.EvaluateLocally();
-            ProjectionExpression projection = (ProjectionExpression)new QueryBinder().Bind(expression);
-            (string commandText, var parameters) = new SqlQueryFormatter().Format(projection.Source);
-            LambdaExpression projector = new ProjectionBuilder().Build(projection.Projector);
-            
+            var projectionExpression = expression as ProjectionExpression ?? QueryBinder.Bind(expression.EvaluateLocally());
+            (string commandText, var parameters) = SqlQueryFormatter.Format(projectionExpression.Source);
+            LambdaExpression projector = ProjectionBuilder.Build(projectionExpression.Projector);
+
             return new TranslationResult(commandText, projector, parameters);
         }
     }

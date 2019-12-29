@@ -1,5 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ * This file is used as command line testing interface for MoleSql.
+ *
+ */
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MoleSql;
@@ -7,26 +14,33 @@ using MoleSql;
 namespace MoleSqlTests
 {
     [ExcludeFromCodeCoverage]
-    class Configuration
+    class USR_Subjects
     {
-        public string Category { get; set; }
+        public long Id { get; set; }
         public string Name { get; set; }
-        public string Value { get; set; }
-        /// <inheritdoc />
-        public override string ToString() => $"{Category ?? "<null>"} {Name ?? "<null>"} {Value ?? "<null>"} ";
     }
 
     [ExcludeFromCodeCoverage]
-    public class PrinTaurusContext : MoleSqlDataContext
+    class USR_Rights
     {
-        const string CONNECTIONSTRING = "Data Source=sql12dev01;Initial Catalog=RVo_PrinTaurus;Integrated Security=true";
-        public PrinTaurusContext() : base(CONNECTIONSTRING)
-        { }
-
-        internal MoleQuery<Configuration> Configuration => GetTable<Configuration>();
+        public long Id { get; set; }
+        public long SubjectId { get; set; }
+        public int Type { get; set; }
+        public int Verb { get; set; }
+        public bool Deny { get; set; }
 
     }
-    //const string CONNECTIONSTRING = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Flow;Integrated Security=True;";
+
+    [ExcludeFromCodeCoverage]
+    class FlowContext : MoleSqlDataContext
+    {
+        const string CONNECTIONSTRING = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Flow;Integrated Security=True;";
+        public FlowContext() : base(CONNECTIONSTRING) { }
+
+        public MoleQuery<USR_Subjects> Subjects => GetTable<USR_Subjects>();
+        public MoleQuery<USR_Rights> Rights => GetTable<USR_Rights>();
+    }
+
     [ExcludeFromCodeCoverage]
     static class MoleSqlTestsCli
     {
@@ -34,15 +48,18 @@ namespace MoleSqlTests
         {
             try
             {
-                using var context = new PrinTaurusContext { Log = Console.Out };
-
-                List<string> categories = new List<string> { "License", "LDAP" };
-                //var query = context.Configuration.Select(c => new { c.Category, c.Name })
-                //                   .Where(c => c.Category == categories[0])
-                //                   .Select(c => new { c.Name, Karl = 5 });
-                var query = context.Configuration.Select(c => new {Cat = c.Category});
-                //var query = context.ExecuteQuery<Configuration>($"SELECT * FROM Configuration WHERE Category IN {categories}");
-                //var query = context.ExecuteQuery($"SELECT * FROM Configuration WHERE Category in {categories}");
+                using var context = new FlowContext { Log = Console.Out };
+                //var query = from subject in context.Subjects
+                //            select new
+                //            {
+                //                subject.Name,
+                //                Rights = from right in context.Rights
+                //                         where right.SubjectId == subject.Id
+                //                         select right.Type
+                //            };
+                //Console.WriteLine(string.Join(Environment.NewLine,
+                //                              query.AsEnumerable().Select(x => $"{x.Name} {string.Join(", ", x.Rights)}")));
+                var query = context.Rights.Select(r => new { r.Id, r.SubjectId, r.Type }).Where(r => r.Type < 1000).Select(r => r.Id);
                 Console.WriteLine(string.Join(Environment.NewLine,
                                               query.AsEnumerable()));
             }

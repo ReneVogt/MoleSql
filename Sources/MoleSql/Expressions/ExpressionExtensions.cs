@@ -4,6 +4,8 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
@@ -24,5 +26,8 @@ namespace MoleSql.Expressions
 
             return expression;
         }
+        internal static bool IsDbExpression(this Expression expression) =>
+            expression != null && Enum.IsDefined(typeof(DbExpressionType), (DbExpressionType)expression.NodeType);
+
     }
 }

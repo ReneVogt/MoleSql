@@ -11,7 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
-using MoleSql.Translators;
+using MoleSql.Helpers;
 
 namespace MoleSql.Mapper
 {
@@ -37,7 +37,11 @@ namespace MoleSql.Mapper
             object IEnumerator.Current => Current;
             public bool MoveNext()
             {
-                if (!reader.Read()) return false;
+                if (!reader.Read())
+                {
+                    Dispose();
+                    return false;
+                }
                 Current = projector(this);
                 return true;
             }

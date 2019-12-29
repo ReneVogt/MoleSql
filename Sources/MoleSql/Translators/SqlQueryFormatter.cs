@@ -23,18 +23,10 @@ namespace MoleSql.Translators
             Outer
         }
 
-        StringBuilder commandTextBuilder;
-        List<(string name, object value)> parameters;
+        readonly StringBuilder commandTextBuilder = new StringBuilder();
+        readonly List<(string name, object value)> parameters = new List<(string name, object value)>();
+        
         int depth;
-
-        internal (string, List<(string name, object value)> parameters) Format(Expression expression)
-        {
-            commandTextBuilder = new StringBuilder();
-            parameters = new List<(string name, object value)>();
-            Visit(expression);
-
-            return (commandTextBuilder.ToString(), parameters);
-        }
 
         internal int IndentationWidth { get; set; } = 2;
 
@@ -90,9 +82,9 @@ namespace MoleSql.Translators
         protected override Expression VisitColumn(ColumnExpression column)
         {
             if (!string.IsNullOrEmpty(column.Alias))
-                commandTextBuilder.Append($"{column.Alias}.");
+                commandTextBuilder.Append($"[{column.Alias}].");
 
-            commandTextBuilder.Append(column.Name);
+            commandTextBuilder.Append($"[{column.Name}]");
             return column;
         }
         protected override Expression VisitSelect(SelectExpression select)
@@ -148,6 +140,14 @@ namespace MoleSql.Translators
             }
 
             return source;
+        }
+
+        internal static (string, List<(string name, object value)> parameters) Format(Expression expression)
+        {
+            var formatter = new SqlQueryFormatter();
+            formatter.Visit(expression);
+
+            return (formatter.commandTextBuilder.ToString(), formatter.parameters);
         }
     }
 }

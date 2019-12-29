@@ -15,6 +15,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using MoleSql.Helpers;
 using MoleSql.Mapper;
 using MoleSql.Translators;
 
@@ -68,7 +69,7 @@ namespace MoleSql.QueryProviders
                 connection.Open();
 
             SqlDataReader reader = cmd.ExecuteReader();
-            Type elementType = TypeSystem.GetElementType(expression.Type);
+            Type elementType = TypeSystemHelper.GetElementType(expression.Type);
             var projector = projection.Compile();
 
             return Activator.CreateInstance(

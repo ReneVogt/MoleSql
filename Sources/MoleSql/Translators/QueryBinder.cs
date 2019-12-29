@@ -19,13 +19,11 @@ namespace MoleSql.Translators
     sealed class QueryBinder : ExpressionVisitor
     {
         readonly ColumnProjector columnProjector = new ColumnProjector();
-        Dictionary<ParameterExpression, Expression> map;
+        readonly Dictionary<ParameterExpression, Expression> map = new Dictionary<ParameterExpression, Expression>();
         int aliasCount;
 
-        internal Expression Bind(Expression expression)
+        QueryBinder()
         {
-            map = new Dictionary<ParameterExpression, Expression>(); 
-            return Visit(expression);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression callExpression)
@@ -157,5 +155,6 @@ namespace MoleSql.Translators
             return Expression.Property(source, pi);
         }
 
+        internal static ProjectionExpression Bind(Expression expression) => (ProjectionExpression)new QueryBinder().Visit(expression);
     }
 }

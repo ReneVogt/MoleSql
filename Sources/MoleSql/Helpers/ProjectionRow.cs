@@ -9,8 +9,9 @@
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using MoleSql.Mapper;
+using MoleSql.Translators;
 
-namespace MoleSql.Translators 
+namespace MoleSql.Helpers 
 {
     /// <summary>
     /// This base class is used to bind columns. It is used as a constant expression in the projection

@@ -25,7 +25,7 @@ namespace MoleSql.Expressions
         {
             Source = source;
             Projector = projector;
-            Type = Projector.Type;
+            Type = source.Type;
             NodeType = (ExpressionType)DbExpressionType.Projection;
         }
 
