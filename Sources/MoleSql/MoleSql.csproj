@@ -9,7 +9,8 @@
     <Version>0.0.1</Version>
     <Authors>René Vogt</Authors>
     <Company />
-    <Description>My Own Linq (experimental/experience/example) SQL ORM framework.</Description>
+    <Description>My Own Linq (er...?) SQL provider.
+THIS IS AN EXPERIMENTAL/EDUCATIONAL PACKAGE!</Description>
     <Copyright>René Vogt</Copyright>
     <PackageProjectUrl>https://github.com/ReneVogt/MoleSql</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ReneVogt/MoleSql</RepositoryUrl>

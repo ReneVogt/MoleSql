@@ -16,14 +16,6 @@ using MoleSql.Expressions;
 
 namespace MoleSql.Translators
 {
-    /// <summary>
-    /// This class converts a pure CLR expression tree into a CLR/SQL-hybrid expression tree
-    /// by binding its restructuring calls to linq operators into <see cref="ProjectionExpression"/>
-    /// nodes consisting of <see cref="SelectExpression"/>, <see cref="TableExpression"/> and
-    /// <see cref="ColumnExpression"/> nodes.<br/>
-    /// Call the <see cref="Bind"/> method to transform an expresion tree into an CLR/SQL hybrid.
-    /// The expression must be evaluated by the <see cref="LocalEvaluator"/> before.<br/>
-    /// </summary>
     sealed class QueryBinder : ExpressionVisitor
     {
         readonly ColumnProjector columnProjector = new ColumnProjector();

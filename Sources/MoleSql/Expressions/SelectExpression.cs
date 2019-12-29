@@ -35,5 +35,7 @@ namespace MoleSql.Expressions
             Type = type;
             NodeType = (ExpressionType)DbExpressionType.Select;
         }
+
+        public override string ToString() => $"SELECT ({Type}) {string.Join(", ", Columns.Select(c => $"({c})"))} FROM ({From}) WHERE ({Where}) AS '{Alias}'";
     }
 }

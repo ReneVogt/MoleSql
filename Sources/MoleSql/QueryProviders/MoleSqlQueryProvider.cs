@@ -57,7 +57,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            (string sql, var projection, var parameters) = SqlQueryTranslator.Translate(expression);
+            var (sql, projection, parameters) = SqlQueryTranslator.Translate(expression);
             
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));

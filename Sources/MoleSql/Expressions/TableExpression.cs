@@ -28,5 +28,8 @@ namespace MoleSql.Expressions
             Type = type;
             NodeType = (ExpressionType)DbExpressionType.Table;
         }
+
+        /// <inheritdoc />
+        public override string ToString() => $"Table '{Name}' ({Type}) AS '{Alias}'";
     }
 }

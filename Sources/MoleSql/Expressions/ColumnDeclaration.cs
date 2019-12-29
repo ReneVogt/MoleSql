@@ -22,5 +22,7 @@ namespace MoleSql.Expressions
             Name = name;
             Expression = expression;
         }
+
+        public override string ToString() => $"ColumnDeclaration '{Name}': {Expression}";
     }
 }

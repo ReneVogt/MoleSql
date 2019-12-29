@@ -12,9 +12,6 @@ using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
 {
-    /// <summary>
-    /// Represents a column expression in an SQL/CLR hybrid expression tree.
-    /// </summary>
     [ExcludeFromCodeCoverage]
     sealed class ColumnExpression : Expression
     {
@@ -33,5 +30,7 @@ namespace MoleSql.Expressions
             Type = type;
             NodeType = (ExpressionType)DbExpressionType.Column;
         }
+
+        public override string ToString() => $"Column {Ordinal} [{Alias}].{Name} ({Type})";
     }
 }
