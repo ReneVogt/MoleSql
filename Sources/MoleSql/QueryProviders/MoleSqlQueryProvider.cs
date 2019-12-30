@@ -98,7 +98,7 @@ namespace MoleSql.QueryProviders
             LogCommand(cmd);
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
-            return new DynamicReader(cmd.ExecuteReader());
+            return cmd.ExecuteReader().ReadObjects();
         }
         public int ExecuteNonQuery(FormattableString query)
         {

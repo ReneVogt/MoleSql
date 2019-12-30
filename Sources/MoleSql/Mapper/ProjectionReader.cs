@@ -15,7 +15,6 @@ using MoleSql.Helpers;
 
 namespace MoleSql.Mapper
 {
-    [SuppressMessage("Design", "CA1001", Justification = "The enumerator will be disposed by user code.")]
     [SuppressMessage("Microsoft.Performance", "CA1812", Justification = "This class is instantiated via Activator.CreateInstance.")]
     [ExcludeFromCodeCoverage]
     class ProjectionReader<T> : IEnumerable<T>
@@ -51,19 +50,24 @@ namespace MoleSql.Mapper
                 reader.Dispose();
             }
         }
-        Enumerator enumerator;
+
+        readonly SqlDataReader reader;
+        readonly Func<ProjectionRow, T> projector;
+
+        bool used;
+
         internal ProjectionReader(SqlDataReader reader, Func<ProjectionRow, T> projector)
         {
-            enumerator = new Enumerator(reader, projector);
+            this.reader = reader;
+            this.projector = projector;
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            var e = enumerator;
-            enumerator = null;
-            if (e == null)
+            if (used)
                 throw new ObjectDisposedException(nameof(ProjectionReader<T>), "Cannot enumerate the SqlDataReader more than once.");
-            return e;
+            used = true;
+            return new Enumerator(reader, projector);
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

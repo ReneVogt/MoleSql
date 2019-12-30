@@ -1,17 +1,15 @@
 # MoleSQL
 My Own Linq (er...?) SQL provider.
 
-René Vogt, Dresden 2019/12/29
+René Vogt, Dresden 2019/12/30
 
 ---
 
 **THIS PROJECT IS STILL IN ITS CREATION PHASE**  
 
 I'm finally trying to develop my own IQueryProvider/Mini-ORM to understand how all this really works. I started by reading the well known blog by Matt Warren and use his
-[iqtoolkit](https://github.com/mattwar/iqtoolkit) code.  
-So far I advanced to part VI of Warren's blog, implementing nested queries (which probably won't work since you cannot execute another reader while still reading the outer one). 
-But I also already implemented query parameterization (to avoid SQL injection) and added array support
-to Jon Skeet's `SqlFormattableString` class.
+[iqtoolkit](https://github.com/mattwar/iqtoolkit) code, and am now currently stuck at part VI, _"Nested Queries"_.    
+Beside that I was able to implement query parameterization (to avoid SQL injection) and added array support to Jon Skeet's `SqlFormattableString` class.
 
 With this project I hope to get a deeper understanding of how query providers and ORMs work under the hood. And I have a little bit of hope that I'll be able to create a provider
 that supports my daily work somewhat better and more customized than Linq2Sql or EF do.
