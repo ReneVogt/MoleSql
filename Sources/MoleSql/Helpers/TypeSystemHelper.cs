@@ -6,7 +6,6 @@
  * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
  *
  */
-
 using System;
 using System.Collections.Generic;
 using System.Linq;

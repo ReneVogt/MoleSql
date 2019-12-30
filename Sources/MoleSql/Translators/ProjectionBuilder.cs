@@ -6,6 +6,7 @@
  * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
  *
  */
+using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -17,20 +18,34 @@ namespace MoleSql.Translators
     sealed class ProjectionBuilder : DbExpressionVisitor
     {
         static readonly MethodInfo getValueMethod = typeof(ProjectionRow).GetMethod(nameof(ProjectionRow.GetValue), BindingFlags.Instance | BindingFlags.NonPublic);
-        static readonly ParameterExpression row = Expression.Parameter(typeof(ProjectionRow), "row");
+        static readonly MethodInfo executeSubQueryMethod = typeof(ProjectionRow).GetMethod(nameof(ProjectionRow.ExecuteSubQuery), BindingFlags.Instance | BindingFlags.NonPublic);
+        
+        readonly ParameterExpression row = Expression.Parameter(typeof(ProjectionRow), "row");
+        readonly string alias;
 
-        ProjectionBuilder()
+        ProjectionBuilder(string alias)
         {
+            this.alias = alias;
         }
 
         protected override Expression VisitColumn(ColumnExpression column) =>
-            Expression.Convert(Expression.Call(row, getValueMethod, Expression.Constant(column.Ordinal)), column.Type);
-
-        internal static LambdaExpression Build(Expression expression)
+            column.Alias == alias
+                ? Expression.Convert(Expression.Call(row, getValueMethod, Expression.Constant(column.Ordinal)), column.Type)
+                : base.VisitColumn(column);
+        protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
-            var body = new ProjectionBuilder().Visit(expression);
+            LambdaExpression subQuery = Expression.Lambda(base.VisitProjection(projectionExpression), row);
+            Type elementType = TypeSystemHelper.GetElementType(subQuery.Body.Type);
+            MethodInfo genericExecuteSubQueryMethod = executeSubQueryMethod.MakeGenericMethod(elementType);
+            return Expression.Convert(Expression.Call(row, genericExecuteSubQueryMethod, Expression.Constant(subQuery)), projectionExpression.Type);
+        }
+
+        internal static LambdaExpression Build(Expression expression, string alias)
+        {
+            var builder = new ProjectionBuilder(alias);
+            var body = builder.Visit(expression);
             Debug.Assert(body != null);
-            return Expression.Lambda(body, row);
+            return Expression.Lambda(body, builder.row);
         }
     }
 }

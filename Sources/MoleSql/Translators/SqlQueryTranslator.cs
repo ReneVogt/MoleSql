@@ -27,7 +27,7 @@ namespace MoleSql.Translators
         {
             var projectionExpression = expression as ProjectionExpression ?? QueryBinder.Bind(expression.EvaluateLocally());
             (string commandText, var parameters) = SqlQueryFormatter.Format(projectionExpression.Source);
-            LambdaExpression projector = ProjectionBuilder.Build(projectionExpression.Projector);
+            LambdaExpression projector = ProjectionBuilder.Build(projectionExpression.Projector, projectionExpression.Source.Alias);
 
             return new TranslationResult(commandText, projector, parameters);
         }

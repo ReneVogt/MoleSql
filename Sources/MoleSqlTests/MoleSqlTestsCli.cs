@@ -10,6 +10,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MoleSql;
+// ReSharper disable AccessToDisposedClosure
 
 namespace MoleSqlTests
 {
@@ -34,7 +35,7 @@ namespace MoleSqlTests
     [ExcludeFromCodeCoverage]
     class FlowContext : MoleSqlDataContext
     {
-        const string CONNECTIONSTRING = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Flow;Integrated Security=True;";
+        const string CONNECTIONSTRING = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Flow;Integrated Security=True;MultipleActiveResultSets=True;";
         public FlowContext() : base(CONNECTIONSTRING) { }
 
         public MoleQuery<USR_Subjects> Subjects => GetTable<USR_Subjects>();
@@ -49,19 +50,19 @@ namespace MoleSqlTests
             try
             {
                 using var context = new FlowContext { Log = Console.Out };
-                //var query = from subject in context.Subjects
-                //            select new
-                //            {
-                //                subject.Name,
-                //                Rights = from right in context.Rights
-                //                         where right.SubjectId == subject.Id
-                //                         select right.Type
-                //            };
-                //Console.WriteLine(string.Join(Environment.NewLine,
-                //                              query.AsEnumerable().Select(x => $"{x.Name} {string.Join(", ", x.Rights)}")));
-                var query = context.Rights.Select(r => new { r.Id, r.SubjectId, r.Type }).Where(r => r.Type < 1000).Select(r => r.Id);
+                var query = from subject in context.Subjects
+                            select new
+                            {
+                                subject.Name,
+                                Rights = from right in context.Rights
+                                         where right.SubjectId == subject.Id
+                                         select right.Type
+                            };
                 Console.WriteLine(string.Join(Environment.NewLine,
-                                              query.AsEnumerable()));
+                                              query.AsEnumerable().Select(x => $"{x.Name} {string.Join(", ", x.Rights)}")));
+                //var query = context.Rights.Select(r => new { r.Id, r.SubjectId, r.Type }).Where(r => r.Type < 1000).Select(r => r.Id);
+                //Console.WriteLine(string.Join(Environment.NewLine,
+                //                              query.AsEnumerable()));
             }
             catch (Exception e)
             {

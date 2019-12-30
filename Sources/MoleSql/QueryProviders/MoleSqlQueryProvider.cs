@@ -75,7 +75,7 @@ namespace MoleSql.QueryProviders
             return Activator.CreateInstance(
                 typeof(ProjectionReader<>).MakeGenericType(elementType),
                 BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { reader, projector },
+                new object[] { reader, projector, this },
                 null);
         }
         public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new()
