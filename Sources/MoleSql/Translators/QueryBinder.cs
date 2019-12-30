@@ -16,7 +16,7 @@ using MoleSql.Expressions;
 
 namespace MoleSql.Translators
 {
-    sealed class QueryBinder : ExpressionVisitor
+    sealed class QueryBinder : DbExpressionVisitor
     {
         readonly ColumnProjector columnProjector = new ColumnProjector();
         readonly Dictionary<ParameterExpression, Expression> map = new Dictionary<ParameterExpression, Expression>();

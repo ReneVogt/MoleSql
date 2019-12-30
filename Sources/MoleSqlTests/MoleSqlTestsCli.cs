@@ -27,9 +27,6 @@ namespace MoleSqlTests
         public long Id { get; set; }
         public long SubjectId { get; set; }
         public int Type { get; set; }
-        public int Verb { get; set; }
-        public bool Deny { get; set; }
-
     }
 
     [ExcludeFromCodeCoverage]
