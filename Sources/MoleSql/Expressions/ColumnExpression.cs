@@ -31,6 +31,6 @@ namespace MoleSql.Expressions
             NodeType = (ExpressionType)DbExpressionType.Column;
         }
 
-        public override string ToString() => $"Column {Ordinal} [{Alias}].{Name} ({Type})";
+        public override string ToString() => $"Column {Ordinal} [{Alias}].{Name}";
     }
 }

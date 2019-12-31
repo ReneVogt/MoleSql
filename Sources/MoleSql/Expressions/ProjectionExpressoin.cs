@@ -29,7 +29,7 @@ namespace MoleSql.Expressions
             NodeType = (ExpressionType)DbExpressionType.Projection;
         }
 
-        public override string ToString() => $"Projection ({Type}): Source: ({Source}) Projector: ({Projector})";
+        public override string ToString() => $"Projection: Source: ({Source}) Projector: ({Projector})";
 
     }
 }

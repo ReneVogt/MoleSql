@@ -51,7 +51,7 @@ namespace MoleSql.Expressions
                        ? new SelectExpression(select.Type, select.Alias, columns, from, where)
                        : select;
         }
-        protected virtual Expression VisitSource(Expression source) => source;
+        protected virtual Expression VisitSource(Expression source) => Visit(source);
         /// <summary>
         /// Visits a <see cref="ProjectionExpression"/> by visiting its <see cref="SelectExpression"/> <see cref="ProjectionExpression.Source"/>
         /// and its <see cref="ProjectionExpression.Projector"/>.
