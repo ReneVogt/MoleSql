@@ -37,6 +37,12 @@ namespace MoleSql.Translators
                                                      (LambdaExpression)callExpression.Arguments[1].StripQuotes()),
                 nameof(Queryable.Select) => BindSelect(callExpression.Type, callExpression.Arguments[0],
                                                        (LambdaExpression)callExpression.Arguments[1].StripQuotes()),
+                nameof(Queryable.Join) => BindJoin(callExpression.Type,
+                                                   callExpression.Arguments[0],
+                                                   callExpression.Arguments[1],
+                                                   (LambdaExpression)callExpression.Arguments[2].StripQuotes(),
+                                                   (LambdaExpression)callExpression.Arguments[3].StripQuotes(),
+                                                   (LambdaExpression)callExpression.Arguments[4].StripQuotes()),
                 _ => throw new NotSupportedException($"The method '{callExpression.Method.Name}' is not supported.")
             };
         }
@@ -97,8 +103,40 @@ namespace MoleSql.Translators
                 new SelectExpression(resultType, alias, columns, projection.Source, null),
                 projector);
         }
+        Expression BindJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
+        {
+            ProjectionExpression outerProjection = (ProjectionExpression)Visit(outerSource);
+            ProjectionExpression innerProjection = (ProjectionExpression)Visit(innerSource);
 
-        (Expression projector, IReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, string existingAlias) => columnProjector.ProjectColumns(expression, newAlias, existingAlias);
+            Debug.Assert(innerProjection != null && outerProjection != null);
+
+            map[outerKey.Parameters[0]] = outerProjection.Projector;
+            Expression outerKeyExpression = Visit(outerKey.Body);
+            Debug.Assert(outerKeyExpression != null);
+
+            map[innerKey.Parameters[0]] = innerProjection.Projector;
+            Expression innerKeyExpression = Visit(innerKey.Body);
+            Debug.Assert(innerKeyExpression != null);
+
+            map[resultSelector.Parameters[0]] = outerProjection.Projector;
+            map[resultSelector.Parameters[1]] = innerProjection.Projector;
+            Expression resultExpression = Visit(resultSelector.Body);
+
+            JoinExpression join = new JoinExpression(
+                resultType, 
+                JoinType.InnerJoin, 
+                outerProjection.Source, 
+                innerProjection.Source, 
+                Expression.Equal(outerKeyExpression, innerKeyExpression));
+
+            string alias = GetNextAlias();
+
+            var (projector, columns) = ProjectColumns(resultExpression, alias, outerProjection.Source.Alias, innerProjection.Source.Alias);
+
+            return new ProjectionExpression(new SelectExpression(resultType, alias, columns, join, null), projector);
+        }
+        (Expression projector, IReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, params string[] existingAliases) => 
+            columnProjector.ProjectColumns(expression, newAlias, existingAliases);
         ProjectionExpression GetTableProjection(object value)
         {
             IQueryable table = (IQueryable)value;

@@ -14,10 +14,6 @@ using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
 {
-    /// <summary>
-    /// Extends the <see cref="ExpressionVisitor"/> class to handle CLR/SQL-hybrid expression trees
-    /// and the extended <see cref="ExpressionType"/> values in <see cref="DbExpressionType"/>.
-    /// </summary>
     [ExcludeFromCodeCoverage]
     class DbExpressionVisitor : ExpressionVisitor
     {
@@ -30,16 +26,11 @@ namespace MoleSql.Expressions
                           (ExpressionType)DbExpressionType.Column => VisitColumn((ColumnExpression)expression),
                           (ExpressionType)DbExpressionType.Select => VisitSelect((SelectExpression)expression),
                           (ExpressionType)DbExpressionType.Projection => VisitProjection((ProjectionExpression)expression),
+                          (ExpressionType)DbExpressionType.Join => VisitJoin((JoinExpression)expression),
                           _ => base.Visit(expression)
                       };
         protected virtual Expression VisitTable(TableExpression table) => table;
         protected virtual Expression VisitColumn(ColumnExpression column) => column;
-        /// <summary>
-        /// Visits a <see cref="SelectExpression"/> by visiting its <see cref="SelectExpression.From"/> and
-        /// <see cref="SelectExpression.Where"/> expressions and the expressions for the column declarations (<see cref="SelectExpression.Columns"/>).
-        /// </summary>
-        /// <param name="select">The <see cref="SelectExpression"/> to visit.</param>
-        /// <returns>The resulting <see cref="SelectExpression"/>.</returns>
         protected virtual Expression VisitSelect(SelectExpression select)
         {
             Expression from = VisitSource(select.From);
@@ -52,12 +43,6 @@ namespace MoleSql.Expressions
                        : select;
         }
         protected virtual Expression VisitSource(Expression source) => Visit(source);
-        /// <summary>
-        /// Visits a <see cref="ProjectionExpression"/> by visiting its <see cref="SelectExpression"/> <see cref="ProjectionExpression.Source"/>
-        /// and its <see cref="ProjectionExpression.Projector"/>.
-        /// </summary>
-        /// <param name="projection">The <see cref="ProjectionExpression"/> to visit.</param>
-        /// <returns>The resulting <see cref="ProjectionExpression"/>.</returns>
         protected virtual Expression VisitProjection(ProjectionExpression projection)
         {
             SelectExpression source = (SelectExpression)Visit(projection.Source);
@@ -67,11 +52,15 @@ namespace MoleSql.Expressions
                        ? new ProjectionExpression(source, projector)
                        : projection;
         }
-        /// <summary>
-        /// Visits the expression of each <see cref="ColumnDeclaration"/> of a <see cref="SelectExpression"/>.
-        /// </summary>
-        /// <param name="columns">The list of <see cref="ColumnDeclaration"/>s to visit.</param>
-        /// <returns>The resulting list of <see cref="ColumnDeclaration"/>s.</returns>
+        protected virtual Expression VisitJoin(JoinExpression join)
+        {
+            var left = Visit(join.Left);
+            var right = Visit(join.Right);
+            var condition = Visit(join.Condition);
+            return left != join.Left || right != join.Right || condition != join.Condition
+                   ? new JoinExpression(join.Type, join.JoinType, left, right, condition)
+                   : join;
+        }
         protected ReadOnlyCollection<ColumnDeclaration> VisitColumnDeclarations(ReadOnlyCollection<ColumnDeclaration> columns)
         {
             List<ColumnDeclaration> alternate = null;

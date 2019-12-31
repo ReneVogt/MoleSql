@@ -16,7 +16,7 @@ namespace MoleSql.Translators
 {
     sealed class SqlQueryFormatter : DbExpressionVisitor
     {
-        enum Identation
+        enum Indentation
         {
             Same,
             Inner,
@@ -30,11 +30,11 @@ namespace MoleSql.Translators
 
         internal int IndentationWidth { get; set; } = 2;
 
-        private void AppendNewLine(Identation style)
+        private void AppendNewLine(Indentation style)
         {
             commandTextBuilder.AppendLine();
-            if (style == Identation.Inner) depth++;
-            if (style == Identation.Outer) depth--;
+            if (style == Indentation.Inner) depth++;
+            if (style == Indentation.Outer) depth--;
             commandTextBuilder.Append(' ', depth * IndentationWidth);
         }
 
@@ -105,19 +105,43 @@ namespace MoleSql.Translators
 
             if (select.From != null)
             {
-                AppendNewLine(Identation.Same); 
+                AppendNewLine(Indentation.Same); 
                 commandTextBuilder.Append("FROM "); 
                 VisitSource(select.From);
             }
 
             if (select.Where != null)
             {
-                AppendNewLine(Identation.Same);
+                AppendNewLine(Indentation.Same);
                 commandTextBuilder.Append("WHERE ");
                 Visit(select.Where);
             }
 
             return select;
+        }
+        protected override Expression VisitJoin(JoinExpression join)
+        {
+            VisitSource(join.Left); 
+
+            AppendNewLine(Indentation.Same);
+            commandTextBuilder.Append(join.JoinType switch
+            {
+                JoinType.CrossJoin => "CROSS JOIN ",
+                JoinType.InnerJoin => "INNER JOIN ",
+                JoinType.CrossApply => "CROSS APPLY ",
+                _ => throw new ArgumentException($"The JOIN type {join.JoinType} is not supported!")
+            });
+
+            VisitSource(join.Right);
+
+            if (join.Condition == null) return join;
+            
+            AppendNewLine(Indentation.Inner);
+            commandTextBuilder.Append("ON ");
+            Visit(join.Condition); 
+            AppendNewLine(Indentation.Outer);
+
+            return join;
         }
         protected override Expression VisitSource(Expression source)
         {
@@ -130,10 +154,13 @@ namespace MoleSql.Translators
                 case DbExpressionType.Select:
                     SelectExpression select = (SelectExpression)source;
                     commandTextBuilder.Append("("); 
-                    AppendNewLine(Identation.Inner); 
+                    AppendNewLine(Indentation.Inner); 
                     Visit(select);
-                    AppendNewLine(Identation.Outer);
+                    AppendNewLine(Indentation.Outer);
                     commandTextBuilder.Append($") AS {select.Alias}");
+                    break;
+                case DbExpressionType.Join:
+                    VisitJoin((JoinExpression)source);
                     break;
                 default:
                     throw new InvalidOperationException("Select source is not of a valid type.");

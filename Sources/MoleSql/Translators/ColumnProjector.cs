@@ -8,6 +8,7 @@
  */
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using MoleSql.Expressions;
 
@@ -51,17 +52,17 @@ namespace MoleSql.Translators
         List<ColumnDeclaration> columns;
         HashSet<string> columnNames;
         HashSet<Expression> candidates;
-        string aliasExisting;
+        string[] aliasesExisting;
         string aliasNew;
         int column;
 
-        internal (Expression projector, ReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, string existingAlias)
+        internal (Expression projector, ReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, params string[] existingAliases)
         {
             map = new Dictionary<ColumnExpression, ColumnExpression>(); 
             columns = new List<ColumnDeclaration>(); 
             columnNames = new HashSet<string>(); 
             aliasNew = newAlias;
-            aliasExisting = existingAlias;
+            aliasesExisting = existingAliases;
             candidates = nominator.Nominate(expression);
             return (Visit(expression), columns.AsReadOnly());
         }
@@ -83,7 +84,7 @@ namespace MoleSql.Translators
 
             ColumnExpression columnExpression = (ColumnExpression)expression;
             if (map.TryGetValue(columnExpression, out var mapped)) return mapped;
-            if (aliasExisting == columnExpression.Alias)
+            if (aliasesExisting.Contains(columnExpression.Alias))
             {
                 ordinal = columns.Count;
                 columnName = GetUniqueColumnName(columnExpression.Name);

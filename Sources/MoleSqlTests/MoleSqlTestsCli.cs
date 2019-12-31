@@ -48,18 +48,14 @@ namespace MoleSqlTests
             {
                 using var context = new FlowContext { Log = Console.Out };
                 var query = from subject in context.Subjects
+                            join right in context.Rights
+                                on subject.Id equals right.SubjectId
                             select new
                             {
                                 subject.Name,
-                                Rights = from right in context.Rights
-                                         where right.SubjectId == subject.Id
-                                         select right.Type
+                                right.Type
                             };
-                Console.WriteLine(string.Join(Environment.NewLine,
-                                              query.AsEnumerable().Select(x => $"{x.Name} {string.Join(", ", x.Rights)}")));
-                //var query = context.Rights.Select(r => new { r.Id, r.SubjectId, r.Type }).Where(r => r.Type < 1000).Select(r => r.Id);
-                //Console.WriteLine(string.Join(Environment.NewLine,
-                //                              query.AsEnumerable()));
+                Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
             }
             catch (Exception e)
             {
