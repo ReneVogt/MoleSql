@@ -43,6 +43,12 @@ namespace MoleSql.Translators
                                                    (LambdaExpression)callExpression.Arguments[2].StripQuotes(),
                                                    (LambdaExpression)callExpression.Arguments[3].StripQuotes(),
                                                    (LambdaExpression)callExpression.Arguments[4].StripQuotes()),
+                nameof(Queryable.SelectMany) => BindSelectMany(callExpression.Type,
+                                                               callExpression.Arguments[0],
+                                                               (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                               callExpression.Arguments.Count > 2
+                                                                   ? (LambdaExpression)callExpression.Arguments[2].StripQuotes()
+                                                                   : null),
                 _ => throw new NotSupportedException($"The method '{callExpression.Method.Name}' is not supported.")
             };
         }
@@ -135,6 +141,39 @@ namespace MoleSql.Translators
 
             return new ProjectionExpression(new SelectExpression(resultType, alias, columns, join, null), projector);
         }
+        Expression BindSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+        {
+            ProjectionExpression projection = (ProjectionExpression)Visit(source);
+            Debug.Assert(projection != null);
+            map[collectionSelector.Parameters[0]] = projection.Projector;
+
+            ProjectionExpression collectionProjection = (ProjectionExpression)Visit(collectionSelector.Body);
+            Debug.Assert(collectionProjection != null);
+
+            JoinType joinType = IsTable(collectionSelector.Body) ? JoinType.CrossJoin : JoinType.CrossApply;
+            JoinExpression joinExpression = new JoinExpression(resultType, joinType, projection.Source, collectionProjection.Source, null);
+
+            string alias = GetNextAlias();
+
+            Expression projector;
+            IReadOnlyCollection<ColumnDeclaration> columns;
+
+            if (resultSelector != null)
+            {
+                map[resultSelector.Parameters[0]] = projection.Projector;
+                map[resultSelector.Parameters[1]] = collectionProjection.Projector;
+                Expression resultExpression = Visit(resultSelector.Body);
+                Debug.Assert(resultExpression != null);
+
+                (projector, columns) = ProjectColumns(resultExpression, alias, projection.Source.Alias, collectionProjection.Source.Alias);
+            }
+            else
+                (projector, columns) = ProjectColumns(collectionProjection.Projector, alias, projection.Source.Alias,
+                                                      collectionProjection.Source.Alias);
+            
+            return new ProjectionExpression(new SelectExpression(resultType, alias, columns, joinExpression, null), projector);
+        }
+
         (Expression projector, IReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, params string[] existingAliases) => 
             columnProjector.ProjectColumns(expression, newAlias, existingAliases);
         ProjectionExpression GetTableProjection(object value)
@@ -174,6 +213,7 @@ namespace MoleSql.Translators
             TableExpression tableExpression => tableExpression.Alias,
             _ => throw new InvalidOperationException($"Invalid source node type '{source.NodeType}'")
         };
+        static bool IsTable(Expression expression) => IsTable((expression as ConstantExpression)?.Value);
         static bool IsTable(object value) => value is IQueryable query && query.Expression.NodeType == ExpressionType.Constant;
         static string GetTableName(object table) => ((IQueryable)table).ElementType.Name;
         static string GetColumnName(MemberInfo member) => member.Name;

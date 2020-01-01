@@ -46,15 +46,17 @@ namespace MoleSqlTests
         {
             try
             {
-                using var context = new FlowContext { Log = Console.Out };
-                var query = from subject in context.Subjects
-                            join right in context.Rights
-                                on subject.Id equals right.SubjectId
-                            select new
-                            {
-                                subject.Name,
-                                right.Type
-                            };
+                using var context = new FlowContext {Log = Console.Out};
+                //var query = from subject in context.Subjects
+                //            where subject.Name == "admin"
+                //            from right in context.Rights
+                //            where right.SubjectId == subject.Id
+                //            select new {subject.Name, right.Type};
+
+                var query = context.Subjects.Where(subject => subject.Name == "admin")
+                                   .SelectMany(subject => context.Rights.Where(right => right.SubjectId == subject.Id),
+                                               (subject, right) => new {subject.Name, right.Type});
+
                 Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
             }
             catch (Exception e)
