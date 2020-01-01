@@ -31,16 +31,16 @@ namespace MoleSql.Expressions
                       };
         protected virtual Expression VisitTable(TableExpression table) => table;
         protected virtual Expression VisitColumn(ColumnExpression column) => column;
-        protected virtual Expression VisitSelect(SelectExpression select)
+        protected virtual Expression VisitSelect(SelectExpression selectExpression)
         {
-            Expression from = VisitSource(select.From);
-            Expression where = Visit(select.Where);
+            Expression from = VisitSource(selectExpression.From);
+            Expression where = Visit(selectExpression.Where);
+            ReadOnlyCollection<ColumnDeclaration> columns = VisitColumnDeclarations(selectExpression.Columns);
+            ReadOnlyCollection<OrderClause> orderBy = VisitOrderBy(selectExpression.OrderBy);
 
-            ReadOnlyCollection<ColumnDeclaration> columns = VisitColumnDeclarations(select.Columns);
-
-            return from != select.From || where != select.Where || columns != select.Columns
-                       ? new SelectExpression(select.Type, select.Alias, columns, from, where)
-                       : select;
+            return from != selectExpression.From || where != selectExpression.Where || columns != selectExpression.Columns || orderBy != selectExpression.OrderBy
+                       ? new SelectExpression(selectExpression.Type, selectExpression.Alias, columns, from, where, orderBy)
+                       : selectExpression;
         }
         protected virtual Expression VisitSource(Expression source) => Visit(source);
         protected virtual Expression VisitProjection(ProjectionExpression projection)
@@ -52,20 +52,20 @@ namespace MoleSql.Expressions
                        ? new ProjectionExpression(source, projector)
                        : projection;
         }
-        protected virtual Expression VisitJoin(JoinExpression join)
+        protected virtual Expression VisitJoin(JoinExpression joinExpression)
         {
-            var left = Visit(join.Left);
-            var right = Visit(join.Right);
-            var condition = Visit(join.Condition);
-            return left != join.Left || right != join.Right || condition != join.Condition
-                   ? new JoinExpression(join.Type, join.JoinType, left, right, condition)
-                   : join;
+            var left = Visit(joinExpression.Left);
+            var right = Visit(joinExpression.Right);
+            var condition = Visit(joinExpression.Condition);
+            return left != joinExpression.Left || right != joinExpression.Right || condition != joinExpression.Condition
+                   ? new JoinExpression(joinExpression.Type, joinExpression.JoinType, left, right, condition)
+                   : joinExpression;
         }
         protected ReadOnlyCollection<ColumnDeclaration> VisitColumnDeclarations(ReadOnlyCollection<ColumnDeclaration> columns)
         {
             List<ColumnDeclaration> alternate = null;
-            for (int i = 0, n = columns.Count; i < n; i++)
-            { 
+            for (int i = 0; i < columns.Count; i++)
+            {
                 ColumnDeclaration column = columns[i];
                 Expression e = Visit(column.Expression);
                 if (alternate == null && e != column.Expression)
@@ -75,6 +75,23 @@ namespace MoleSql.Expressions
             }
 
             return alternate?.AsReadOnly() ?? columns;
+        }
+        protected ReadOnlyCollection<OrderClause> VisitOrderBy(ReadOnlyCollection<OrderClause> orderBy)
+        {
+            if (orderBy == null) return null;
+
+            List<OrderClause> alternate = null;
+            for (int i = 0; i < orderBy.Count; i++)
+            {
+                OrderClause order = orderBy[i];
+                Expression e = Visit(order.Expression);
+                if (alternate == null && e != order.Expression)
+                    alternate = orderBy.Take(i).ToList();
+
+                alternate?.Add(new OrderClause(order.OrderType, e));
+            }
+
+            return alternate?.AsReadOnly() ?? orderBy;
         }
     }
 }

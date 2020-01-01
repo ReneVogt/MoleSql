@@ -53,10 +53,14 @@ namespace MoleSqlTests
                 //            where right.SubjectId == subject.Id
                 //            select new {subject.Name, right.Type};
 
-                var query = context.Subjects.Where(subject => subject.Name == "admin")
-                                   .SelectMany(subject => context.Rights.Where(right => right.SubjectId == subject.Id),
-                                               (subject, right) => new {subject.Name, right.Type});
+                //var query = context.Subjects.Where(subject => subject.Name == "admin")
+                //                   .SelectMany(subject => context.Rights.Where(right => right.SubjectId == subject.Id),
+                //                               (subject, right) => new {subject.Name, right.Type});
 
+                var query = from subject in context.Subjects
+                            orderby subject.Id
+                            where subject.Id < 100000
+                            select new {subject.Name, subject.Id};
                 Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
             }
             catch (Exception e)

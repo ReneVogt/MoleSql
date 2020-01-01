@@ -20,6 +20,7 @@ namespace MoleSql.Translators
     {
         readonly ColumnProjector columnProjector = new ColumnProjector();
         readonly Dictionary<ParameterExpression, Expression> map = new Dictionary<ParameterExpression, Expression>();
+        List<OrderClause> thenBys;
         int aliasCount;
 
         QueryBinder()
@@ -49,6 +50,20 @@ namespace MoleSql.Translators
                                                                callExpression.Arguments.Count > 2
                                                                    ? (LambdaExpression)callExpression.Arguments[2].StripQuotes()
                                                                    : null),
+                nameof(Queryable.OrderBy) => BindOrderBy(callExpression.Type,
+                                                         callExpression.Arguments[0],
+                                                         (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                         OrderType.Ascending),
+                nameof(Queryable.OrderByDescending) => BindOrderBy(callExpression.Type,
+                                                                   callExpression.Arguments[0],
+                                                                   (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                                   OrderType.Descending),
+                nameof(Queryable.ThenBy) => BindThenBy(callExpression.Arguments[0],
+                                                       (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                       OrderType.Ascending),
+                nameof(Queryable.ThenByDescending) => BindThenBy(callExpression.Arguments[0],
+                                                                 (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                                 OrderType.Descending),
                 _ => throw new NotSupportedException($"The method '{callExpression.Method.Name}' is not supported.")
             };
         }
@@ -173,7 +188,48 @@ namespace MoleSql.Translators
             
             return new ProjectionExpression(new SelectExpression(resultType, alias, columns, joinExpression, null), projector);
         }
+        Expression BindOrderBy(Type resultType, Expression source, LambdaExpression orderSelector, OrderType orderType)
+        {
+            var oldThenBys = thenBys;
+            thenBys = null;
+            oldThenBys?.Reverse();
 
+            ProjectionExpression projection = (ProjectionExpression)Visit(source);
+            Debug.Assert(projection != null);
+            map[orderSelector.Parameters[0]] = projection.Projector;
+
+            List<OrderClause> orderings = new List<OrderClause>
+            {
+                new OrderClause(orderType, Visit(orderSelector.Body))
+            };
+
+            if (oldThenBys != null)
+            {
+                foreach(var thenBy in oldThenBys)
+                {
+                    LambdaExpression lambda = (LambdaExpression)thenBy.Expression;
+                    map[lambda.Parameters[0]] = projection.Projector;
+                    orderings.Add(new OrderClause(thenBy.OrderType, Visit(lambda.Body)));
+                }
+            }
+
+            string alias = GetNextAlias();
+
+            var (projector, columns) = ProjectColumns(projection.Projector, alias, projection.Source.Alias);
+            return new ProjectionExpression(new SelectExpression(
+                                                resultType, alias, 
+                                                columns, 
+                                                projection.Source, 
+                                                null, 
+                                                orderings.AsReadOnly()),
+                                            projector);
+        }
+        Expression BindThenBy(Expression source, LambdaExpression orderSelector, OrderType orderType)
+        {
+            thenBys ??=  new List<OrderClause>();
+            thenBys.Add(new OrderClause(orderType, orderSelector));
+            return Visit(source);
+        }
         (Expression projector, IReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, params string[] existingAliases) => 
             columnProjector.ProjectColumns(expression, newAlias, existingAliases);
         ProjectionExpression GetTableProjection(object value)

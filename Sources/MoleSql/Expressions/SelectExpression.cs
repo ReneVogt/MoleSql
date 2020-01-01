@@ -22,16 +22,18 @@ namespace MoleSql.Expressions
         internal Expression From { get; }
         internal Expression Where { get; }
         internal ReadOnlyCollection<ColumnDeclaration> Columns { get; }
+        internal ReadOnlyCollection<OrderClause> OrderBy { get; }
 
         public override Type Type { get; }
         public override ExpressionType NodeType { get; }
 
-        internal SelectExpression(Type type, string alias, IEnumerable<ColumnDeclaration> columns, Expression from, Expression where)
+        internal SelectExpression(Type type, string alias, IEnumerable<ColumnDeclaration> columns, Expression from, Expression where, IEnumerable<OrderClause> orderBy = null)
         {
             Alias = alias;
             From = from;
             Where = where;
             Columns = columns as ReadOnlyCollection<ColumnDeclaration> ?? columns.ToList().AsReadOnly();
+            OrderBy = orderBy as ReadOnlyCollection<OrderClause> ?? orderBy?.ToList().AsReadOnly();
             Type = type;
             NodeType = (ExpressionType)DbExpressionType.Select;
         }

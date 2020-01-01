@@ -87,61 +87,72 @@ namespace MoleSql.Translators
             commandTextBuilder.Append($"[{column.Name}]");
             return column;
         }
-        protected override Expression VisitSelect(SelectExpression select)
+        protected override Expression VisitSelect(SelectExpression selectExpression)
         {
             commandTextBuilder.Append("SELECT ");
 
 
-            for (int i = 0; i < select.Columns.Count; i++)
+            for (int i = 0; i < selectExpression.Columns.Count; i++)
             {
-                ColumnDeclaration column = select.Columns[i];
+                ColumnDeclaration column = selectExpression.Columns[i];
                 if (i > 0)
                     commandTextBuilder.Append(", ");
                 
                 ColumnExpression columnExpression = Visit(column.Expression) as ColumnExpression;
-                if (columnExpression?.Name != select.Columns[i].Name)
+                if (columnExpression?.Name != selectExpression.Columns[i].Name)
                     commandTextBuilder.Append($" AS {column.Name}");
             }
 
-            if (select.From != null)
+            if (selectExpression.From != null)
             {
                 AppendNewLine(Indentation.Same); 
                 commandTextBuilder.Append("FROM "); 
-                VisitSource(select.From);
+                VisitSource(selectExpression.From);
             }
 
-            if (select.Where != null)
+            if (selectExpression.Where != null)
             {
                 AppendNewLine(Indentation.Same);
                 commandTextBuilder.Append("WHERE ");
-                Visit(select.Where);
+                Visit(selectExpression.Where);
             }
 
-            return select;
+            if (selectExpression.OrderBy == null || selectExpression.OrderBy.Count == 0) return selectExpression;
+            AppendNewLine(Indentation.Same);
+            commandTextBuilder.Append("ORDER BY ");
+            for (int i = 0, n = selectExpression.OrderBy.Count; i < n; i++)
+            {
+                var orderClause = selectExpression.OrderBy[i];
+                if (i > 0) commandTextBuilder.Append(", ");
+                Visit(orderClause.Expression);
+                if (orderClause.OrderType != OrderType.Ascending) commandTextBuilder.Append(" DESC");
+            }
+
+            return selectExpression;
         }
-        protected override Expression VisitJoin(JoinExpression join)
+        protected override Expression VisitJoin(JoinExpression joinExpression)
         {
-            VisitSource(join.Left); 
+            VisitSource(joinExpression.Left); 
 
             AppendNewLine(Indentation.Same);
-            commandTextBuilder.Append(join.JoinType switch
+            commandTextBuilder.Append(joinExpression.JoinType switch
             {
                 JoinType.CrossJoin => "CROSS JOIN ",
                 JoinType.InnerJoin => "INNER JOIN ",
                 JoinType.CrossApply => "CROSS APPLY ",
-                _ => throw new ArgumentException($"The JOIN type {join.JoinType} is not supported!")
+                _ => throw new ArgumentException($"The JOIN type {joinExpression.JoinType} is not supported!")
             });
 
-            VisitSource(join.Right);
+            VisitSource(joinExpression.Right);
 
-            if (join.Condition == null) return join;
+            if (joinExpression.Condition == null) return joinExpression;
             
             AppendNewLine(Indentation.Inner);
             commandTextBuilder.Append("ON ");
-            Visit(join.Condition); 
+            Visit(joinExpression.Condition); 
             AppendNewLine(Indentation.Outer);
 
-            return join;
+            return joinExpression;
         }
         protected override Expression VisitSource(Expression source)
         {
