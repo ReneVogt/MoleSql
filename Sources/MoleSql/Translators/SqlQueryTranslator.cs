@@ -25,7 +25,16 @@ namespace MoleSql.Translators
         /// <returns>A <see cref="TranslationResult"/> holding the information required to build a <see cref="SqlCommand"/> to execute the query.</returns>
         internal static TranslationResult Translate(Expression expression)
         {
-            var projectionExpression = expression as ProjectionExpression ?? OrderByRewriter.Rewrite(QueryBinder.Bind(expression.EvaluateLocally()));
+            if (!(expression is ProjectionExpression projectionExpression))
+            {
+                expression = expression.EvaluateLocally();
+                expression = QueryBinder.Bind(expression);
+                expression = OrderByRewriter.Rewrite((ProjectionExpression)expression);
+                expression = UnusedColumnsRemover.Remove(expression);
+                expression = RedundantSubQueryRemover.Remove(expression);
+                projectionExpression = (ProjectionExpression)expression;
+            }
+
             (string commandText, var parameters) = SqlQueryFormatter.Format(projectionExpression.Source);
             LambdaExpression projector = ProjectionBuilder.Build(projectionExpression.Projector, projectionExpression.Source.Alias);
 

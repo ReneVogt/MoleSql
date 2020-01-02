@@ -58,9 +58,16 @@ namespace MoleSqlTests
                 //                               (subject, right) => new {subject.Name, right.Type});
 
                 var query = from subject in context.Subjects
+                            join right in context.Rights
+                                on subject.Id equals right.SubjectId
+                            let name = subject.Name
                             orderby subject.Id
-                            where subject.Id < 100000
-                            select new {subject.Name, subject.Id};
+                            where subject.Name != "Paul"
+                            where right.Type < 100000
+                            select new {subject.Name, subject.Id}
+                            into x
+                            where x.Name != "Max"
+                            select x;
                 Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
             }
             catch (Exception e)
