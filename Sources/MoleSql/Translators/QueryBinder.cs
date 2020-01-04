@@ -117,6 +117,8 @@ namespace MoleSql.Translators
                         newExpression.Type.GetGenericTypeDefinition() == typeof(Grouping<,>) &&
                         member.Member.Name == "Key")
                         return newExpression.Arguments[0];
+                    var arg = newExpression.Arguments.OfType<ColumnExpression>().FirstOrDefault(column => column.Name == member.Member.Name);
+                    if (arg != null) return arg;
                     break;
             }
 
@@ -341,11 +343,13 @@ namespace MoleSql.Translators
             AggregateType aggregateType = GetAggregateType(method.Name);
             
             bool hasPredicateArgument = HasPredicateArgument(aggregateType);
+            bool argumentHasPredicate = false;
             
             if (argument != null && hasPredicateArgument)
             {
                 source = Expression.Call(typeof(Queryable), "Where", method.GetGenericArguments(), source, argument);
                 argument = null;
+                argumentHasPredicate = true;
             }
 
             ProjectionExpression projection = VisitSequence(source);
@@ -377,7 +381,7 @@ namespace MoleSql.Translators
 
             var subQuery = new SubQueryExpression(returnType, selectExpression);
 
-            if (!hasPredicateArgument && groupByMap.TryGetValue(projection, out var groupByInfo))
+            if (!argumentHasPredicate && groupByMap.TryGetValue(projection, out var groupByInfo))
             {
                 if (argument != null)
                 {

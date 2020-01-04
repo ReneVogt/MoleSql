@@ -39,7 +39,7 @@ namespace MoleSql.Translators
 
         internal static SelectExpression Remove(SelectExpression outerSelect, params SelectExpression[] selectsToRemove) => Remove(outerSelect, (IEnumerable<SelectExpression>)selectsToRemove);
         internal static SelectExpression Remove(SelectExpression outerSelect, IEnumerable<SelectExpression> selectsToRemove) => (SelectExpression)new SubQueryRemover(selectsToRemove).Visit(outerSelect);
-        internal static SelectExpression Remove(ProjectionExpression projection, params SelectExpression[] selectsToRemove) => Remove(projection, (IEnumerable<SelectExpression>)selectsToRemove);
-        internal static SelectExpression Remove(ProjectionExpression projection, IEnumerable<SelectExpression> selectsToRemove) => (SelectExpression)new SubQueryRemover(selectsToRemove).Visit(projection);
+        internal static ProjectionExpression Remove(ProjectionExpression projection, params SelectExpression[] selectsToRemove) => Remove(projection, (IEnumerable<SelectExpression>)selectsToRemove);
+        internal static ProjectionExpression Remove(ProjectionExpression projection, IEnumerable<SelectExpression> selectsToRemove) => (ProjectionExpression)new SubQueryRemover(selectsToRemove).Visit(projection);
     }
 }

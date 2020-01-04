@@ -7,6 +7,7 @@
  *
  */
 using System;
+using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MoleSql;
@@ -32,8 +33,9 @@ namespace MoleSqlTests
     [ExcludeFromCodeCoverage]
     class FlowContext : MoleSqlDataContext
     {
-        const string CONNECTIONSTRING = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=Flow;Integrated Security=True;MultipleActiveResultSets=True;";
-        public FlowContext() : base(CONNECTIONSTRING) { }
+        public FlowContext() : base(ConfigurationManager.ConnectionStrings["TestDatabase"].ConnectionString)
+        {
+        }
 
         public MoleQuery<USR_Subjects> Subjects => GetTable<USR_Subjects>();
         public MoleQuery<USR_Rights> Rights => GetTable<USR_Rights>();
@@ -44,9 +46,10 @@ namespace MoleSqlTests
     {
         static void Main()
         {
+            AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
+            using var context = new FlowContext() { Log = Console.Out };
             try
             {
-                using var context = new FlowContext {Log = Console.Out};
                 //var query = from subject in context.Subjects
                 //            where subject.Name == "admin"
                 //            from right in context.Rights
@@ -81,8 +84,15 @@ namespace MoleSqlTests
                 //                //Avg = g.Average(r => r.Id)
                 //            };
 
-                //Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
-                Console.WriteLine(context.Rights.Max(right => right.Id));
+                var query = context
+                            .Subjects.Join(context.Rights, subject => subject.Id, right => right.SubjectId,
+                                            (subject, right) => new { subject.Name, right.Type })
+                            .GroupBy(x => x.Name)
+                            .Select(g => new { Name = g.Key, Total = g.Sum(a => a.Type) });
+
+                Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
+
+                //Console.WriteLine(context.Rights.Max(right => right.Id));
             }
             catch (Exception e)
             {

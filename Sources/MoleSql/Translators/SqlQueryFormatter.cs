@@ -86,13 +86,13 @@ namespace MoleSql.Translators
 
             for (int i = 0; i < selectExpression.Columns.Count; i++)
             {
-                ColumnDeclaration column = selectExpression.Columns[i];
+                ColumnDeclaration columnDeclaration = selectExpression.Columns[i];
                 if (i > 0)
                     commandTextBuilder.Append(", ");
-                
-                ColumnExpression columnExpression = Visit(column.Expression) as ColumnExpression;
-                if (!string.IsNullOrWhiteSpace(columnExpression?.Name) && columnExpression.Name  != selectExpression.Columns[i].Name)
-                    commandTextBuilder.Append($" AS {column.Name}");
+
+                Expression columnSource = Visit(columnDeclaration.Expression);
+                if (!string.IsNullOrWhiteSpace(columnDeclaration?.Name) && (!(columnSource is ColumnExpression columnExpression) || columnExpression.Name != selectExpression.Columns[i].Name))
+                    commandTextBuilder.Append($" AS {columnDeclaration.Name}");
             }
 
             if (selectExpression.From != null)
@@ -156,7 +156,7 @@ namespace MoleSql.Translators
             AppendNewLine(Indentation.Inner);
             commandTextBuilder.Append("ON ");
             Visit(joinExpression.Condition); 
-            AppendNewLine(Indentation.Outer);
+            Indent(Indentation.Outer);
 
             return joinExpression;
         }

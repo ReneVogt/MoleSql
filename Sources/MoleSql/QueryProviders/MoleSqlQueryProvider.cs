@@ -130,11 +130,11 @@ namespace MoleSql.QueryProviders
             if (log == null) return;
 
             StringBuilder logbuilder = new StringBuilder();
-            logbuilder.AppendLine("Executing SQL:");
             logbuilder.AppendLine(command.CommandText);
 
             foreach (SqlParameter parameter in command.Parameters)
-                logbuilder.AppendLine($"- {parameter.ParameterName} {parameter.SqlDbType} {parameter.Direction} [{parameter.SqlValue}]");
+                logbuilder.AppendLine($"-- {parameter.ParameterName} {parameter.SqlDbType} {parameter.Direction} [{parameter.SqlValue}]");
+            logbuilder.AppendLine();
 
             log.Write(logbuilder.ToString());
         }
