@@ -55,20 +55,34 @@ namespace MoleSqlTests
 
                 //var query = context.Subjects.Where(subject => subject.Name == "admin")
                 //                   .SelectMany(subject => context.Rights.Where(right => right.SubjectId == subject.Id),
-                //                               (subject, right) => new {subject.Name, right.Type});
+                //                               (subject, right) => new { subject.Name, right.Type });
 
-                var query = from subject in context.Subjects
-                            join right in context.Rights
-                                on subject.Id equals right.SubjectId
-                            let name = subject.Name
-                            orderby subject.Id
-                            where subject.Name != "Paul"
-                            where right.Type < 100000
-                            select new {subject.Name, subject.Id}
-                            into x
-                            where x.Name != "Max"
-                            select x;
-                Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
+                //var query = from subject in context.Subjects
+                //            join right in context.Rights
+                //                on subject.Id equals right.SubjectId
+                //            let name = subject.Name
+                //            orderby subject.Id
+                //            where subject.Name != "Paul"
+                //            where right.Type < 100000
+                //            select new { subject.Name, subject.Id }
+                //            into x
+                //            where x.Name != "Max"
+                //            select x;
+
+                //var query = from right in context.Rights
+                //            group right by right.Type
+                //            into g
+                //            select new
+                //            {
+                //                Type = g.Key,
+                //                Total = g.Sum(r => r.Id)//,
+                //                //Min = g.Min(r => r.Id),
+                //                //Max = g.Max(r => r.Id),
+                //                //Avg = g.Average(r => r.Id)
+                //            };
+
+                //Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
+                Console.WriteLine(context.Rights.Max(right => right.Id));
             }
             catch (Exception e)
             {

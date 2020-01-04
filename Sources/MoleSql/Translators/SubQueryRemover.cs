@@ -37,7 +37,9 @@ namespace MoleSql.Translators
                                                                                                         "Reference to undefined column.")
                                                                                             : columnExpression;
 
-        internal static Expression Remove(SelectExpression outerSelect, params SelectExpression[] selectsToRemove) => Remove(outerSelect, (IEnumerable<SelectExpression>)selectsToRemove);
-        internal static Expression Remove(SelectExpression outerSelect, IEnumerable<SelectExpression> selectsToRemove) => new SubQueryRemover(selectsToRemove).Visit(outerSelect);
+        internal static SelectExpression Remove(SelectExpression outerSelect, params SelectExpression[] selectsToRemove) => Remove(outerSelect, (IEnumerable<SelectExpression>)selectsToRemove);
+        internal static SelectExpression Remove(SelectExpression outerSelect, IEnumerable<SelectExpression> selectsToRemove) => (SelectExpression)new SubQueryRemover(selectsToRemove).Visit(outerSelect);
+        internal static SelectExpression Remove(ProjectionExpression projection, params SelectExpression[] selectsToRemove) => Remove(projection, (IEnumerable<SelectExpression>)selectsToRemove);
+        internal static SelectExpression Remove(ProjectionExpression projection, IEnumerable<SelectExpression> selectsToRemove) => (SelectExpression)new SubQueryRemover(selectsToRemove).Visit(projection);
     }
 }

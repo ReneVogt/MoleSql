@@ -1,12 +1,12 @@
 # MoleSQL
 My Own Linq (er...?) SQL provider.
 
-René Vogt, Dresden 2020/01/01
+René Vogt, Dresden 2020/01/04
 
 ---
 
 I'm finally trying to develop my own IQueryProvider/Mini-ORM to understand how all this really works. I started by fighting my way through the well known blog by Matt Warren and use his
-[iqtoolkit](https://github.com/mattwar/iqtoolkit) code, and just implemented part IX, _"Removing redundant subqueries"_ (but did not yet fully understand it).    
+[iqtoolkit](https://github.com/mattwar/iqtoolkit) code, and just implemented part X, _"GroupBy and Aggregates"_ (but did not yet fully understand it).    
 Beside that I was able to implement query parameterization (to avoid SQL injection) and added array support to Jon Skeet's `SqlFormattableString` class.
 
 With this project I hope to get a deeper understanding of how query providers and ORMs work under the hood. And I have a little bit of hope that I'll be able to create a provider

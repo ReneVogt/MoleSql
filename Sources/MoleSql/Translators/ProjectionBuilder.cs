@@ -7,6 +7,7 @@
  *
  */
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -22,15 +23,23 @@ namespace MoleSql.Translators
         
         readonly ParameterExpression row = Expression.Parameter(typeof(ProjectionRow), "row");
         readonly string alias;
+        readonly IList<string> columns;
 
-        ProjectionBuilder(string alias)
+        ProjectionBuilder(string alias, IList<string> columns)
         {
             this.alias = alias;
+            this.columns = columns;
         }
 
         protected override Expression VisitColumn(ColumnExpression column) =>
             column.Alias == alias
-                ? Expression.Convert(Expression.Call(row, getValueMethod, Expression.Constant(column.Ordinal)), column.Type)
+                ? Expression.Convert(
+                    Expression.Call(typeof(Convert), nameof(Convert.ChangeType), null,
+                                    Expression.Call(row, getValueMethod, Expression.Constant(columns.IndexOf(column.Name))),
+                                    Expression.Constant(column.Type)
+                    ),
+                    column.Type
+                )
                 : base.VisitColumn(column);
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
@@ -40,9 +49,9 @@ namespace MoleSql.Translators
             return Expression.Convert(Expression.Call(row, genericExecuteSubQueryMethod, Expression.Constant(subQuery)), projectionExpression.Type);
         }
 
-        internal static LambdaExpression Build(Expression expression, string alias)
+        internal static LambdaExpression Build(Expression expression, string alias, IList<string> columns)
         {
-            var builder = new ProjectionBuilder(alias);
+            var builder = new ProjectionBuilder(alias, columns);
             var body = builder.Visit(expression);
             Debug.Assert(body != null);
             return Expression.Lambda(body, builder.row);

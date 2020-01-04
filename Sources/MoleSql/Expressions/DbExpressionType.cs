@@ -20,6 +20,11 @@ namespace MoleSql.Expressions
         Column, 
         Select,  
         Projection,
-        Join
+        Join,
+        Aggregate,
+        SubQuery,
+        Grouping,
+        AggregateSubQuery,
+        IsNull
     }
 }

@@ -6,6 +6,7 @@
  */
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using MoleSql.Expressions;
 
@@ -29,6 +30,7 @@ namespace MoleSql.Translators
             {
                 expression = expression.EvaluateLocally();
                 expression = QueryBinder.Bind(expression);
+                expression = AggregateRewriter.Rewrite(expression);
                 expression = OrderByRewriter.Rewrite((ProjectionExpression)expression);
                 expression = UnusedColumnsRemover.Remove(expression);
                 expression = RedundantSubQueryRemover.Remove(expression);
@@ -36,9 +38,10 @@ namespace MoleSql.Translators
             }
 
             (string commandText, var parameters) = SqlQueryFormatter.Format(projectionExpression.Source);
-            LambdaExpression projector = ProjectionBuilder.Build(projectionExpression.Projector, projectionExpression.Source.Alias);
+            var columns = projectionExpression.Source.Columns.Select(c => c.Name).ToArray();
+            LambdaExpression projector = ProjectionBuilder.Build(projectionExpression.Projector, projectionExpression.Source.Alias, columns);
 
-            return new TranslationResult(commandText, projector, parameters);
+            return new TranslationResult(commandText, projector, parameters, projectionExpression.Aggregator);
         }
     }
 }

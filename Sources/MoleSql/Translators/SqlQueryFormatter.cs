@@ -23,20 +23,12 @@ namespace MoleSql.Translators
             Outer
         }
 
+        const int IndentationWidth = 2;
+
         readonly StringBuilder commandTextBuilder = new StringBuilder();
         readonly List<(string name, object value)> parameters = new List<(string name, object value)>();
         
         int depth;
-
-        internal int IndentationWidth { get; set; } = 2;
-
-        private void AppendNewLine(Indentation style)
-        {
-            commandTextBuilder.AppendLine();
-            if (style == Indentation.Inner) depth++;
-            if (style == Indentation.Outer) depth--;
-            commandTextBuilder.Append(' ', depth * IndentationWidth);
-        }
 
         protected override Expression VisitMethodCall(MethodCallExpression m) => throw new NotSupportedException(
                                                                                      $"The method '{m.Method.Name}' is not supported.");
@@ -99,7 +91,7 @@ namespace MoleSql.Translators
                     commandTextBuilder.Append(", ");
                 
                 ColumnExpression columnExpression = Visit(column.Expression) as ColumnExpression;
-                if (columnExpression?.Name != selectExpression.Columns[i].Name)
+                if (!string.IsNullOrWhiteSpace(columnExpression?.Name) && columnExpression.Name  != selectExpression.Columns[i].Name)
                     commandTextBuilder.Append($" AS {column.Name}");
             }
 
@@ -117,15 +109,29 @@ namespace MoleSql.Translators
                 Visit(selectExpression.Where);
             }
 
-            if (selectExpression.OrderBy == null || selectExpression.OrderBy.Count == 0) return selectExpression;
-            AppendNewLine(Indentation.Same);
-            commandTextBuilder.Append("ORDER BY ");
-            for (int i = 0, n = selectExpression.OrderBy.Count; i < n; i++)
+            if (selectExpression.OrderBy?.Count > 0)
             {
-                var orderClause = selectExpression.OrderBy[i];
-                if (i > 0) commandTextBuilder.Append(", ");
-                Visit(orderClause.Expression);
-                if (orderClause.OrderType != OrderType.Ascending) commandTextBuilder.Append(" DESC");
+                AppendNewLine(Indentation.Same);
+                commandTextBuilder.Append("ORDER BY ");
+                for (int i = 0, n = selectExpression.OrderBy.Count; i < n; i++)
+                {
+                    var orderClause = selectExpression.OrderBy[i];
+                    if (i > 0) commandTextBuilder.Append(", ");
+                    Visit(orderClause.Expression);
+                    if (orderClause.OrderType != OrderType.Ascending) commandTextBuilder.Append(" DESC");
+                }
+            }
+
+            if (selectExpression.GroupBy?.Count > 0)
+            {
+                AppendNewLine(Indentation.Same);
+                commandTextBuilder.Append("GROUP BY ");
+                for (int i = 0; i < selectExpression.GroupBy.Count; i++)
+                {
+                    if (i > 0)
+                        commandTextBuilder.Append(", ");
+                    Visit(selectExpression.GroupBy[i]);
+                }
             }
 
             return selectExpression;
@@ -179,6 +185,60 @@ namespace MoleSql.Translators
 
             return source;
         }
+        protected override Expression VisitAggregate(AggregateExpression aggregate)
+        {
+            commandTextBuilder.Append(GetAggregateName(aggregate.AggregateType));
+            commandTextBuilder.Append("(");
+            if (aggregate.Argument != null) 
+                Visit(aggregate.Argument);
+            else if (RequiresAsteriskWhenNoArgument(aggregate.AggregateType))
+                commandTextBuilder.Append("*");
+            commandTextBuilder.Append(")");
+            return aggregate;
+        }
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        {
+            commandTextBuilder.Append("(");
+            AppendNewLine(Indentation.Inner);
+            Visit(subQueryExpression.SelectExpression);
+            AppendNewLine(Indentation.Same);
+            commandTextBuilder.Append(")");
+            Indent(Indentation.Outer);
+            return subQueryExpression;
+        }
+        protected override Expression VisitIsNull(IsNullExpression isNullExpression)
+        {
+            Visit(isNullExpression.Expression);
+            commandTextBuilder.Append(" IS NULL");
+            return isNullExpression;
+        }
+
+        void AppendNewLine(Indentation style)
+        {
+            commandTextBuilder.AppendLine();
+            if (style == Indentation.Inner) depth++;
+            if (style == Indentation.Outer) depth--;
+            commandTextBuilder.Append(' ', depth * IndentationWidth);
+        }
+        void Indent(Indentation style)
+        {
+            if (style == Indentation.Inner)
+                depth++;
+            else if (style == Indentation.Outer)
+                depth--;
+        }
+
+        static string GetAggregateName(AggregateType aggregateType) =>
+            aggregateType switch
+            {
+                AggregateType.Count => "COUNT",
+                AggregateType.Min => "MIN",
+                AggregateType.Max => "MAX",
+                AggregateType.Sum => "SUM",
+                AggregateType.Average => "AVG",
+                _ => throw new InvalidOperationException("Unknown aggregate type: {aggregateType}.")
+            };
+        static bool RequiresAsteriskWhenNoArgument(AggregateType aggregateType) => aggregateType == AggregateType.Count;
 
         internal static (string, List<(string name, object value)> parameters) Format(Expression expression)
         {

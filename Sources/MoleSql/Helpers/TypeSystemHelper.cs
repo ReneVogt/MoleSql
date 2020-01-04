@@ -20,6 +20,7 @@ namespace MoleSql.Helpers
             if (ienum == null) return seqType;
             return ienum.GetGenericArguments()[0];
         }
+        internal static Type GetSequenceType(Type elementType) => typeof(IEnumerable<>).MakeGenericType(elementType);
 
         static Type FindIEnumerable(Type seqType)
         {

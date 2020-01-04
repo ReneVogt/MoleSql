@@ -19,15 +19,9 @@ namespace MoleSql.Translators
         class Nominator : DbExpressionVisitor
         {
             bool isBlocked;
-            HashSet<Expression> candidates;
+            readonly HashSet<Expression> candidates = new HashSet<Expression>();
 
-            internal HashSet<Expression> Nominate(Expression expression)
-            {
-                candidates = new HashSet<Expression>(); 
-                isBlocked = false;
-                Visit(expression); 
-                return candidates;
-            }
+            Nominator() { }
 
             public override Expression Visit(Expression expression)
             {
@@ -36,61 +30,70 @@ namespace MoleSql.Translators
                 bool oldIsBlocked = isBlocked; 
                 isBlocked = false;
 
-                base.Visit(expression);
+                if (expression.NodeType != (ExpressionType)DbExpressionType.SubQuery)
+                    base.Visit(expression);
 
-                isBlocked |= expression.NodeType != (ExpressionType)DbExpressionType.Column;
+                isBlocked |= !CanBeColumn(expression);
                 if (!isBlocked)
                     candidates.Add(expression);
 
                 isBlocked |= oldIsBlocked;
                 return expression;
             }
+
+            static bool CanBeColumn(Expression expression) => expression.NodeType switch
+            {
+                (ExpressionType)DbExpressionType.Column => true,
+                (ExpressionType)DbExpressionType.SubQuery => true,
+                (ExpressionType)DbExpressionType.AggregateSubQuery => true,
+                (ExpressionType)DbExpressionType.Aggregate => true,
+                _ => false
+            };
+
+            internal static HashSet<Expression> Nominate(Expression expression)
+            {
+                var nominator = new Nominator();
+                nominator.Visit(expression);
+                return nominator.candidates;
+            }
         }
 
-        readonly Nominator nominator = new Nominator();
-        Dictionary<ColumnExpression, ColumnExpression> map;
-        List<ColumnDeclaration> columns;
-        HashSet<string> columnNames;
-        HashSet<Expression> candidates;
-        string[] aliasesExisting;
-        string aliasNew;
+        readonly Dictionary<ColumnExpression, ColumnExpression> map = new Dictionary<ColumnExpression, ColumnExpression>();
+        readonly List<ColumnDeclaration> columns = new List<ColumnDeclaration>();
+        readonly HashSet<string> columnNames = new HashSet<string>();
+        readonly HashSet<Expression> candidates;
+        readonly string[] existingAliases;
+        readonly string newAlias;
         int column;
 
-        internal (Expression projector, ReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, params string[] existingAliases)
+        ColumnProjector(HashSet<Expression> candidates, string newAlias, string[] existingAliases)
         {
-            map = new Dictionary<ColumnExpression, ColumnExpression>(); 
-            columns = new List<ColumnDeclaration>(); 
-            columnNames = new HashSet<string>(); 
-            aliasNew = newAlias;
-            aliasesExisting = existingAliases;
-            candidates = nominator.Nominate(expression);
-            return (Visit(expression), columns.AsReadOnly());
+            this.candidates = candidates;
+            this.newAlias = newAlias;
+            this.existingAliases = existingAliases;
         }
 
         public override Expression Visit(Expression expression)
         {
             if (!candidates.Contains(expression)) return base.Visit(expression);
 
-            int ordinal;
             string columnName;
 
             if (expression.NodeType != (ExpressionType)DbExpressionType.Column)
             {
                 columnName = GetNextColumnName();
-                ordinal = columns.Count;
                 columns.Add(new ColumnDeclaration(columnName, expression));
-                return new ColumnExpression(expression.Type, aliasNew, columnName, ordinal);
+                return new ColumnExpression(expression.Type, newAlias, columnName);
             }
 
             ColumnExpression columnExpression = (ColumnExpression)expression;
             if (map.TryGetValue(columnExpression, out var mapped)) return mapped;
-            if (aliasesExisting.Contains(columnExpression.Alias))
+            if (existingAliases.Contains(columnExpression.Alias))
             {
-                ordinal = columns.Count;
                 columnName = GetUniqueColumnName(columnExpression.Name);
                 columns.Add(new ColumnDeclaration(columnName, columnExpression));
 
-                mapped = new ColumnExpression(columnExpression.Type, aliasNew, columnName, ordinal);
+                mapped = new ColumnExpression(columnExpression.Type, newAlias, columnName);
                 map[columnExpression] = mapped;
                 columnNames.Add(columnName);
 
@@ -100,7 +103,7 @@ namespace MoleSql.Translators
             return columnExpression;
         }
 
-        private string GetUniqueColumnName(string name)
+        string GetUniqueColumnName(string name)
         {
             string baseName = name;
             int suffix = 1;
@@ -109,6 +112,13 @@ namespace MoleSql.Translators
 
             return name;
         }
-        private string GetNextColumnName() => GetUniqueColumnName($"c{column++}");
+        string GetNextColumnName() => GetUniqueColumnName($"c{column++}");
+
+        internal static (Expression projector, ReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, params string[] existingAliases)
+        {
+            var projector = new ColumnProjector(Nominator.Nominate(expression), newAlias, existingAliases);
+            return (projector.Visit(expression), projector.columns.AsReadOnly());
+        }
+
     }
 }

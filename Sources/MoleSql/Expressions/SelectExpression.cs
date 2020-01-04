@@ -23,21 +23,27 @@ namespace MoleSql.Expressions
         internal Expression Where { get; }
         internal ReadOnlyCollection<ColumnDeclaration> Columns { get; }
         internal ReadOnlyCollection<OrderClause> OrderBy { get; }
+        internal ReadOnlyCollection<Expression> GroupBy { get; }
 
         public override Type Type { get; }
         public override ExpressionType NodeType { get; }
 
-        internal SelectExpression(Type type, string alias, IEnumerable<ColumnDeclaration> columns, Expression from, Expression where, IEnumerable<OrderClause> orderBy = null)
+        internal SelectExpression(Type type, string alias, IEnumerable<ColumnDeclaration> columns, Expression from, Expression where, IEnumerable<OrderClause> orderBy = null, IEnumerable<Expression> groupby = null)
         {
             Alias = alias;
             From = from;
             Where = where;
             Columns = columns as ReadOnlyCollection<ColumnDeclaration> ?? columns.ToList().AsReadOnly();
             OrderBy = orderBy as ReadOnlyCollection<OrderClause> ?? orderBy?.ToList().AsReadOnly();
+            GroupBy = groupby as ReadOnlyCollection<Expression> ?? groupby?.ToList().AsReadOnly();
             Type = type;
             NodeType = (ExpressionType)DbExpressionType.Select;
         }
 
-        public override string ToString() => $"SELECT ({string.Join(", ", Columns)}) FROM ({From}) WHERE ({Where}) AS '{Alias}'";
+        public override string ToString()
+        {
+            string groups = GroupBy == null ? null : $" GROUP: ({string.Join(", ", GroupBy.Select(g => $"({g})"))})";
+            return $"SELECT ({string.Join(", ", Columns)}) FROM ({From}) WHERE ({Where}) AS '{Alias}'{groups}";
+        }
     }
 }

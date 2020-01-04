@@ -13,15 +13,30 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MoleSql.Expressions;
+using MoleSql.Helpers;
 
 namespace MoleSql.Translators
 {
     sealed class QueryBinder : DbExpressionVisitor
     {
-        readonly ColumnProjector columnProjector = new ColumnProjector();
+        sealed class GroupByInfo
+        {
+            internal string Alias { get; }
+            internal Expression Element { get; }
+            
+            internal GroupByInfo(string alias, Expression element)
+            {
+                Alias = alias;
+                Element = element;
+            }
+        }
+
         readonly Dictionary<ParameterExpression, Expression> map = new Dictionary<ParameterExpression, Expression>();
+        readonly Dictionary<Expression, GroupByInfo> groupByMap = new Dictionary<Expression, GroupByInfo>();
+        Expression root;
         List<OrderClause> thenBys;
         int aliasCount;
+        Expression currentGroupElement;
 
         QueryBinder()
         {
@@ -64,6 +79,17 @@ namespace MoleSql.Translators
                 nameof(Queryable.ThenByDescending) => BindThenBy(callExpression.Arguments[0],
                                                                  (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
                                                                  OrderType.Descending),
+                nameof(Queryable.GroupBy) => BindGroupBy(callExpression.Arguments[0],
+                                                         (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                         callExpression.Arguments.Count > 2
+                                                             ? (LambdaExpression)callExpression.Arguments[2].StripQuotes()
+                                                             : null,
+                                                         callExpression.Arguments.Count > 3
+                                                             ? (LambdaExpression)callExpression.Arguments[3].StripQuotes()
+                                                             : null),
+                var name when Enum.GetNames(typeof(AggregateType)).Contains(name) => BindAggregate(
+                    callExpression.Arguments[0], callExpression.Method,
+                    callExpression.Arguments.Count > 1 ? (LambdaExpression)callExpression.Arguments[1].StripQuotes() : null, callExpression == root),
                 _ => throw new NotSupportedException($"The method '{callExpression.Method.Name}' is not supported.")
             };
         }
@@ -87,6 +113,10 @@ namespace MoleSql.Translators
                     var result = newExpression.Members?.Select((m, i) => new {m, i})
                                               .FirstOrDefault(x => MembersMatch(x.m, member.Member));
                     if (result != null) return newExpression.Arguments[result.i];
+                    if (newExpression.Type.IsGenericType && 
+                        newExpression.Type.GetGenericTypeDefinition() == typeof(Grouping<,>) &&
+                        member.Member.Name == "Key")
+                        return newExpression.Arguments[0];
                     break;
             }
 
@@ -96,14 +126,14 @@ namespace MoleSql.Translators
 
         Expression BindWhere(Type resultType, Expression source, LambdaExpression predicate)
         {
-            ProjectionExpression projection = (ProjectionExpression)Visit(source);
+            ProjectionExpression projection = VisitSequence(source);
             Debug.Assert(projection != null);
 
             map[predicate.Parameters[0]] = projection.Projector;
             Expression where = Visit(predicate.Body); 
             
             string alias = GetNextAlias();
-            var (projector, columns) = ProjectColumns(projection.Projector, alias, GetExpressionAlias(projection.Source));
+            var (projector, columns) = ColumnProjector.ProjectColumns(projection.Projector, alias, GetExpressionAlias(projection.Source));
 
             return new ProjectionExpression(
                 new SelectExpression(resultType, alias, columns, projection.Source, where),
@@ -111,14 +141,14 @@ namespace MoleSql.Translators
         }
         Expression BindSelect(Type resultType, Expression source, LambdaExpression selector)
         {
-            ProjectionExpression projection = (ProjectionExpression)Visit(source);
+            ProjectionExpression projection = VisitSequence(source);
             Debug.Assert(projection != null);
 
             map[selector.Parameters[0]] = projection.Projector; 
             Expression expression = Visit(selector.Body);
 
             string alias = GetNextAlias();
-            var (projector, columns) = ProjectColumns(expression, alias, GetExpressionAlias(projection.Source));
+            var (projector, columns) = ColumnProjector.ProjectColumns(expression, alias, projection.Source.Alias);
 
             return new ProjectionExpression(
                 new SelectExpression(resultType, alias, columns, projection.Source, null),
@@ -126,8 +156,8 @@ namespace MoleSql.Translators
         }
         Expression BindJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
         {
-            ProjectionExpression outerProjection = (ProjectionExpression)Visit(outerSource);
-            ProjectionExpression innerProjection = (ProjectionExpression)Visit(innerSource);
+            ProjectionExpression outerProjection = VisitSequence(outerSource);
+            ProjectionExpression innerProjection = VisitSequence(innerSource);
 
             Debug.Assert(innerProjection != null && outerProjection != null);
 
@@ -152,13 +182,13 @@ namespace MoleSql.Translators
 
             string alias = GetNextAlias();
 
-            var (projector, columns) = ProjectColumns(resultExpression, alias, outerProjection.Source.Alias, innerProjection.Source.Alias);
+            var (projector, columns) = ColumnProjector.ProjectColumns(resultExpression, alias, outerProjection.Source.Alias, innerProjection.Source.Alias);
 
             return new ProjectionExpression(new SelectExpression(resultType, alias, columns, join, null), projector);
         }
         Expression BindSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
         {
-            ProjectionExpression projection = (ProjectionExpression)Visit(source);
+            ProjectionExpression projection = VisitSequence(source);
             Debug.Assert(projection != null);
             map[collectionSelector.Parameters[0]] = projection.Projector;
 
@@ -177,13 +207,13 @@ namespace MoleSql.Translators
             {
                 map[resultSelector.Parameters[0]] = projection.Projector;
                 map[resultSelector.Parameters[1]] = collectionProjection.Projector;
-                Expression resultExpression = Visit(resultSelector.Body);
+                Expression resultExpression = VisitSequence(resultSelector.Body);
                 Debug.Assert(resultExpression != null);
 
-                (projector, columns) = ProjectColumns(resultExpression, alias, projection.Source.Alias, collectionProjection.Source.Alias);
+                (projector, columns) = ColumnProjector.ProjectColumns(resultExpression, alias, projection.Source.Alias, collectionProjection.Source.Alias);
             }
             else
-                (projector, columns) = ProjectColumns(collectionProjection.Projector, alias, projection.Source.Alias,
+                (projector, columns) = ColumnProjector.ProjectColumns(collectionProjection.Projector, alias, projection.Source.Alias,
                                                       collectionProjection.Source.Alias);
             
             return new ProjectionExpression(new SelectExpression(resultType, alias, columns, joinExpression, null), projector);
@@ -194,7 +224,7 @@ namespace MoleSql.Translators
             thenBys = null;
             oldThenBys?.Reverse();
 
-            ProjectionExpression projection = (ProjectionExpression)Visit(source);
+            ProjectionExpression projection = VisitSequence(source);
             Debug.Assert(projection != null);
             map[orderSelector.Parameters[0]] = projection.Projector;
 
@@ -215,7 +245,7 @@ namespace MoleSql.Translators
 
             string alias = GetNextAlias();
 
-            var (projector, columns) = ProjectColumns(projection.Projector, alias, projection.Source.Alias);
+            var (projector, columns) = ColumnProjector.ProjectColumns(projection.Projector, alias, projection.Source.Alias);
             return new ProjectionExpression(new SelectExpression(
                                                 resultType, alias, 
                                                 columns, 
@@ -230,8 +260,146 @@ namespace MoleSql.Translators
             thenBys.Add(new OrderClause(orderType, orderSelector));
             return Visit(source);
         }
-        (Expression projector, IReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, params string[] existingAliases) => 
-            columnProjector.ProjectColumns(expression, newAlias, existingAliases);
+        Expression BindGroupBy(Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+        {
+            ProjectionExpression projection = VisitSequence(source);
+            map[keySelector.Parameters[0]] = projection.Projector;
+            
+            Expression keyExpression = Visit(keySelector.Body);
+            Debug.Assert(keyExpression != null);
+            Expression elementExpression = projection.Projector;
+
+            if (elementSelector != null)
+            {
+                map[elementSelector.Parameters[0]] = projection.Projector;
+                elementExpression = Visit(elementSelector.Body);
+            }
+            
+            var (keyProjector, keyColumns) = ColumnProjector.ProjectColumns(keyExpression, projection.Source.Alias, projection.Source.Alias);
+            var groupExpressions = keyColumns.Select(c => c.Expression).ToArray();
+
+            ProjectionExpression subqueryBasis = VisitSequence(source);
+
+            map[keySelector.Parameters[0]] = subqueryBasis.Projector;
+            Expression subqueryKey = Visit(keySelector.Body);
+            
+            var (_, subqueryKeyColumns) = ColumnProjector.ProjectColumns(subqueryKey, subqueryBasis.Source.Alias, subqueryBasis.Source.Alias);
+            IEnumerable<Expression> subqueryGroupExpressions = subqueryKeyColumns.Select(c => c.Expression);
+
+            Expression subqueryCorrelation = BuildPredicateWithNullsEqual(subqueryGroupExpressions, groupExpressions);
+            
+            Expression subqueryElementExpression = subqueryBasis.Projector;
+            if (elementSelector != null)
+            {
+                map[elementSelector.Parameters[0]] = subqueryBasis.Projector;
+                subqueryElementExpression = Visit(elementSelector.Body);
+            }
+            Debug.Assert(subqueryElementExpression != null);
+
+            string elementAlias = GetNextAlias();
+            var (elementProjector, elementColumns) = ColumnProjector.ProjectColumns(subqueryElementExpression, elementAlias, subqueryBasis.Source.Alias);
+
+            ProjectionExpression elementSubquery = new ProjectionExpression(
+                new SelectExpression(TypeSystemHelper.GetSequenceType(subqueryElementExpression.Type), elementAlias, elementColumns, subqueryBasis.Source, subqueryCorrelation), 
+                elementProjector);
+
+            string alias = GetNextAlias();
+            GroupByInfo info = new GroupByInfo(alias, elementExpression);
+            groupByMap.Add(elementSubquery, info);
+
+            Expression resultExpression;
+            if (resultSelector != null)
+            {
+                Expression saveGroupElement = currentGroupElement;
+                currentGroupElement = elementSubquery;
+                
+                map[resultSelector.Parameters[0]] = keyProjector;
+                map[resultSelector.Parameters[1]] = elementSubquery;
+                
+                resultExpression = Visit(resultSelector.Body);
+                currentGroupElement = saveGroupElement;
+            }
+            else
+                resultExpression = Expression.New(
+                    typeof(Grouping<,>).MakeGenericType(keyExpression.Type, subqueryElementExpression.Type)
+                                       .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0], keyExpression, elementSubquery);
+
+            Debug.Assert(resultExpression != null);
+
+            var (projector, columns) = ColumnProjector.ProjectColumns(resultExpression, alias, projection.Source.Alias);
+
+            Expression projectedElementSubquery = ((NewExpression)projector).Arguments[1];
+            groupByMap.Add(projectedElementSubquery, info);
+
+            return new ProjectionExpression(
+                new SelectExpression(TypeSystemHelper.GetSequenceType(resultExpression.Type), alias, columns, projection.Source, null, null, groupExpressions),
+                projector);
+        }
+        Expression BindAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
+        {
+            Type returnType = method.ReturnType;
+            AggregateType aggregateType = GetAggregateType(method.Name);
+            
+            bool hasPredicateArgument = HasPredicateArgument(aggregateType);
+            
+            if (argument != null && hasPredicateArgument)
+            {
+                source = Expression.Call(typeof(Queryable), "Where", method.GetGenericArguments(), source, argument);
+                argument = null;
+            }
+
+            ProjectionExpression projection = VisitSequence(source);
+            Expression argumentExpression = null;
+            if (argument != null)
+            {
+                map[argument.Parameters[0]] = projection.Projector;
+                argumentExpression = Visit(argument.Body);
+            }
+            else if (!hasPredicateArgument)
+                argumentExpression = projection.Projector;
+
+            string alias = GetNextAlias();
+            ColumnProjector.ProjectColumns(projection.Projector, alias, projection.Source.Alias);
+            
+            Expression aggregateExpression = new AggregateExpression(returnType, aggregateType, argumentExpression);
+            Type selectType = typeof(IEnumerable<>).MakeGenericType(returnType);
+            SelectExpression selectExpression = new SelectExpression(selectType, alias,
+                                                                     new[] {new ColumnDeclaration(string.Empty, aggregateExpression)},
+                                                                     projection.Source, null);
+
+            if (isRoot)
+            {
+                ParameterExpression parameterExpression = Expression.Parameter(selectType, "p");
+                LambdaExpression gator = Expression.Lambda(Expression.Call(typeof(Enumerable), "Single", new[] { returnType }, parameterExpression), parameterExpression);
+
+                return new ProjectionExpression(selectExpression, new ColumnExpression(returnType, alias, string.Empty), gator);
+            }
+
+            var subQuery = new SubQueryExpression(returnType, selectExpression);
+
+            if (!hasPredicateArgument && groupByMap.TryGetValue(projection, out var groupByInfo))
+            {
+                if (argument != null)
+                {
+                    map[argument.Parameters[0]] = groupByInfo.Element;
+                    argumentExpression = Visit(argument.Body);
+                }
+                else
+                    argumentExpression = groupByInfo.Element;
+                
+                aggregateExpression = new AggregateExpression(returnType, aggregateType, argumentExpression);
+
+                if (projection == currentGroupElement)
+                    return aggregateExpression;
+
+
+                return new AggregateSubQueryExpression(groupByInfo.Alias, aggregateExpression, subQuery);
+            }
+
+            return subQuery;
+        }
+        ProjectionExpression VisitSequence(Expression source) => ConvertToSequence(Visit(source));
+        
         ProjectionExpression GetTableProjection(object value)
         {
             IQueryable table = (IQueryable)value;
@@ -245,10 +413,9 @@ namespace MoleSql.Translators
             {
                 string columnName = GetColumnName(mi);
                 Type columnType = GetColumnType(mi);
-                int ordinal = columns.Count;
 
-                bindings.Add(Expression.Bind(mi, new ColumnExpression(columnType, selectAlias, columnName, ordinal)));
-                columns.Add(new ColumnDeclaration(columnName, new ColumnExpression(columnType, tableAlias, columnName, ordinal)));
+                bindings.Add(Expression.Bind(mi, new ColumnExpression(columnType, selectAlias, columnName)));
+                columns.Add(new ColumnDeclaration(columnName, new ColumnExpression(columnType, tableAlias, columnName)));
             }
 
             Expression projector = Expression.MemberInit(Expression.New(table.ElementType), bindings);
@@ -288,7 +455,43 @@ namespace MoleSql.Translators
             PropertyInfo pi = (PropertyInfo)mi;
             return Expression.Property(source, pi);
         }
+        static ProjectionExpression ConvertToSequence(Expression expression) => expression.NodeType == (ExpressionType)DbExpressionType.Projection
+                                                                                    ? (ProjectionExpression)expression
+                                                                                    : expression.NodeType == ExpressionType.New &&
+                                                                                      expression is NewExpression newExpression &&
+                                                                                      expression.Type.IsGenericType &&
+                                                                                      expression.Type.GetGenericTypeDefinition() ==
+                                                                                      typeof(Grouping<,>)
+                                                                                        ? (ProjectionExpression)newExpression.Arguments[1]
+                                                                                        : throw new InvalidOperationException(
+                                                                                              $"The expression of type '{expression.Type}' is not a sequence.");
+        static Expression BuildPredicateWithNullsEqual(IEnumerable<Expression> source1, IEnumerable<Expression> source2)
+        {
+            // ReSharper disable once GenericEnumeratorNotDisposed - r# mistake
+            using var enumerator1 = source1.GetEnumerator();
+            // ReSharper disable once GenericEnumeratorNotDisposed - r# mistake
+            using var enumerator2 = source2.GetEnumerator();
+            Expression result = null;
+            while (enumerator1.MoveNext() && enumerator2.MoveNext())
+            {
+                Debug.Assert(enumerator1.Current != null && enumerator2.Current != null);
+                Expression compare =
+                    Expression.Or(
+                        Expression.And(new IsNullExpression(enumerator1.Current), new IsNullExpression(enumerator2.Current)),
+                        Expression.Equal(enumerator1.Current, enumerator2.Current)
+                    );
+                result = result == null ? compare : Expression.And(result, compare);
+            }
 
-        internal static ProjectionExpression Bind(Expression expression) => (ProjectionExpression)new QueryBinder().Visit(expression);
+
+            return result;
+        }
+        static AggregateType GetAggregateType(string methodName) => Enum.TryParse(methodName, out AggregateType type)
+                                                                        ? type
+                                                                        : throw new InvalidOperationException(
+                                                                              $"Unknown aggregate type: {methodName}");
+        static bool HasPredicateArgument(AggregateType aggregateType) => aggregateType == AggregateType.Count;
+        
+        internal static ProjectionExpression Bind(Expression expression) => (ProjectionExpression)new QueryBinder{root = expression}.Visit(expression);
     }
 }

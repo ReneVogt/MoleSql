@@ -18,20 +18,23 @@ namespace MoleSql.Translators
     [ExcludeFromCodeCoverage]
     internal struct TranslationResult
     {
-        internal string CommandText { get; set; }
-        internal LambdaExpression Projection { get; set; }
-        internal List<(string name, object value)> Parameters { get; set; }
-        internal TranslationResult(string commandText, LambdaExpression projection, List<(string name, object value)> parameters)
+        internal string CommandText { get; }
+        internal LambdaExpression Projection { get; }
+        internal List<(string name, object value)> Parameters { get; }
+        internal LambdaExpression Aggregator { get; }
+        internal TranslationResult(string commandText, LambdaExpression projection, List<(string name, object value)> parameters, LambdaExpression aggregator)
         {
             CommandText = commandText;
             Projection = projection;
             Parameters = parameters;
+            Aggregator = aggregator;
         }
-        internal void Deconstruct(out string commmandText, out LambdaExpression projection, out List<(string name, object value)> parameters)
+        internal void Deconstruct(out string commmandText, out LambdaExpression projection, out List<(string name, object value)> parameters, out LambdaExpression aggregator)
         {
             commmandText = CommandText;
             projection = Projection;
             parameters = Parameters;
+            aggregator = Aggregator;
         }
     }
 }

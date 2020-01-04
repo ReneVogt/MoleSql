@@ -58,7 +58,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            var (sql, projection, parameters) = SqlQueryTranslator.Translate(expression);
+            var (sql, projection, parameters, aggregator) = SqlQueryTranslator.Translate(expression);
             
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -72,11 +72,23 @@ namespace MoleSql.QueryProviders
             Type elementType = TypeSystemHelper.GetElementType(expression.Type);
             var projector = projection.Compile();
 
-            return Activator.CreateInstance(
+            IEnumerable sequence = (IEnumerable)Activator.CreateInstance(
                 typeof(ProjectionReader<>).MakeGenericType(elementType),
                 BindingFlags.Instance | BindingFlags.NonPublic, null,
                 new object[] { reader, projector, this },
                 null);
+
+            if (aggregator == null) return sequence;
+
+            Delegate aggregatorDelegate = aggregator.Compile();
+            AggregateReader aggReader = (AggregateReader)Activator.CreateInstance(
+                typeof(AggregateReader<,>).MakeGenericType(elementType, aggregator.Body.Type),
+                BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new object[] { aggregatorDelegate },
+                null
+            );
+
+            return aggReader.Read(sequence);
         }
         public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new()
         {

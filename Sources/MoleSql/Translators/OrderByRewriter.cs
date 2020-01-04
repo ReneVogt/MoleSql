@@ -104,7 +104,6 @@ namespace MoleSql.Translators
 
                 if (columnExpression != null && existingAliases?.Contains(columnExpression.Alias) != true) continue;
 
-                int ordinal = 0;
                 foreach (ColumnDeclaration columnDeclaration in existingColumnDeclarations)
                 {
                     if (columnDeclaration.Expression == ordering.Expression ||
@@ -112,11 +111,9 @@ namespace MoleSql.Translators
                         columnExpression.Alias == declaredColumnExpression.Alias &&
                         columnExpression.Name == declaredColumnExpression.Name)
                     {
-                        expression = new ColumnExpression(expression.Type, alias, columnDeclaration.Name, ordinal);
+                        expression = new ColumnExpression(expression.Type, alias, columnDeclaration.Name);
                         break;
                     }
-
-                    ordinal++;
                 }
 
                 if (expression == ordering.Expression)
@@ -127,9 +124,9 @@ namespace MoleSql.Translators
                         existingColumnDeclarations = newColumns;
                     }
 
-                    string colName = columnExpression != null ? columnExpression.Name : "c" + ordinal;
+                    string colName = columnExpression != null ? columnExpression.Name : "c" + existingColumnDeclarations.Count;
                     newColumns.Add(new ColumnDeclaration(colName, ordering.Expression));
-                    expression = new ColumnExpression(expression.Type, alias, colName, ordinal);
+                    expression = new ColumnExpression(expression.Type, alias, colName);
                 }
 
                 newOrderings.Add(new OrderClause(ordering.OrderType, expression));
