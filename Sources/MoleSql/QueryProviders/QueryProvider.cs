@@ -7,7 +7,6 @@
  *
  */
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -19,7 +18,6 @@ namespace MoleSql.QueryProviders
     /// An abstract base class for query providers, handling the generic and non-generic <see cref="IQueryProvider.CreateQuery"/> calls
     /// and directing the <see cref="IQueryProvider.Execute"/> calls to the abstract <see cref="QueryProvider.Execute"/> method.
     /// </summary>
-    [ExcludeFromCodeCoverage]
     abstract class QueryProvider : IQueryProvider
     {
         IQueryable<S> IQueryProvider.CreateQuery<S>(Expression expression)

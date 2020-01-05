@@ -23,7 +23,6 @@ using MoleSql.Translators;
 
 namespace MoleSql.QueryProviders 
 {
-    [ExcludeFromCodeCoverage]
     sealed class MoleSqlQueryProvider : QueryProvider, IDisposable
     {
         readonly SqlConnection connection;
@@ -51,6 +50,11 @@ namespace MoleSql.QueryProviders
             if (disposeConnection) connection.Dispose();
             disposed = true;
         }
+
+        public SqlTransaction BeginTransaction() => connection.BeginTransaction();
+        public SqlTransaction BeginTransaction(string transactionName) => connection.BeginTransaction(transactionName);
+        public SqlTransaction BeginTransaction(IsolationLevel iso) => connection.BeginTransaction(iso);
+        public SqlTransaction BeginTransaction(IsolationLevel iso, string transactionName) => connection.BeginTransaction(iso, transactionName);
 
         [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
         public override object Execute(Expression expression)

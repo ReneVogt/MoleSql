@@ -31,7 +31,6 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>An enumerator for the query results.</returns>
-        [ExcludeFromCodeCoverage]
         [StringFormatMethod(formatParameterName: "query")]
         public static IEnumerable<T> ExecuteQuery<T>([NotNull] this MoleSqlDataContext context, string query, params object[] parameters) where T : class, new()
         {
@@ -48,7 +47,6 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>An enumerator for the query results.</returns>
-        [ExcludeFromCodeCoverage]
         [StringFormatMethod(formatParameterName: "query")]
         public static Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>([NotNull] this MoleSqlDataContext context, string query,
                                                                      params object[] parameters) where T : class, new() =>
@@ -62,7 +60,6 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>An enumerator for the query results.</returns>
-        [ExcludeFromCodeCoverage]
         [StringFormatMethod(formatParameterName: "query")]
         [SuppressMessage("Design", "CA1068:CancellationToken-Parameter müssen zuletzt aufgeführt werden", Justification = "This gets awkward with format params.")]
         public static Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>([NotNull] this MoleSqlDataContext context, CancellationToken cancellationToken, string query, params object[] parameters) where T : class, new()
@@ -79,7 +76,6 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>An enumerator for the query results. Those will be dynamic objects.</returns>
-        [ExcludeFromCodeCoverage]
         [StringFormatMethod(formatParameterName: "query")]
         public static IEnumerable ExecuteQuery([NotNull] this MoleSqlDataContext context, string query, params object[] parameters)
         {
@@ -94,7 +90,6 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>The number of affected rows.</returns>
-        [ExcludeFromCodeCoverage]
         [StringFormatMethod(formatParameterName: "query")]
         public static int ExecuteNonQuery([NotNull] this MoleSqlDataContext context, string query, params object[] parameters)
         {
@@ -109,7 +104,6 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>The number of affected rows.</returns>
-        [ExcludeFromCodeCoverage]
         [StringFormatMethod(formatParameterName: "query")]
         public static Task<int> ExecuteNonQueryAsync([NotNull] this MoleSqlDataContext context, string query, params object[] parameters) =>
             context.ExecuteNonQueryAsync(CancellationToken.None, query, parameters);
@@ -121,7 +115,6 @@ namespace MoleSql
         /// <param name="query">The format string for the sql command to execute.</param>
         /// <param name="parameters">The query parameters.</param>
         /// <returns>The number of affected rows.</returns>
-        [ExcludeFromCodeCoverage]
         [StringFormatMethod(formatParameterName: "query")]
         [SuppressMessage("Design", "CA1068:CancellationToken-Parameter müssen zuletzt aufgeführt werden", Justification = "This gets awkward with format params.")]
         public static Task<int> ExecuteNonQueryAsync([NotNull] this MoleSqlDataContext context, CancellationToken cancellationToken, string query, params object[] parameters)

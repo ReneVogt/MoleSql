@@ -6,12 +6,10 @@
  */
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
 {
-    [ExcludeFromCodeCoverage]
     static class ExpressionExtensions
     {
         /// <summary>

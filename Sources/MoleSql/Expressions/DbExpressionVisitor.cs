@@ -8,13 +8,11 @@
  */
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
 {
-    [ExcludeFromCodeCoverage]
     class DbExpressionVisitor : ExpressionVisitor
     {
         public override Expression Visit(Expression expression) =>

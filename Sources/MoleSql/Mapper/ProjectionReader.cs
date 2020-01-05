@@ -21,7 +21,6 @@ using MoleSql.Translators;
 namespace MoleSql.Mapper
 {
     [SuppressMessage("Microsoft.Performance", "CA1812", Justification = "This class is instantiated via Activator.CreateInstance.")]
-    [ExcludeFromCodeCoverage]
     class ProjectionReader<T> : IEnumerable<T>
     {
         class Enumerator : ProjectionRow, IEnumerator<T>

@@ -7,12 +7,10 @@
  *
  */
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
 {
-    [ExcludeFromCodeCoverage]
     sealed class JoinExpression : Expression
     {
         internal JoinType JoinType { get; }

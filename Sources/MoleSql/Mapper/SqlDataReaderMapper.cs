@@ -7,7 +7,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Dynamic;
@@ -16,7 +15,6 @@ using System.Threading;
 
 namespace MoleSql.Mapper
 {
-    [ExcludeFromCodeCoverage]
     static class SqlDataReaderMapper
     {
         /// <summary>
@@ -26,7 +24,6 @@ namespace MoleSql.Mapper
         /// <typeparam name="T">The type of the row objects to generate.</typeparam>
         /// <param name="reader">The <see cref="SqlDataReader"/> to read from.</param>
         /// <returns>A sequence of objects of type <typeparamref name="T"/> representing the rows from the <paramref name="reader"/>.</returns>
-        [ExcludeFromCodeCoverage]
         internal static IEnumerable<T> ReadObjects<T>(this SqlDataReader reader) where T : class, new()
         {
             try
@@ -58,7 +55,6 @@ namespace MoleSql.Mapper
         /// <param name="reader">The <see cref="SqlDataReader"/> to read from.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>A sequence of objects of type <typeparamref name="T"/> representing the rows from the <paramref name="reader"/>.</returns>
-        [ExcludeFromCodeCoverage]
         internal static async IAsyncEnumerable<T> ReadObjectsAsync<T>(this SqlDataReader reader, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, new()
         {
             try
@@ -88,7 +84,6 @@ namespace MoleSql.Mapper
         /// </summary>
         /// <param name="reader">The <see cref="SqlDataReader"/> to read from.</param>
         /// <returns>A sequence of dynamic objects representing the rows from the <paramref name="reader"/>.</returns>
-        [ExcludeFromCodeCoverage]
         internal static IEnumerable ReadObjects(this SqlDataReader reader)
         {
             try

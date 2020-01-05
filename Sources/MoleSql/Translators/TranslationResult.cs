@@ -5,7 +5,6 @@
  *
  */
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Translators
@@ -15,7 +14,6 @@ namespace MoleSql.Translators
     /// Includes the sql query text (<see cref="CommandText"/>), a lambda expression to project the results
     /// into objects (<see cref="Projection"/> and a list of parameters for the sql query (<see cref="Parameters"/>).
     /// </summary>
-    [ExcludeFromCodeCoverage]
     internal struct TranslationResult
     {
         internal string CommandText { get; }

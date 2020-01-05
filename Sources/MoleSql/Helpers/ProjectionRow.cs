@@ -8,7 +8,6 @@
  */
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using MoleSql.Expressions;
 using MoleSql.Mapper;
@@ -23,7 +22,6 @@ namespace MoleSql.Helpers
     /// It also declares a <see cref="ExecuteSubQuery{TSubQuery}"/> method that exeuctes sub queries (<see cref="ProjectionExpression"/>) in selectors.
     /// The lambda expressions will be created by the <see cref="ProjectionBuilder"/> and the reading will be done in the <see cref="ProjectionReader{T}"/>.
     /// </summary>
-    [ExcludeFromCodeCoverage]
     abstract class ProjectionRow
     {
         internal abstract object GetValue(int index);
