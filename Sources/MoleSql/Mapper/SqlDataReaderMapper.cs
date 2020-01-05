@@ -11,6 +11,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Dynamic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace MoleSql.Mapper
 {
@@ -40,6 +42,38 @@ namespace MoleSql.Mapper
                     T element = new T();
                     foreach ((int fieldIndex, PropertyInfo property) in propertyMappings)
                         property.SetValue(element, reader.GetValue(fieldIndex));
+                    yield return element;
+                }
+            }
+            finally
+            {
+                reader.Dispose();
+            }
+        }
+        /// <summary>
+        /// Reads rows from a <see cref="SqlDataReader"/> asynchronously and stores the values in instances of <typeparamref name="T"/>.
+        /// It therefor looks for properties (not fields!) in <typeparamref name="T"/> that match the column names in the <see cref="SqlDataReader"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the row objects to generate.</typeparam>
+        /// <param name="reader">The <see cref="SqlDataReader"/> to read from.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
+        /// <returns>A sequence of objects of type <typeparamref name="T"/> representing the rows from the <paramref name="reader"/>.</returns>
+        [ExcludeFromCodeCoverage]
+        internal static async IAsyncEnumerable<T> ReadObjectsAsync<T>(this SqlDataReader reader, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, new()
+        {
+            try
+            {
+                var propertiesByName = typeof(T).GetProperties().Where(prop => prop.CanWrite).ToDictionary(prop => prop.Name, prop => prop);
+                var propertyMappings = Enumerable.Range(0, reader.FieldCount)
+                                                 .Select(i => (i, propertiesByName.TryGetValue(reader.GetName(i), out var p) ? p : null))
+                                                 .Where(((int fieldIndex, PropertyInfo property) x) => x.property != null)
+                                                 .ToArray();
+
+                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    T element = new T();
+                    foreach ((int fieldIndex, PropertyInfo property) in propertyMappings)
+                        property.SetValue(element, await reader.GetFieldValueAsync<object>(fieldIndex, cancellationToken).ConfigureAwait(false));
                     yield return element;
                 }
             }

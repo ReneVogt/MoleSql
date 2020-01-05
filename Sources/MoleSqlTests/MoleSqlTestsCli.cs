@@ -10,6 +10,7 @@ using System;
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.InteropServices;
 using MoleSql;
 // ReSharper disable AccessToDisposedClosure
 
@@ -47,7 +48,7 @@ namespace MoleSqlTests
         static void Main()
         {
             AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
-            using var context = new FlowContext() { Log = Console.Out };
+            using var context = new FlowContext { Log = Console.Out };
             try
             {
                 //var query = from subject in context.Subjects

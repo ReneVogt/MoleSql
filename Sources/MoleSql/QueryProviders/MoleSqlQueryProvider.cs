@@ -14,6 +14,8 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MoleSql.Helpers;
 using MoleSql.Mapper;
@@ -101,6 +103,17 @@ namespace MoleSql.QueryProviders
                 connection.Open();
             return cmd.ExecuteReader().ReadObjects<T>();
         }
+        public async Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new()
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateParameterizedCommand(query);
+            cmd.Transaction = Transaction;
+            LogCommand(cmd);
+            if (connection.State == ConnectionState.Closed)
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            return (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync<T>(cancellationToken);
+        }
         public IEnumerable ExecuteQuery(FormattableString query)
         {
             CheckDisposed();
@@ -122,6 +135,17 @@ namespace MoleSql.QueryProviders
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
             return cmd.ExecuteNonQuery();
+        }
+        public async Task<int> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateParameterizedCommand(query);
+            cmd.Transaction = Transaction;
+            LogCommand(cmd);
+            if (connection.State == ConnectionState.Closed)
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            return await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
         void LogCommand(SqlCommand command)

@@ -9,6 +9,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace MoleSql
@@ -68,6 +70,33 @@ namespace MoleSql
                 throw new ArgumentNullException(nameof(context));
             return context.ExecuteNonQuery(FormattableStringFactory.Create(query, parameters));
         }
-
+        /// <summary>
+        /// Executes the given query or command asynchronously and returns a task that on completion returns the number of affected rows.
+        /// </summary>
+        /// <param name="context">The <see cref="MoleSqlDataContext"/> this extension should work on.</param>
+        /// <param name="query">The format string for the sql command to execute.</param>
+        /// <param name="parameters">The query parameters.</param>
+        /// <returns>The number of affected rows.</returns>
+        [ExcludeFromCodeCoverage]
+        [StringFormatMethod(formatParameterName: "query")]
+        public static Task<int> ExecuteNonQueryAsync([NotNull] this MoleSqlDataContext context, string query, params object[] parameters) =>
+            context.ExecuteNonQueryAsync(CancellationToken.None, query, parameters);
+        /// <summary>
+        /// Executes the given query or command asynchronously and returns a task that on completion returns the number of affected rows.
+        /// </summary>
+        /// <param name="context">The <see cref="MoleSqlDataContext"/> this extension should work on.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation</param>
+        /// <param name="query">The format string for the sql command to execute.</param>
+        /// <param name="parameters">The query parameters.</param>
+        /// <returns>The number of affected rows.</returns>
+        [ExcludeFromCodeCoverage]
+        [StringFormatMethod(formatParameterName: "query")]
+        [SuppressMessage("Design", "CA1068:CancellationToken-Parameter müssen zuletzt aufgeführt werden", Justification = "This gets awkward with format params.")]
+        public static Task<int> ExecuteNonQueryAsync([NotNull] this MoleSqlDataContext context, CancellationToken cancellationToken, string query, params object[] parameters)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            return context.ExecuteNonQueryAsync(FormattableStringFactory.Create(query, parameters), cancellationToken);
+        }
     }
 }

@@ -90,7 +90,7 @@ namespace MoleSql.Translators
             List<SelectExpression> redundant = RedundantSubqueryGatherer.Gather(projection.Source);
             return redundant == null 
                    ? projection
-                   : (Expression)SubQueryRemover.Remove(projection, redundant);
+                   : SubQueryRemover.Remove(projection, redundant);
         }
 
         static bool CanMergeWithFrom(SelectExpression selectExpression) => selectExpression.From is SelectExpression fromSelect &&

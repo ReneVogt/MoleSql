@@ -11,6 +11,8 @@ using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using MoleSql.QueryProviders;
 
 namespace MoleSql
@@ -115,6 +117,14 @@ namespace MoleSql
         /// <returns>The number of affected rows.</returns>
         [ExcludeFromCodeCoverage]
         public int ExecuteNonQuery(FormattableString query) => provider.ExecuteNonQuery(query);
+        /// <summary>
+        /// Executes the given query or command asynchronoulsy and returns a task that on completion returns the number of affected rows.
+        /// </summary>
+        /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
+        /// <returns>The number of affected rows.</returns>
+        [ExcludeFromCodeCoverage]
+        public Task<int> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteNonQueryAsync(query, cancellationToken);
         [ExcludeFromCodeCoverage]
         void CheckDisposed()
         {
