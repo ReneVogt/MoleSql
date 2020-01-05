@@ -55,5 +55,16 @@ namespace MoleSqlTests.Properties {
                 return ((string)(this["TestDatabase"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Privat\\Sourcen\\MoleSql\\Sou" +
+            "rces\\MoleSqlTests\\TestDb.mdf;Integrated Security=True;Connect Timeout=30")]
+        public string TestDb {
+            get {
+                return ((string)(this["TestDb"]));
+            }
+        }
     }
 }

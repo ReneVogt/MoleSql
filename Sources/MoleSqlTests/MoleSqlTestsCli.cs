@@ -9,8 +9,10 @@
 using System;
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Net;
+using System.Threading.Tasks;
 using MoleSql;
 // ReSharper disable AccessToDisposedClosure
 
@@ -34,7 +36,7 @@ namespace MoleSqlTests
     [ExcludeFromCodeCoverage]
     class FlowContext : MoleSqlDataContext
     {
-        public FlowContext() : base(ConfigurationManager.ConnectionStrings["TestDatabase"].ConnectionString)
+        public FlowContext() : base(ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString)
         {
         }
 
@@ -43,9 +45,17 @@ namespace MoleSqlTests
     }
 
     [ExcludeFromCodeCoverage]
+    class Customers
+    {
+        public string Name { get; set; }
+        
+        public override string ToString() => $"Custoemr '{Name}'";
+    }
+
+    [ExcludeFromCodeCoverage]
     static class MoleSqlTestsCli
     {
-        static void Main()
+        static async Task Main()
         {
             AppDomain.CurrentDomain.SetData("DataDirectory", AppDomain.CurrentDomain.BaseDirectory);
             using var context = new FlowContext { Log = Console.Out };
@@ -85,15 +95,23 @@ namespace MoleSqlTests
                 //                //Avg = g.Average(r => r.Id)
                 //            };
 
-                var query = context
-                            .Subjects.Join(context.Rights, subject => subject.Id, right => right.SubjectId,
-                                            (subject, right) => new { subject.Name, right.Type })
-                            .GroupBy(x => x.Name)
-                            .Select(g => new { Name = g.Key, Total = g.Sum(a => a.Type) });
+                //var query = context
+                //            .Subjects.Join(context.Rights, subject => subject.Id, right => right.SubjectId,
+                //                            (subject, right) => new { subject.Name, right.Type })
+                //            .GroupBy(x => x.Name)
+                //            .Select(g => new { Name = g.Key, Total = g.Sum(a => a.Type) });
 
-                Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
+                var query = await context.ExecuteQueryAsync<Customers>($"SELECT [Name] FROM Customers");
+
+                await foreach(var element in query)
+                    Console.WriteLine(element);
+
+                Console.WriteLine("Deleted: " + await context.ExecuteNonQueryAsync("DELETE FROM Customers WHERE Name = 'Beate'"));
+                //Console.WriteLine(string.Join(Environment.NewLine, query.AsEnumerable()));
 
                 //Console.WriteLine(context.Rights.Max(right => right.Id));
+
+                context.ExecuteNonQuery("USE master; ALTER DATABASE TestDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE TestDb;");
             }
             catch (Exception e)
             {

@@ -104,6 +104,15 @@ namespace MoleSql
         [ExcludeFromCodeCoverage]
         public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new() => provider.ExecuteQuery<T>(query);
         /// <summary>
+        /// Executes the given query and returns a sequence of results.
+        /// </summary>
+        /// <typeparam name="T">The result type of the queried enumeration.</typeparam>
+        /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
+        /// <returns>An enumerator for the query results.</returns>
+        [ExcludeFromCodeCoverage]
+        public Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new() => provider.ExecuteQueryAsync<T>(query, cancellationToken);
+        /// <summary>
         /// Executes the given query and returns a sequence of dynmic instances.
         /// </summary>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>

@@ -41,6 +41,38 @@ namespace MoleSql
             return context.ExecuteQuery<T>(FormattableStringFactory.Create(query, parameters));
         }
         /// <summary>
+        /// Executes the given query asynchronously and returns a task that on compeletion returns an asynchronous sequence of results.
+        /// </summary>
+        /// <typeparam name="T">The result type of the queried enumeration.</typeparam>
+        /// <param name="context">The <see cref="MoleSqlDataContext"/> this extension should work on.</param>
+        /// <param name="query">The format string for the sql command to execute.</param>
+        /// <param name="parameters">The query parameters.</param>
+        /// <returns>An enumerator for the query results.</returns>
+        [ExcludeFromCodeCoverage]
+        [StringFormatMethod(formatParameterName: "query")]
+        public static Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>([NotNull] this MoleSqlDataContext context, string query,
+                                                                     params object[] parameters) where T : class, new() =>
+            context.ExecuteQueryAsync<T>(CancellationToken.None, query, parameters);
+        /// <summary>
+        /// Executes the given query asynchronously and returns a task that on compeletion returns an asynchronous sequence of results.
+        /// </summary>
+        /// <typeparam name="T">The result type of the queried enumeration.</typeparam>
+        /// <param name="context">The <see cref="MoleSqlDataContext"/> this extension should work on.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation</param>
+        /// <param name="query">The format string for the sql command to execute.</param>
+        /// <param name="parameters">The query parameters.</param>
+        /// <returns>An enumerator for the query results.</returns>
+        [ExcludeFromCodeCoverage]
+        [StringFormatMethod(formatParameterName: "query")]
+        [SuppressMessage("Design", "CA1068:CancellationToken-Parameter müssen zuletzt aufgeführt werden", Justification = "This gets awkward with format params.")]
+        public static Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>([NotNull] this MoleSqlDataContext context, CancellationToken cancellationToken, string query, params object[] parameters) where T : class, new()
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
+            return context.ExecuteQueryAsync<T>(FormattableStringFactory.Create(query, parameters), cancellationToken);
+        }
+        /// <summary>
         /// Executes the given query and return a sequence of dynamic instances.
         /// </summary>
         /// <param name="context">The <see cref="MoleSqlDataContext"/> this extension should work on.</param>
