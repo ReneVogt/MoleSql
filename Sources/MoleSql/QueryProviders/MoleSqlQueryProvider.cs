@@ -51,10 +51,26 @@ namespace MoleSql.QueryProviders
             disposed = true;
         }
 
-        public SqlTransaction BeginTransaction() => connection.BeginTransaction();
-        public SqlTransaction BeginTransaction(string transactionName) => connection.BeginTransaction(transactionName);
-        public SqlTransaction BeginTransaction(IsolationLevel iso) => connection.BeginTransaction(iso);
-        public SqlTransaction BeginTransaction(IsolationLevel iso, string transactionName) => connection.BeginTransaction(iso, transactionName);
+        public SqlTransaction BeginTransaction()
+        {
+            OpenConnection();
+            return connection.BeginTransaction();
+        }
+        public SqlTransaction BeginTransaction(string transactionName)
+        {
+            OpenConnection();
+            return connection.BeginTransaction(transactionName);
+        }
+        public SqlTransaction BeginTransaction(IsolationLevel iso)
+        {
+            OpenConnection();
+            return connection.BeginTransaction(iso);
+        }
+        public SqlTransaction BeginTransaction(IsolationLevel iso, string transactionName)
+        {
+            OpenConnection();
+            return connection.BeginTransaction(iso, transactionName);
+        }
 
         [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
         public override object Execute(Expression expression)
@@ -71,9 +87,7 @@ namespace MoleSql.QueryProviders
 
             LogCommand(cmd);
 
-            if (connection.State == ConnectionState.Closed)
-                connection.Open();
-
+            OpenConnection();
             SqlDataReader reader = cmd.ExecuteReader();
             Type elementType = TypeSystemHelper.GetElementType(expression.Type);
             var projector = projection.Compile();
@@ -103,8 +117,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
-            if (connection.State == ConnectionState.Closed)
-                connection.Open();
+            OpenConnection();
             return cmd.ExecuteReader().ReadObjects<T>();
         }
         public async Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new()
@@ -114,8 +127,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
-            if (connection.State == ConnectionState.Closed)
-                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            await OpenConnectionAsync().ConfigureAwait(false);
             return (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync<T>(cancellationToken);
         }
         public IEnumerable ExecuteQuery(FormattableString query)
@@ -125,8 +137,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
-            if (connection.State == ConnectionState.Closed)
-                connection.Open();
+            OpenConnection();
             return cmd.ExecuteReader().ReadObjects();
         }
         public int ExecuteNonQuery(FormattableString query)
@@ -136,8 +147,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
-            if (connection.State == ConnectionState.Closed)
-                connection.Open();
+            OpenConnection();
             return cmd.ExecuteNonQuery();
         }
         public async Task<int> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
@@ -147,8 +157,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
-            if (connection.State == ConnectionState.Closed)
-                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            await OpenConnectionAsync().ConfigureAwait(false);
             return await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
@@ -169,6 +178,18 @@ namespace MoleSql.QueryProviders
         void CheckDisposed()
         {
             if (disposed) throw new ObjectDisposedException(nameof(MoleSqlQueryProvider), "The query provider has already been disposed of.");
+        }
+        void OpenConnection()
+        {
+            CheckDisposed();
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+        }
+        async Task OpenConnectionAsync()
+        {
+            CheckDisposed();
+            if (connection.State == ConnectionState.Closed)
+                await connection.OpenAsync().ConfigureAwait(false);
         }
     }
 }
