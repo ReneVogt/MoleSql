@@ -12,9 +12,7 @@ namespace MoleSqlTests.ExecuteNonQuery
         public void DeleteRows_CorrectRowCount()
         {
             const string Name = "Alfred";
-            using var context = MoleSqlTestContext.GetDbContext();
-            using var transaction = context.Transaction = context.BeginTransaction();
-            context.Transaction = transaction;
+            using var context = MoleSqlTestContext.GetDbContextWithTransaction();
             context.ExecuteNonQuery($"DELETE FROM Customers WHERE [Name] = {Name}").Should().Be(1);
             MoleSqlTestContext.AssertSqlDump(context,"DELETE FROM Customers WHERE [Name] = @p0 -- @p0 NVarChar Input [Alfred]");
         }

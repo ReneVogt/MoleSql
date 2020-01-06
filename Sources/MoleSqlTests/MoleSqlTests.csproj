@@ -80,6 +80,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncTests\ExecuteAsyncTests.cs" />
     <Compile Include="AsyncTests\ExecuteNonQuery\ExecuteNonQueryAsyncTests.cs" />
     <Compile Include="AsyncTests\ExecuteQuery\ExecuteQueryAsyncTests.cs" />
     <Compile Include="ExecuteNonQuery\ExecuteNonQueryTests.cs" />

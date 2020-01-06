@@ -70,6 +70,7 @@ namespace MoleSqlTests
             }
         }
         internal static TestDbContext GetDbContext() => new TestDbContext {Log = new StringWriter()};
+        internal static TestDbContext GetDbContextWithTransaction() => new TestDbContext(true) {Log = new StringWriter()};
         internal static void AssertSqlDump(MoleSqlDataContext context, string expected)
         {
             if (!(context?.Log is StringWriter sw)) return;

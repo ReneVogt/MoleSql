@@ -13,6 +13,8 @@ using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using MoleSql.Expressions;
 using MoleSql.Helpers;
 using MoleSql.QueryProviders;
@@ -21,19 +23,21 @@ using MoleSql.Translators;
 namespace MoleSql.Mapper
 {
     [SuppressMessage("Microsoft.Performance", "CA1812", Justification = "This class is instantiated via Activator.CreateInstance.")]
-    class ProjectionReader<T> : IEnumerable<T>
+    class ProjectionReader<T> : IAsyncEnumerable<T>, IEnumerable<T>
     {
-        class Enumerator : ProjectionRow, IEnumerator<T>
+        class Enumerator : ProjectionRow, IAsyncEnumerator<T>, IEnumerator<T>
         {
             readonly SqlDataReader reader;
             readonly Func<ProjectionRow, T> projector;
             readonly QueryProvider queryProvider;
+            readonly CancellationToken cancellationToken;
 
-            internal Enumerator(SqlDataReader reader, Func<ProjectionRow, T> projector, QueryProvider queryProvider)
+            internal Enumerator(SqlDataReader reader, Func<ProjectionRow, T> projector, QueryProvider queryProvider, CancellationToken cancellationToken)
             {
                 this.reader = reader;
                 this.projector = projector;
                 this.queryProvider = queryProvider;
+                this.cancellationToken = cancellationToken;
             }
 
             internal override object GetValue(int index) => reader.IsDBNull(index) ? null : reader.GetValue(index);
@@ -60,10 +64,25 @@ namespace MoleSql.Mapper
                 Current = projector(this);
                 return true;
             }
+            public async ValueTask<bool> MoveNextAsync()
+            {
+                if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    await DisposeAsync();
+                    return false;
+                }
+                Current = projector(this);
+                return true;
+            }
             public void Reset() { }
             public void Dispose()
             {
                 reader.Dispose();
+            }
+            public ValueTask DisposeAsync()
+            {
+                reader.Dispose();
+                return new ValueTask(Task.CompletedTask);
             }
         }
 
@@ -85,7 +104,14 @@ namespace MoleSql.Mapper
             if (used)
                 throw new ObjectDisposedException(nameof(ProjectionReader<T>), "Cannot enumerate the SqlDataReader more than once.");
             used = true;
-            return new Enumerator(reader, projector, queryProvider);
+            return new Enumerator(reader, projector, queryProvider, CancellationToken.None);
+        }
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken)
+        {
+            if (used)
+                throw new ObjectDisposedException(nameof(ProjectionReader<T>), "Cannot enumerate the SqlDataReader more than once.");
+            used = true;
+            return new Enumerator(reader, projector, queryProvider, cancellationToken);
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }

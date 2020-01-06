@@ -12,10 +12,8 @@ namespace MoleSqlTests.AsyncTests.ExecuteNonQuery
         [TestMethod]
         public async Task ExecuteNonQueryAsync_YieldsCorrectResult()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
-            using var transaction = context.BeginTransaction();
-            context.Transaction = transaction;
-
+            using var context = MoleSqlTestContext.GetDbContextWithTransaction();
+            
             int result = await context.ExecuteNonQueryAsync($"DELETE FROM Customers WHERE Name = 'Alfred'");
             result.Should().Be(1);
         }

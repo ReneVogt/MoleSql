@@ -72,44 +72,6 @@ namespace MoleSql.QueryProviders
             return connection.BeginTransaction(iso, transactionName);
         }
 
-        [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
-        public override object Execute(Expression expression)
-        {
-            CheckDisposed();
-
-            using var cmd = connection.CreateCommand();
-            cmd.Transaction = Transaction;
-
-            var (sql, projection, parameters, aggregator) = SqlQueryTranslator.Translate(expression);
-            
-            cmd.CommandText = sql;
-            parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
-
-            LogCommand(cmd);
-
-            OpenConnection();
-            SqlDataReader reader = cmd.ExecuteReader();
-            Type elementType = TypeSystemHelper.GetElementType(expression.Type);
-            var projector = projection.Compile();
-
-            IEnumerable sequence = (IEnumerable)Activator.CreateInstance(
-                typeof(ProjectionReader<>).MakeGenericType(elementType),
-                BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { reader, projector, this },
-                null);
-
-            if (aggregator == null) return sequence;
-
-            Delegate aggregatorDelegate = aggregator.Compile();
-            AggregateReader aggReader = (AggregateReader)Activator.CreateInstance(
-                typeof(AggregateReader<,>).MakeGenericType(elementType, aggregator.Body.Type),
-                BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { aggregatorDelegate },
-                null
-            );
-
-            return aggReader.Read(sequence);
-        }
         public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new()
         {
             CheckDisposed();
@@ -171,6 +133,84 @@ namespace MoleSql.QueryProviders
             return await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
+        public override object Execute(Expression expression)
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateCommand();
+            cmd.Transaction = Transaction;
+
+            var (sql, projection, parameters, aggregator) = SqlQueryTranslator.Translate(expression);
+
+            cmd.CommandText = sql;
+            parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
+
+            LogCommand(cmd);
+
+            OpenConnection();
+            SqlDataReader reader = cmd.ExecuteReader();
+            Type elementType = TypeSystemHelper.GetElementType(expression.Type);
+            var projector = projection.Compile();
+
+            IEnumerable sequence = (IEnumerable)Activator.CreateInstance(
+                typeof(ProjectionReader<>).MakeGenericType(elementType),
+                BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new object[] { reader, projector, this },
+                null);
+
+            if (aggregator == null) return sequence;
+
+            Delegate aggregatorDelegate = aggregator.Compile();
+            AggregateReader aggReader = (AggregateReader)Activator.CreateInstance(
+                typeof(AggregateReader<,>).MakeGenericType(elementType, aggregator.Body.Type),
+                BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new object[] { aggregatorDelegate },
+                null
+            );
+
+            return aggReader.Read(sequence);
+        }
+        [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
+        internal async Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateCommand();
+            cmd.Transaction = Transaction;
+
+            var (sql, projection, parameters, aggregator) = SqlQueryTranslator.Translate(expression);
+
+            cmd.CommandText = sql;
+            parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
+
+            LogCommand(cmd);
+
+            await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            SqlDataReader reader = await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            Type elementType = TypeSystemHelper.GetElementType(expression.Type);
+            var projector = projection.Compile();
+
+            IEnumerable sequence = (IEnumerable)Activator.CreateInstance(
+                typeof(ProjectionReader<>).MakeGenericType(elementType),
+                BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new object[] { reader, projector, this },
+                null);
+
+            /* TODO: needs fixes when MaxAsync etc. are there */
+            if (aggregator == null) return sequence;
+
+            Delegate aggregatorDelegate = aggregator.Compile();
+            AggregateReader aggReader = (AggregateReader)Activator.CreateInstance(
+                typeof(AggregateReader<,>).MakeGenericType(elementType, aggregator.Body.Type),
+                BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new object[] { aggregatorDelegate },
+                null
+            );
+
+            return aggReader.Read(sequence);
+        }
+
         void LogCommand(SqlCommand command)
         {
             var log = Log;
@@ -195,7 +235,7 @@ namespace MoleSql.QueryProviders
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
         }
-        async Task OpenConnectionAsync(CancellationToken cancellationToken)
+        async ValueTask OpenConnectionAsync(CancellationToken cancellationToken)
         {
             CheckDisposed();
             if (connection.State == ConnectionState.Closed)
