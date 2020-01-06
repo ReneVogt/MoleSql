@@ -127,7 +127,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
-            await OpenConnectionAsync().ConfigureAwait(false);
+            await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             return (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync<T>(cancellationToken);
         }
         public IEnumerable ExecuteQuery(FormattableString query)
@@ -139,6 +139,16 @@ namespace MoleSql.QueryProviders
             LogCommand(cmd);
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects();
+        }
+        public async Task<IAsyncEnumerable<dynamic>> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateParameterizedCommand(query);
+            cmd.Transaction = Transaction;
+            LogCommand(cmd);
+            await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync(cancellationToken);
         }
         public int ExecuteNonQuery(FormattableString query)
         {
@@ -157,7 +167,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
-            await OpenConnectionAsync().ConfigureAwait(false);
+            await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             return await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
@@ -185,11 +195,11 @@ namespace MoleSql.QueryProviders
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
         }
-        async Task OpenConnectionAsync()
+        async Task OpenConnectionAsync(CancellationToken cancellationToken)
         {
             CheckDisposed();
             if (connection.State == ConnectionState.Closed)
-                await connection.OpenAsync().ConfigureAwait(false);
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 }

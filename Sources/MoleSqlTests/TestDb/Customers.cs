@@ -1,5 +1,8 @@
-﻿namespace MoleSqlTests.TestDb
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace MoleSqlTests.TestDb
 {
+    [ExcludeFromCodeCoverage]
     class Customers
     {
         public string Name { get; set; }

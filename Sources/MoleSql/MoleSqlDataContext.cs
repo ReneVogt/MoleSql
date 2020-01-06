@@ -129,12 +129,12 @@ namespace MoleSql
         /// <returns>An enumerator for the query results.</returns>
         public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new() => provider.ExecuteQuery<T>(query);
         /// <summary>
-        /// Executes the given query and returns a sequence of results.
+        /// Executes the given query asynchronously and returns a sequence of results.
         /// </summary>
         /// <typeparam name="T">The result type of the queried enumeration.</typeparam>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
-        /// <returns>An enumerator for the query results.</returns>
+        /// <returns>A task that on completion returns an enumerator for the query results.</returns>
         public Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new() => provider.ExecuteQueryAsync<T>(query, cancellationToken);
         /// <summary>
         /// Executes the given query and returns a sequence of dynmic instances.
@@ -142,6 +142,13 @@ namespace MoleSql
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <returns>An enumerator for the query results. Those will be dynamic objects.</returns>
         public IEnumerable ExecuteQuery(FormattableString query) => provider.ExecuteQuery(query);
+        /// <summary>
+        /// Executes the given query asynchronously and returns a sequence of dynmic instances.
+        /// </summary>
+        /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
+        /// <returns>A task that on completion returns an enumerator for the query results. Those will be dynamic objects.</returns>
+        public Task<IAsyncEnumerable<dynamic>> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken) => provider.ExecuteQueryAsync(query, cancellationToken);
         /// <summary>
         /// Executes the given query or command and returns the number of affected rows.
         /// </summary>

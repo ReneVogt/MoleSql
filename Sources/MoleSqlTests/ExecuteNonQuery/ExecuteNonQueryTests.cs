@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MoleSqlTests.TestDb;
 
 namespace MoleSqlTests.ExecuteNonQuery
 {
@@ -9,25 +8,15 @@ namespace MoleSqlTests.ExecuteNonQuery
     [ExcludeFromCodeCoverage]
     public class ExecuteNonQueryTests
     {
-        TestDbContext context;
-
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            context = new TestDbContext();
-            context.Transaction = context.BeginTransaction();
-        }
-        [TestCleanup]
-        public void TestCleanUp()
-        {
-            context.Transaction.Dispose();
-            context.Dispose();
-        }
-
         [TestMethod]
         public void DeleteRows_CorrectRowCount()
         {
-            context.ExecuteNonQuery($"DELETE FROM Customers WHERE [Name] = 'Alfred'").Should().Be(1);
+            const string Name = "Alfred";
+            using var context = MoleSqlTestContext.GetDbContext();
+            using var transaction = context.Transaction = context.BeginTransaction();
+            context.Transaction = transaction;
+            context.ExecuteNonQuery($"DELETE FROM Customers WHERE [Name] = {Name}").Should().Be(1);
+            MoleSqlTestContext.AssertSqlDump(context,"DELETE FROM Customers WHERE [Name] = @p0 -- @p0 NVarChar Input [Alfred]");
         }
     }
 }

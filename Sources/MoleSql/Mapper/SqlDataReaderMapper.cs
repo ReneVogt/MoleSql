@@ -101,5 +101,31 @@ namespace MoleSql.Mapper
                 reader.Dispose();
             }
         }
+        /// <summary>
+        /// Reads rows from a <see cref="SqlDataReader"/> asynchronously and stores the values in <see cref="ExpandoObject"/> instances
+        /// to be used as dynamic objects.
+        /// </summary>
+        /// <param name="reader">The <see cref="SqlDataReader"/> to read from.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
+        /// <returns>A task that on completion returns a sequence of dynamic objects representing the rows from the <paramref name="reader"/>.</returns>
+        internal static async IAsyncEnumerable<dynamic> ReadObjectsAsync(this SqlDataReader reader, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    IDictionary<string, object> element = new ExpandoObject();
+                    for (int index = 0; index < reader.FieldCount; index++)
+                        element[reader.GetName(index)] = await reader.IsDBNullAsync(index, cancellationToken).ConfigureAwait(false) 
+                                                             ? null 
+                                                             : await reader.GetFieldValueAsync<object>(index, cancellationToken).ConfigureAwait(false);
+                    yield return element;
+                }
+            }
+            finally
+            {
+                reader.Dispose();
+            }
+        }
     }
 }

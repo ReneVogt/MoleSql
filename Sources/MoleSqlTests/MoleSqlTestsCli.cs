@@ -22,7 +22,7 @@ namespace MoleSqlTests
         {
             try
             {
-                await TestSetup.RunTest<ExecuteNonQueryTests>(nameof(ExecuteNonQueryTests.DeleteRows_CorrectRowCount));
+                await MoleSqlTestContext.RunTest<ExecuteNonQueryTests>(nameof(ExecuteNonQueryTests.DeleteRows_CorrectRowCount));
             }
             catch (Exception e)
             {
