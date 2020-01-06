@@ -16,16 +16,18 @@ namespace MoleSql.Expressions
         internal SelectExpression Source { get; }
         internal Expression Projector { get; }
         internal LambdaExpression Aggregator { get; }
+        internal LambdaExpression AggregatorAsync { get; }
 
         public override Type Type { get; }
         public override ExpressionType NodeType { get; }
 
-        internal ProjectionExpression(SelectExpression source, Expression projector, LambdaExpression aggregator = null)
+        internal ProjectionExpression(SelectExpression source, Expression projector, LambdaExpression aggregator = null, LambdaExpression aggregatorAsync = null)
         {
             Source = source;
             Projector = projector;
             Type = source.Type;
             Aggregator = aggregator;
+            AggregatorAsync = aggregatorAsync;
             NodeType = (ExpressionType)DbExpressionType.Projection;
         }
 

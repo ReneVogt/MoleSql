@@ -20,19 +20,22 @@ namespace MoleSql.Translators
         internal LambdaExpression Projection { get; }
         internal List<(string name, object value)> Parameters { get; }
         internal LambdaExpression Aggregator { get; }
-        internal TranslationResult(string commandText, LambdaExpression projection, List<(string name, object value)> parameters, LambdaExpression aggregator)
+        internal LambdaExpression AggregatorAsync { get; }
+        internal TranslationResult(string commandText, LambdaExpression projection, List<(string name, object value)> parameters, LambdaExpression aggregator, LambdaExpression aggregatorAsync)
         {
             CommandText = commandText;
             Projection = projection;
             Parameters = parameters;
             Aggregator = aggregator;
+            AggregatorAsync = aggregatorAsync;
         }
-        internal void Deconstruct(out string commmandText, out LambdaExpression projection, out List<(string name, object value)> parameters, out LambdaExpression aggregator)
+        internal void Deconstruct(out string commmandText, out LambdaExpression projection, out List<(string name, object value)> parameters, out LambdaExpression aggregator, out LambdaExpression aggregatorAsync)
         {
             commmandText = CommandText;
             projection = Projection;
             parameters = Parameters;
             aggregator = Aggregator;
+            aggregatorAsync = AggregatorAsync;
         }
     }
 }

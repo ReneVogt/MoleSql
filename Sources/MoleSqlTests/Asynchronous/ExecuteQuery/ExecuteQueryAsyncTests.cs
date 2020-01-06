@@ -1,11 +1,17 @@
-﻿using System.Collections.Generic;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ */
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace MoleSqlTests.AsyncTests.ExecuteQuery
+namespace MoleSqlTests.Asynchronous.ExecuteQuery
 {
     [TestClass]
     [ExcludeFromCodeCoverage]

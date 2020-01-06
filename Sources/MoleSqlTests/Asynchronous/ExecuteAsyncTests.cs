@@ -1,11 +1,17 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ */
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql.QueryProviders;
 
-namespace MoleSqlTests.AsyncTests
+namespace MoleSqlTests.Asynchronous
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
@@ -26,7 +32,7 @@ namespace MoleSqlTests.AsyncTests
             result[3].Id.Should().Be(4);
             result[3].Name.Should().Be("Detlef");
 
-            MoleSqlTestContext.AssertSqlDump(context, "SELECT [t0].[Id], [t0].[Name] FROM Customers AS t0 WHERE ([t0].[Id] < @p0) -- @p0 Int Input [5]");
+            MoleSqlTestContext.AssertSqlDump(context, "SELECT [t0].[Id], [t0].[Name], [t0].[Age] FROM Customers AS t0 WHERE ([t0].[Id] < @p0) -- @p0 Int Input [5]");
         }
     }
 }

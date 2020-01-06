@@ -107,22 +107,22 @@
             <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
             <returns>The number of affected rows.</returns>
         </member>
-        <member name="T:MoleSql.MoleQuery`1">
+        <member name="T:MoleSql.MoleSqlQuery`1">
             <summary>
             The root element for MoleSql queries.
             </summary>
             <typeparam name="T">The type of the table.</typeparam>
         </member>
-        <member name="P:MoleSql.MoleQuery`1.Expression">
+        <member name="P:MoleSql.MoleSqlQuery`1.Expression">
             <inheritdoc />
         </member>
-        <member name="P:MoleSql.MoleQuery`1.ElementType">
+        <member name="P:MoleSql.MoleSqlQuery`1.ElementType">
             <inheritdoc />
         </member>
-        <member name="P:MoleSql.MoleQuery`1.Provider">
+        <member name="P:MoleSql.MoleSqlQuery`1.Provider">
             <inheritdoc />
         </member>
-        <member name="M:MoleSql.MoleQuery`1.GetEnumerator">
+        <member name="M:MoleSql.MoleSqlQuery`1.GetEnumerator">
             <inheritdoc />
         </member>
     </members>

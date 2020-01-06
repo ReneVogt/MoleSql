@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ */
+using System;
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using MoleSql;
@@ -9,7 +15,7 @@ namespace MoleSqlTests.TestDb
     class TestDbContext : MoleSqlDataContext
     {
         readonly bool disposeTransaction;
-        internal MoleQuery<Customers> Customers => GetTable<Customers>();
+        internal MoleSqlQuery<Customers> Customers => GetTable<Customers>();
 
         public TestDbContext(bool disposeTransaction = false)
             : base(ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString)

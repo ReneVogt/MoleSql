@@ -1,5 +1,12 @@
-﻿using System;
+﻿/*
+ * (C)2020 by René Vogt
+ *
+ * Published under MIT license as described in the LICENSE.md file.
+ *
+ */
+using System;
 using System.Configuration;
+using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -28,9 +35,16 @@ namespace MoleSqlTests
         {
             try
             {
-                using var context = new MoleSqlDataContext(ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString);
+                var source = new SqlConnectionStringBuilder(ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString);
+                var master = new SqlConnectionStringBuilder
+                {
+                    InitialCatalog = "master",
+                    DataSource = source.DataSource,
+                    IntegratedSecurity = true
+                };
+                using var context = new MoleSqlDataContext(master.ToString());
                 context.ExecuteNonQuery(
-                    $"USE master; ALTER DATABASE MoleSqlTestDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE MoleSqlTestDb;");
+                    $"ALTER DATABASE MoleSqlTestDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE MoleSqlTestDb;");
                 File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestDb_log.ldf"));
             }
             catch (Exception e)

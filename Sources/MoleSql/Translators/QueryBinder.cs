@@ -8,12 +8,14 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MoleSql.Expressions;
 using MoleSql.Helpers;
+using MoleSql.QueryProviders;
 
 namespace MoleSql.Translators
 {
@@ -44,7 +46,9 @@ namespace MoleSql.Translators
 
         protected override Expression VisitMethodCall(MethodCallExpression callExpression)
         {
-            if (callExpression.Method.DeclaringType != typeof(Queryable) && callExpression.Method.DeclaringType != typeof(Enumerable))
+            if (callExpression.Method.DeclaringType != typeof(Queryable) && 
+                callExpression.Method.DeclaringType != typeof(Enumerable) &&
+                callExpression.Method.DeclaringType != typeof(MoleSqlQueryable))
                 return base.VisitMethodCall(callExpression);
 
             return callExpression.Method.Name switch
@@ -89,7 +93,15 @@ namespace MoleSql.Translators
                                                              : null),
                 var name when Enum.GetNames(typeof(AggregateType)).Contains(name) => BindAggregate(
                     callExpression.Arguments[0], callExpression.Method,
-                    callExpression.Arguments.Count > 1 ? (LambdaExpression)callExpression.Arguments[1].StripQuotes() : null, callExpression == root),
+                    callExpression.Arguments.Count > 1 ? (LambdaExpression)callExpression.Arguments[1].StripQuotes() : null, null,
+                    callExpression == root, false),
+                var name when IsAsyncAggregateMethod(name) => callExpression == root
+                                                                  ? BindAggregate(callExpression.Arguments[0], callExpression.Method,
+                                                                                  GetSelectorFromAsyncAggregate(callExpression.Arguments),
+                                                                                  GetCancellationTokenFromAsyncAggregate(callExpression.Arguments),
+                                                                                  callExpression == root, true)
+                                                                  : throw new NotSupportedException(
+                                                                        $"Asychronous operators like '{callExpression.Method.Name}' can only appear at the top of the expression tree."),
                 _ => throw new NotSupportedException($"The method '{callExpression.Method.Name}' is not supported.")
             };
         }
@@ -337,10 +349,18 @@ namespace MoleSql.Translators
                 new SelectExpression(TypeSystemHelper.GetSequenceType(resultExpression.Type), alias, columns, projection.Source, null, null, groupExpressions),
                 projector);
         }
-        Expression BindAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot)
+        Expression BindAggregate(Expression source, MethodInfo method, LambdaExpression argument, Expression cancellationToken, bool isRoot, bool isAsync)
         {
             Type returnType = method.ReturnType;
-            AggregateType aggregateType = GetAggregateType(method.Name);
+
+            if (isAsync)
+                returnType = returnType.GetGenericArguments().First();
+
+            string aggregateName = isAsync
+                                       ? method.Name.Substring(0, method.Name.Length - 5)
+                                       : method.Name;
+            
+            AggregateType aggregateType = GetAggregateType(aggregateName);
             
             bool hasPredicateArgument = HasPredicateArgument(aggregateType);
             bool argumentHasPredicate = false;
@@ -373,10 +393,23 @@ namespace MoleSql.Translators
 
             if (isRoot)
             {
-                ParameterExpression parameterExpression = Expression.Parameter(selectType, "p");
-                LambdaExpression gator = Expression.Lambda(Expression.Call(typeof(Enumerable), "Single", new[] { returnType }, parameterExpression), parameterExpression);
+                if (!isAsync)
+                {
+                    ParameterExpression parameterExpression = Expression.Parameter(selectType, "p");
+                    LambdaExpression gator = Expression.Lambda(
+                        Expression.Call(typeof(Enumerable), "Single", new[] {returnType}, parameterExpression),
+                        parameterExpression);
+                    return new ProjectionExpression(selectExpression, new ColumnExpression(returnType, alias, string.Empty), gator);
+                }
 
-                return new ProjectionExpression(selectExpression, new ColumnExpression(returnType, alias, string.Empty), gator);
+                ParameterExpression parameterExpressionAsync = Expression.Parameter(typeof(IAsyncEnumerable<>).MakeGenericType(returnType), "p");
+                MethodInfo singleAsync =
+                    typeof(MoleSqlQueryable).GetMethod(nameof(MoleSqlQueryable.SingleAsync), BindingFlags.Static | BindingFlags.NonPublic)
+                                            ?.MakeGenericMethod(returnType);
+                Debug.Assert(singleAsync != null);
+                LambdaExpression gatorAsync = Expression.Lambda(
+                    Expression.Call(null, singleAsync, parameterExpressionAsync, cancellationToken), parameterExpressionAsync);
+                return new ProjectionExpression(selectExpression, new ColumnExpression(returnType, alias, string.Empty), aggregatorAsync: gatorAsync);
             }
 
             var subQuery = new SubQueryExpression(returnType, selectExpression);
@@ -494,6 +527,15 @@ namespace MoleSql.Translators
                                                                         ? type
                                                                         : throw new NotSupportedException(
                                                                               $"The aggregate type '{methodName}' is not supported.");
+        static bool IsAsyncAggregateMethod(string methodName)
+        {
+            if (!methodName.EndsWith("Async", StringComparison.InvariantCulture)) return false;
+            var name = methodName.Substring(0, methodName.Length - 5);
+            return Enum.GetNames(typeof(AggregateType)).Contains(name);
+        }
+        static LambdaExpression GetSelectorFromAsyncAggregate(ReadOnlyCollection<Expression> arguments) =>
+            arguments.Count == 3 ? (LambdaExpression)arguments[1].StripQuotes() : null;
+        static Expression GetCancellationTokenFromAsyncAggregate(ReadOnlyCollection<Expression> arguments) => arguments.Last();
         static bool HasPredicateArgument(AggregateType aggregateType) => aggregateType == AggregateType.Count;
         
         internal static ProjectionExpression Bind(Expression expression) => (ProjectionExpression)new QueryBinder{root = expression}.Visit(expression);

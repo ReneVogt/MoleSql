@@ -83,10 +83,10 @@ namespace MoleSql
         /// </summary>
         /// <typeparam name="T">The table to query.</typeparam>
         /// <returns>An <see cref="IQueryable{T}"/> representing a query to the table specified by <typeparamref name="T"/>.</returns>
-        public MoleQuery<T> GetTable<T>()
+        public MoleSqlQuery<T> GetTable<T>()
         {
             CheckDisposed();
-            return new MoleQuery<T>(provider);
+            return new MoleSqlQuery<T>(provider);
         }
 
         /// <summary>

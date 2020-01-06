@@ -11,6 +11,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -141,7 +142,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            var (sql, projection, parameters, aggregator) = SqlQueryTranslator.Translate(expression);
+            var (sql, projection, parameters, aggregator, _) = SqlQueryTranslator.Translate(expression);
 
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -179,7 +180,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            var (sql, projection, parameters, aggregator) = SqlQueryTranslator.Translate(expression);
+            var (sql, projection, parameters, _, aggregator) = SqlQueryTranslator.Translate(expression);
 
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -191,18 +192,19 @@ namespace MoleSql.QueryProviders
             Type elementType = TypeSystemHelper.GetElementType(expression.Type);
             var projector = projection.Compile();
 
-            IEnumerable sequence = (IEnumerable)Activator.CreateInstance(
+            if (aggregator != null) elementType = elementType.GetGenericArguments().First();
+
+            var sequence = Activator.CreateInstance(
                 typeof(ProjectionReader<>).MakeGenericType(elementType),
                 BindingFlags.Instance | BindingFlags.NonPublic, null,
                 new object[] { reader, projector, this },
                 null);
 
-            /* TODO: needs fixes when MaxAsync etc. are there */
             if (aggregator == null) return sequence;
 
             Delegate aggregatorDelegate = aggregator.Compile();
-            AggregateReader aggReader = (AggregateReader)Activator.CreateInstance(
-                typeof(AggregateReader<,>).MakeGenericType(elementType, aggregator.Body.Type),
+            AggregateAsyncReader aggReader = (AggregateAsyncReader)Activator.CreateInstance(
+                typeof(AggregateAsyncReader<,>).MakeGenericType(elementType, aggregator.Body.Type),
                 BindingFlags.Instance | BindingFlags.NonPublic, null,
                 new object[] { aggregatorDelegate },
                 null

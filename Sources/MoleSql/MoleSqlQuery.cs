@@ -18,17 +18,17 @@ namespace MoleSql
     /// The root element for MoleSql queries.
     /// </summary>
     /// <typeparam name="T">The type of the table.</typeparam>
-    public class MoleQuery<T> : IOrderedQueryable<T>
+    public class MoleSqlQuery<T> : IOrderedQueryable<T>
     {
         readonly QueryProvider provider;
 
-        internal MoleQuery([NotNull] QueryProvider provider)
+        internal MoleSqlQuery([NotNull] QueryProvider provider)
         {
             this.provider = provider;
             Expression = Expression.Constant(this);
         }
 
-        internal MoleQuery([NotNull] QueryProvider provider, [NotNull] Expression expression)
+        internal MoleSqlQuery([NotNull] QueryProvider provider, [NotNull] Expression expression)
         {
             this.provider = provider;
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));

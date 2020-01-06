@@ -39,7 +39,7 @@ namespace MoleSql.Translators
             var columns = projectionExpression.Source.Columns.Select(c => c.Name).ToArray();
             LambdaExpression projector = ProjectionBuilder.Build(projectionExpression.Projector, projectionExpression.Source.Alias, columns);
 
-            return new TranslationResult(commandText, projector, parameters, projectionExpression.Aggregator);
+            return new TranslationResult(commandText, projector, parameters, projectionExpression.Aggregator, projectionExpression.AggregatorAsync);
         }
     }
 }

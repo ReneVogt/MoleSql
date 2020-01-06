@@ -22,7 +22,7 @@ namespace MoleSql.QueryProviders
     {
         IQueryable<S> IQueryProvider.CreateQuery<S>(Expression expression)
         {
-            return new MoleQuery<S>(this, expression);
+            return new MoleSqlQuery<S>(this, expression);
         }
         IQueryable IQueryProvider.CreateQuery(Expression expression)
         {
@@ -30,7 +30,7 @@ namespace MoleSql.QueryProviders
 
             try
             {
-                return (IQueryable)Activator.CreateInstance(typeof(MoleQuery<>).MakeGenericType(elementType), this, expression);
+                return (IQueryable)Activator.CreateInstance(typeof(MoleSqlQuery<>).MakeGenericType(elementType), this, expression);
             }
             catch (TargetInvocationException tie) when (tie.InnerException != null)
             {

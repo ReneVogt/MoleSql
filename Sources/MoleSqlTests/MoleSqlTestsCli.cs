@@ -9,7 +9,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using MoleSqlTests.AsyncTests;
+using MoleSqlTests.Asynchronous;
 
 // ReSharper disable AccessToDisposedClosure
 

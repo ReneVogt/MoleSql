@@ -76,7 +76,7 @@ namespace MoleSql.Translators
             Expression projector = Visit(projection.Projector);
             SelectExpression source = (SelectExpression)Visit(projection.Source);
             return projector != projection.Projector || source != projection.Source
-                       ? new ProjectionExpression(source, projector, projection.Aggregator)
+                       ? new ProjectionExpression(source, projector, projection.Aggregator, projection.AggregatorAsync)
                        : projection;
         }
         protected override Expression VisitJoin(JoinExpression joinExpression)
