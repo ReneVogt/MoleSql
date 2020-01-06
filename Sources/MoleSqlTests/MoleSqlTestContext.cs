@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Configuration;
-using System.Data;
-using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -17,15 +14,13 @@ namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class MoleSqlTestContext : TestContext
+    public class MoleSqlTestContext
     {
-        public static TestContext TestContext { get; private set; }
-
+        static readonly bool isConsoleRunning = Assembly.GetEntryAssembly() == Assembly.GetExecutingAssembly();
         [AssemblyInitialize]
         [SuppressMessage("Stil", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Test framework dictates signature.")]
         public static void AssemblyInitialize(TestContext testContext)
         {
-            TestContext = testContext;
             AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestDb"));
         }
         [AssemblyCleanup]
@@ -46,11 +41,10 @@ namespace MoleSqlTests
 
         public static async Task RunTest<T>(string method) where T : class, new()
         {
-            var context = new MoleSqlTestContext();
-            AssemblyInitialize(context);
+            AssemblyInitialize(null);
             try
             {
-                await Execute<T, ClassInitializeAttribute>(null, context);
+                await Execute<T, ClassInitializeAttribute>(null, (TestContext)null);
 
                 T testClass = new T();
                 await Execute<T, TestInitializeAttribute>(testClass);
@@ -69,18 +63,15 @@ namespace MoleSqlTests
                 AssemblyCleanup();
             }
         }
-        internal static TestDbContext GetDbContext() => new TestDbContext {Log = new StringWriter()};
-        internal static TestDbContext GetDbContextWithTransaction() => new TestDbContext(true) {Log = new StringWriter()};
+        internal static TestDbContext GetDbContext() => new TestDbContext {Log = GetLog()};
+        internal static TestDbContext GetDbContextWithTransaction() => new TestDbContext(true) {Log = GetLog()};
         internal static void AssertSqlDump(MoleSqlDataContext context, string expected)
         {
             if (!(context?.Log is StringWriter sw)) return;
-            context.Log = new StringWriter();
-
-            var splitChars = new[] {'\r', '\n', '\t', '\v', ' '};
-
-            expected = string.Join(" ", expected.Split(splitChars, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
-            string log = string.Join(" ", sw.ToString().Split(splitChars, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
-            Assert.AreEqual(expected, log);
+            string log = sw.ToString();
+            if (isConsoleRunning) Console.WriteLine(log);
+            context.Log = GetLog();
+            Assert.AreEqual(NormalizeSql(expected), NormalizeSql(log));
         }
 
         static Task ExecuteTest<T>(T testClass, string method) => typeof(T).GetMethod(method)?.Invoke(testClass, new object[0]) as Task ?? Task.CompletedTask;
@@ -90,14 +81,8 @@ namespace MoleSqlTests
         static MethodInfo GetMethod<T, TAttribute>(bool instance) where TAttribute : Attribute =>
             typeof(T).GetMethods(BindingFlags.Public | (instance ? BindingFlags.Instance : BindingFlags.Static))
                      .FirstOrDefault(method => method.IsDecoratedWith<TAttribute>());
-    
-        public override void WriteLine(string message) => Console.WriteLine(message);
-        public override void WriteLine(string format, params object[] args) => Console.WriteLine(format, args);
-        public override void AddResultFile(string fileName) => throw new NotImplementedException();
-        public override void BeginTimer(string timerName) => throw new NotImplementedException();
-        public override void EndTimer(string timerName) => throw new NotImplementedException();
-        public override IDictionary Properties => throw new NotImplementedException();
-        public override DataRow DataRow => throw new NotImplementedException();
-        public override DbConnection DataConnection => throw new NotImplementedException();
+        static TextWriter GetLog() => new StringWriter();
+        static readonly char[] splitChars = { '\r', '\n', '\t', '\v', ' ' };
+        static string NormalizeSql(string sql) => string.Join(" ", sql.Split(splitChars, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
     }
 }

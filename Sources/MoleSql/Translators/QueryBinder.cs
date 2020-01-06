@@ -438,7 +438,7 @@ namespace MoleSql.Translators
         {
             SelectExpression selectExpression => selectExpression.Alias,
             TableExpression tableExpression => tableExpression.Alias,
-            _ => throw new InvalidOperationException($"Invalid source node type '{source.NodeType}'")
+            _ => throw new InvalidOperationException($"Invalid source node type '{source.NodeType}'.")
         };
         static bool IsTable(Expression expression) => IsTable((expression as ConstantExpression)?.Value);
         static bool IsTable(object value) => value is IQueryable query && query.Expression.NodeType == ExpressionType.Constant;
@@ -492,8 +492,8 @@ namespace MoleSql.Translators
         }
         static AggregateType GetAggregateType(string methodName) => Enum.TryParse(methodName, out AggregateType type)
                                                                         ? type
-                                                                        : throw new InvalidOperationException(
-                                                                              $"Unknown aggregate type: {methodName}");
+                                                                        : throw new NotSupportedException(
+                                                                              $"The aggregate type '{methodName}' is not supported.");
         static bool HasPredicateArgument(AggregateType aggregateType) => aggregateType == AggregateType.Count;
         
         internal static ProjectionExpression Bind(Expression expression) => (ProjectionExpression)new QueryBinder{root = expression}.Visit(expression);

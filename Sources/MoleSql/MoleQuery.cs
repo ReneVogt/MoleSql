@@ -24,13 +24,13 @@ namespace MoleSql
 
         internal MoleQuery([NotNull] QueryProvider provider)
         {
-            this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            this.provider = provider;
             Expression = Expression.Constant(this);
         }
 
         internal MoleQuery([NotNull] QueryProvider provider, [NotNull] Expression expression)
         {
-            this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            this.provider = provider;
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
 
             if (!typeof(IQueryable<T>).IsAssignableFrom(expression.Type))

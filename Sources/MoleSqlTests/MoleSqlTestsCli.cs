@@ -9,7 +9,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using MoleSqlTests.ExecuteNonQuery;
+using MoleSqlTests.AsyncTests;
 
 // ReSharper disable AccessToDisposedClosure
 
@@ -22,7 +22,7 @@ namespace MoleSqlTests
         {
             try
             {
-                await MoleSqlTestContext.RunTest<ExecuteNonQueryTests>(nameof(ExecuteNonQueryTests.DeleteRows_CorrectRowCount));
+                await MoleSqlTestContext.RunTest<ExecuteAsyncTests>(nameof(ExecuteAsyncTests.ToListAsync_BasicTest));
             }
             catch (Exception e)
             {

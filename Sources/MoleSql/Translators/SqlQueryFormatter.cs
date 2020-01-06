@@ -57,7 +57,7 @@ namespace MoleSql.Translators
                     ExpressionType.LessThanOrEqual => " <= ",
                     ExpressionType.GreaterThan => " > ",
                     ExpressionType.GreaterThanOrEqual => " >= ",
-                    _ => throw new NotSupportedException($"The binary operator '{binaryExpression.NodeType}' is not supported")
+                    _ => throw new NotSupportedException($"The binary operator '{binaryExpression.NodeType}' is not supported.")
                 });
             Visit(binaryExpression.Right);
             commandTextBuilder.Append(")");
@@ -146,7 +146,7 @@ namespace MoleSql.Translators
                 JoinType.CrossJoin => "CROSS JOIN ",
                 JoinType.InnerJoin => "INNER JOIN ",
                 JoinType.CrossApply => "CROSS APPLY ",
-                _ => throw new ArgumentException($"The JOIN type {joinExpression.JoinType} is not supported!")
+                _ => throw new NotSupportedException($"The JOIN type '{joinExpression.JoinType}' is not supported.")
             });
 
             VisitSource(joinExpression.Right);
@@ -180,7 +180,7 @@ namespace MoleSql.Translators
                     VisitJoin((JoinExpression)source);
                     break;
                 default:
-                    throw new InvalidOperationException("Select source is not of a valid type.");
+                    throw new InvalidOperationException($"Select source type '{source.NodeType}' is not valid.");
             }
 
             return source;
@@ -236,7 +236,7 @@ namespace MoleSql.Translators
                 AggregateType.Max => "MAX",
                 AggregateType.Sum => "SUM",
                 AggregateType.Average => "AVG",
-                _ => throw new InvalidOperationException("Unknown aggregate type: {aggregateType}.")
+                _ => throw new NotSupportedException($"Aggregate type '{aggregateType}' is not supported.")
             };
         static bool RequiresAsteriskWhenNoArgument(AggregateType aggregateType) => aggregateType == AggregateType.Count;
 
