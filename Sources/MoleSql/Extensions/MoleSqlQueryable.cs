@@ -4,6 +4,7 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MoleSql.QueryProviders;
 
-namespace MoleSql.QueryProviders
+namespace MoleSql.Extensions
 {
     /// <summary>
     /// Provides special operators IQueryables based on <see cref="MoleSqlQueryProvider"/> instances.

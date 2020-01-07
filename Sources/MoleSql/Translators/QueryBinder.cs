@@ -14,8 +14,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MoleSql.Expressions;
+using MoleSql.Extensions;
 using MoleSql.Helpers;
-using MoleSql.QueryProviders;
 
 namespace MoleSql.Translators
 {

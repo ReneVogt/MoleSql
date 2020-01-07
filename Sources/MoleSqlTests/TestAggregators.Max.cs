@@ -10,7 +10,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MoleSql.QueryProviders;
+using MoleSql.Extensions;
+
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace MoleSqlTests

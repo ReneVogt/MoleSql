@@ -11,12 +11,10 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MoleSql.QueryProviders;
 
-namespace MoleSql.QueryProviders
+namespace MoleSql.Extensions
 {
-    /// <summary>
-    /// Provides special operators IQueryables based on <see cref="MoleSqlQueryProvider"/> instances.
-    /// </summary>
     public static partial class MoleSqlQueryable
     {
         /// <summary>
