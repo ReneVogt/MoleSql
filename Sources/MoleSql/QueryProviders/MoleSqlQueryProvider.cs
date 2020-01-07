@@ -125,7 +125,7 @@ namespace MoleSql.QueryProviders
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             OpenConnection();
-            return cmd.ExecuteNonQuery();
+            return cmd.ExecuteScalar();
         }
         public T ExecuteScalar<T>(FormattableString query)
         {
@@ -135,7 +135,7 @@ namespace MoleSql.QueryProviders
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             OpenConnection();
-            return (T)(object)cmd.ExecuteNonQuery();
+            return (T)cmd.ExecuteScalar();
         }
         public async Task<object> ExecuteScalarAsync(FormattableString query, CancellationToken cancellationToken = default)
         {
@@ -155,7 +155,7 @@ namespace MoleSql.QueryProviders
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return (T)(object)await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+            return (T)await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
         }
         public int ExecuteNonQuery(FormattableString query)
         {
