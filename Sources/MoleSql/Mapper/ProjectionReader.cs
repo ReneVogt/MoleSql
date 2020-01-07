@@ -49,7 +49,7 @@ namespace MoleSql.Mapper
             {
                 var projection = (ProjectionExpression)subQueryExpression.Body;
                 var projectionWithReplacedOuterColumnReferences = ExpressionReplacer.Replace(projection, subQueryExpression.Parameters[0], Expression.Constant(this));
-                var projectionWithEvaluatedOuterColumnReferences = projectionWithReplacedOuterColumnReferences.EvaluateLocally();
+                var projectionWithEvaluatedOuterColumnReferences = projectionWithReplacedOuterColumnReferences.EvaluateLocally(CanExpressionBeEvaluatedLocally);
 
                 var result = ((IEnumerable<TSubQuery>)queryProvider.Execute(projectionWithEvaluatedOuterColumnReferences)).ToList();
                 return typeof(IQueryable<TSubQuery>).IsAssignableFrom(subQueryExpression.Body.Type)
@@ -96,6 +96,9 @@ namespace MoleSql.Mapper
                 reader.Dispose();
                 return new ValueTask(Task.CompletedTask);
             }
+
+            static bool CanExpressionBeEvaluatedLocally(Expression expression) =>
+                expression?.NodeType != ExpressionType.Parameter && !expression.IsDbExpression();
         }
 
         readonly SqlDataReader reader;

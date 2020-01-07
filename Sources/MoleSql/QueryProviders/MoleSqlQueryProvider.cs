@@ -186,7 +186,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            var (sql, projection, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(expression);
+            var (sql, projection, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(this, expression);
 
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -215,7 +215,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            var (sql, projection, parameters, _) = SqlQueryTranslator.Translate(expression);
+            var (sql, projection, parameters, _) = SqlQueryTranslator.Translate(this, expression);
 
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -237,7 +237,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            var (sql, _, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(expression);
+            var (sql, _, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(this, expression);
             if (!isTopLevelAggregation)
                 throw new InvalidOperationException("Invalid call: this expression must be a top level aggregation.");
 

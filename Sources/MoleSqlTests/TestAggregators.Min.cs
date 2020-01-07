@@ -37,7 +37,20 @@ namespace MoleSqlTests
         public void MinAsync_NotOnTop_NotSupportedException()
         {
             using var context = MoleSqlTestContext.GetDbContext();
+            context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).MinAsync(default) }).AsEnumerable().ToList();
+        }
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public void MinAsync_NotOnTopSelector_NotSupportedException()
+        {
+            using var context = MoleSqlTestContext.GetDbContext();
             context.Customers.Select(customer => new { T = context.Customers.MinAsync(c => c.Id, default) }).AsEnumerable().ToList();
+        }
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException))]
+        public async Task MinAsync_WrongQueryProvider_Exception()
+        {
+            await new[] { 1 }.AsQueryable().MinAsync();
         }
         [TestMethod]
         public async Task MinAsync_MinCustomerId_WithoutSelector()

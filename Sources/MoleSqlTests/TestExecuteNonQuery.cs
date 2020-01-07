@@ -16,19 +16,19 @@ namespace MoleSqlTests
     public class TestExecuteNonQuery
     {
         [TestMethod]
-        public void DeleteRows_CorrectRowCount()
+        public void UdateRows_CorrectRowCount()
         {
             const string Name = "Alfons Allerlei";
             using var context = MoleSqlTestContext.GetDbContextWithTransaction();
-            context.ExecuteNonQuery($"DELETE FROM Customers WHERE [Name] = {Name}").Should().Be(1);
-            MoleSqlTestContext.AssertSqlDump(context, "DELETE FROM Customers WHERE [Name] = @p0 -- @p0 NVarChar Input [Alfons Allerlei]");
+            context.ExecuteNonQuery($"UPDATE Customers SET Name = 'Hello World' WHERE [Name] = {Name}").Should().Be(1);
+            MoleSqlTestContext.AssertSqlDump(context, "UPDATE Customers SET Name = 'Hello World' WHERE [Name] = @p0 -- @p0 NVarChar Input [Alfons Allerlei]");
         }
         [TestMethod]
         public async Task ExecuteNonQueryAsync_YieldsCorrectResult()
         {
             using var context = MoleSqlTestContext.GetDbContextWithTransaction();
 
-            int result = await context.ExecuteNonQueryAsync($"DELETE FROM Customers WHERE Name = 'Alfons Allerlei'");
+            int result = await context.ExecuteNonQueryAsync($"UPDATE Customers SET Name = 'Hello World' WHERE Name = 'Alfons Allerlei'");
             result.Should().Be(1);
         }
     }

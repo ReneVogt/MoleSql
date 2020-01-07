@@ -95,7 +95,8 @@
     <Compile Include="TestAggregators.Sum.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>
-    <Compile Include="TestToListAsync.cs" />
+    <Compile Include="TestNestedQueries.cs" />
+    <Compile Include="TestAsyncExtensions.cs" />
     <Compile Include="TestExecuteScalar.cs" />
     <Compile Include="TestSelectAndWhere.cs" />
     <Compile Include="MoleSqlTestsCli.cs" />

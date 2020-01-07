@@ -6,6 +6,8 @@
  * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
  *
  */
+
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MoleSql.Expressions;
@@ -20,15 +22,13 @@ namespace MoleSql.Translators
     {
         class Nominator : DbExpressionVisitor
         {
-            HashSet<Expression> candidates;
-            bool canBeEvaluated;
+            readonly HashSet<Expression> candidates = new HashSet<Expression>();
+            readonly Func<Expression, bool> isEvaluatable;
+            bool canBeEvaluated = true;
 
-            internal HashSet<Expression> Nominate(Expression expression)
+            Nominator(Func<Expression, bool> isEvaluatable)
             {
-                candidates = new HashSet<Expression>();
-                canBeEvaluated = true;
-                Visit(expression);
-                return candidates;
+                this.isEvaluatable = isEvaluatable;
             }
 
             public override Expression Visit(Expression node)
@@ -38,24 +38,30 @@ namespace MoleSql.Translators
                 bool oldCanBeEvaluated = canBeEvaluated;
                 canBeEvaluated = true;
                 base.Visit(node);
-                canBeEvaluated &= CanBeEvaluated(node);
+                canBeEvaluated &= isEvaluatable(node);
                 if (canBeEvaluated) candidates.Add(node);
                 canBeEvaluated &= oldCanBeEvaluated;
                 return node;
             }
-
-            static bool CanBeEvaluated(Expression node) => node.NodeType != ExpressionType.Parameter && !node.IsDbExpression();
+            internal static HashSet<Expression> Nominate(Expression expression, Func<Expression, bool> canBeEvaluated)
+            {
+                var nominator = new Nominator(canBeEvaluated);
+                nominator.Visit(expression);
+                return nominator.candidates;
+            }
         }
         class Evaluator : DbExpressionVisitor
         {
-            HashSet<Expression> candidates;
-            internal Expression Evaluate(Expression expression, HashSet<Expression> nominees)
+            readonly HashSet<Expression> candidates;
+
+            Evaluator(HashSet<Expression> candidates)
             {
-                candidates = nominees;
-                return Visit(expression);
+                this.candidates = candidates;
             }
+
             public override Expression Visit(Expression node) => node == null ? null : candidates.Contains(node) ? Evaluate(node) : base.Visit(node);
 
+            internal static Expression Evaluate(Expression expression, HashSet<Expression> nominees) => new Evaluator(nominees).Visit(expression);
             static Expression Evaluate(Expression expression)
             {
                 if (expression.NodeType == ExpressionType.Constant)
@@ -74,8 +80,9 @@ namespace MoleSql.Translators
         /// This needs to be done before translating the expression tree into SQL.
         /// </summary>
         /// <param name="expression">The <see cref="Expression"/> to evaluate.</param>
+        /// <param name="canBeEvaluated">A function to determine if an expression can be evaluated locally.</param>
         /// <returns>The resulting <see cref="Expression"/> that no longer contains anything else but parameter or primitive constant expressions.</returns>
-        internal static Expression EvaluateLocally(this Expression expression) =>
-            new Evaluator().Evaluate(expression, new Nominator().Nominate(expression));
+        internal static Expression EvaluateLocally(this Expression expression, Func<Expression, bool> canBeEvaluated) =>
+            Evaluator.Evaluate(expression, Nominator.Nominate(expression, canBeEvaluated));
     }
 }

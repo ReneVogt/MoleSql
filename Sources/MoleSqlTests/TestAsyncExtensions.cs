@@ -6,6 +6,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class TestToListAsync
+    public class TestAsyncExtensions
     {
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
@@ -31,6 +32,16 @@ namespace MoleSqlTests
             using var context = MoleSqlTestContext.GetDbContext();
             var list = await context.Employees.OrderBy(e => e.Name).Select(e => e.Name).ToListAsync();
             list.Should().Equal("Marc", "Marcel", "René", "Steve");
+        }
+        [TestMethod]
+        public async Task AsAsyncEnumerable_CorrectList()
+        {
+            using var context = MoleSqlTestContext.GetDbContext();
+            var query = context.Employees.OrderBy(e => e.Name).Select(e => e.Name).AsAsyncEnumerable();
+            List<string> results = new List<string>();
+            await foreach (var name in query)
+                results.Add(name);
+            results.Should().Equal("Marc", "Marcel", "René", "Steve");
         }
     }
 }
