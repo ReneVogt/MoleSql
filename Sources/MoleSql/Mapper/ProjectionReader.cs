@@ -42,9 +42,9 @@ namespace MoleSql.Mapper
                 this.cancellationToken = cancellationToken;
             }
 
-            internal override object GetValue(int index) => values == null
-                                                                ? reader.IsDBNull(index) ? null : reader.GetValue(index)
-                                                                : values[index];
+            internal override TColumn GetValue<TColumn>(int index) => values == null
+                                                                ? reader.IsDBNull(index) ? default : (TColumn)reader.GetValue(index)
+                                                                : (TColumn)values[index];
             internal override IEnumerable<TSubQuery> ExecuteSubQuery<TSubQuery>(LambdaExpression subQueryExpression)
             {
                 var projection = (ProjectionExpression)subQueryExpression.Body;

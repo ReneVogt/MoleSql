@@ -20,7 +20,7 @@ namespace MoleSqlTests
             using var context = MoleSqlTestContext.GetDbContext();
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             context.Employees.ToList();
-            MoleSqlTestContext.AssertSqlDump(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees]");
+            MoleSqlTestContext.AssertSqlDump(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0");
         }
     }
 }
