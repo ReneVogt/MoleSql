@@ -15,23 +15,20 @@ namespace MoleSql.Expressions
     {
         internal SelectExpression Source { get; }
         internal Expression Projector { get; }
-        internal LambdaExpression Aggregator { get; }
-        internal LambdaExpression AggregatorAsync { get; }
+        internal bool IsTopLevelAggregation { get; }
 
         public override Type Type { get; }
         public override ExpressionType NodeType { get; }
 
-        internal ProjectionExpression(SelectExpression source, Expression projector, LambdaExpression aggregator = null, LambdaExpression aggregatorAsync = null)
+        internal ProjectionExpression(SelectExpression source, Expression projector, bool isTopLevelAggregation = false)
         {
             Source = source;
             Projector = projector;
+            IsTopLevelAggregation = isTopLevelAggregation;
             Type = source.Type;
-            Aggregator = aggregator;
-            AggregatorAsync = aggregatorAsync;
             NodeType = (ExpressionType)DbExpressionType.Projection;
         }
 
-        public override string ToString() => $"Projection: Source: ({Source}) Projector: ({Projector})";
-
+        public override string ToString() => $"Projection: Source: ({Source}) Projector: ({Projector}){(IsTopLevelAggregation ? " TLA" : string.Empty)}";
     }
 }

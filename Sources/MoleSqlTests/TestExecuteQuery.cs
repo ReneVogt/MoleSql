@@ -4,6 +4,7 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -11,24 +12,23 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace MoleSqlTests.Asynchronous.ExecuteQuery
+namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class ExecuteQueryAsyncTests
+    public class TestExecuteQuery
     {
         [TestMethod]
         public async Task ExecuteQueryAsync_Dynamic_CorrectResults()
         {
             using var context = MoleSqlTestContext.GetDbContext();
-            var query = await context.ExecuteQueryAsync($"SELECT TOP 3 [Name], [Age] FROM Customers ORDER BY [Name]", CancellationToken.None);
+            var query = context.ExecuteQueryAsync($"SELECT TOP 4 [Id] AS Erkennungszahl, [Name] AS Bezeichnung FROM Departments ORDER BY [Id]", CancellationToken.None);
 
-            var resultList = new List<(string name, int age)>();
+            var resultList = new List<(int, string)>();
             await foreach (var element in query)
-                resultList.Add((element.Name, element.Age));
+                resultList.Add((element.Erkennungszahl, element.Bezeichnung));
 
-            var expected = new[] {("Alfred", 20), ("Beate", 30), ("Christian", 40)};
-            resultList.Should().Equal(expected);
+            resultList.Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
         }
     }
 }

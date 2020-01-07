@@ -57,7 +57,7 @@ namespace MoleSql.Expressions
             Expression projector = Visit(projection.Projector);
 
             return source != projection.Source || projector != projection.Projector
-                       ? new ProjectionExpression(source, projector, projection.Aggregator, projection.AggregatorAsync)
+                       ? new ProjectionExpression(source, projector, projection.IsTopLevelAggregation)
                        : projection;
         }
         protected virtual Expression VisitJoin(JoinExpression joinExpression)

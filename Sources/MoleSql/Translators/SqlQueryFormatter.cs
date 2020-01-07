@@ -46,6 +46,20 @@ namespace MoleSql.Translators
         {
             commandTextBuilder.Append("("); 
             Visit(binaryExpression.Left);
+
+            if (binaryExpression.Right.NodeType == ExpressionType.Constant && binaryExpression.Right is ConstantExpression constantExpression &&
+                constantExpression.Value == null)
+            {
+                commandTextBuilder.Append(binaryExpression.NodeType switch
+                {
+                    ExpressionType.Equal => " IS NULL",
+                    ExpressionType.NotEqual => " IS NOT NULL",
+                    _ => throw new InvalidOperationException($"Cannot apply operator '{binaryExpression.NodeType}' to NULL values.")
+                });
+                commandTextBuilder.Append(")");
+                return binaryExpression;
+            }
+
             commandTextBuilder.Append(
                 binaryExpression.NodeType switch
                 {
@@ -65,6 +79,8 @@ namespace MoleSql.Translators
         }
         protected override Expression VisitConstant(ConstantExpression constant)
         {
+            if (constant.Value == null)
+                throw new InvalidOperationException("Cannot translate a binary expression with a left side value of NULL.");
             string name = $"@p{parameters.Count}";
             commandTextBuilder.Append(name);
             parameters.Add((name, constant.Value));

@@ -129,13 +129,13 @@ namespace MoleSql
         /// <returns>An enumerator for the query results.</returns>
         public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new() => provider.ExecuteQuery<T>(query);
         /// <summary>
-        /// Executes the given query asynchronously and returns a sequence of results.
+        /// Executes the given query and returns an asynchronous sequence of results.
         /// </summary>
         /// <typeparam name="T">The result type of the queried enumeration.</typeparam>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
-        /// <returns>A task that on completion returns an enumerator for the query results.</returns>
-        public Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new() => provider.ExecuteQueryAsync<T>(query, cancellationToken);
+        /// <returns>An asynchronous enumeration of the query results.</returns>
+        public IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new() => provider.ExecuteQueryAsync<T>(query, cancellationToken);
         /// <summary>
         /// Executes the given query and returns a sequence of dynmic instances.
         /// </summary>
@@ -143,12 +143,40 @@ namespace MoleSql
         /// <returns>An enumerator for the query results. Those will be dynamic objects.</returns>
         public IEnumerable ExecuteQuery(FormattableString query) => provider.ExecuteQuery(query);
         /// <summary>
-        /// Executes the given query asynchronously and returns a sequence of dynmic instances.
+        /// Executes the given query and returns an asynchronous sequence of dynmic instances.
         /// </summary>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
-        /// <returns>A task that on completion returns an enumerator for the query results. Those will be dynamic objects.</returns>
-        public Task<IAsyncEnumerable<dynamic>> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken) => provider.ExecuteQueryAsync(query, cancellationToken);
+        /// <returns>An asynchronous enumeratorion of the query results. Those will be dynamic objects.</returns>
+        public IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken) => provider.ExecuteQueryAsync(query, cancellationToken);
+        /// <summary>
+        /// Executes the query, and returns the first column of the first row in the result set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="query">The query to execute.</param>
+        /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty. Returns a maximum of 2033 characters.</returns>
+        public object ExecuteScalar(FormattableString query) => provider.ExecuteScalar(query);
+        /// <summary>
+        /// Executes the query, and returns the first column of the first row in the result set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="query">The query to execute.</param>
+        /// <typeparam name="T">The type to cast the result to.</typeparam>
+        /// <returns>The first column of the first row in the result set as <typeparamref name="T"/>.</returns>
+        public T ExecuteScalar<T>(FormattableString query) => provider.ExecuteScalar<T>(query);
+        /// <summary>
+        /// Executes the query asynchronously, and returns the first column of the first row in the result set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="query">The query to execute.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
+        /// <returns>The first column of the first row in the result set, or a null reference if the result set is empty. Returns a maximum of 2033 characters.</returns>
+        public Task<object> ExecuteScalarAsync(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteScalarAsync(query, cancellationToken);
+        /// <summary>
+        /// Executes the query asynchronously, and returns the first column of the first row in the result set returned by the query. Additional columns or rows are ignored.
+        /// </summary>
+        /// <param name="query">The query to execute.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
+        /// <typeparam name="T">The type to cast the result to.</typeparam>
+        /// <returns>The first column of the first row in the result set as <typeparamref name="T"/>.</returns>
+        public Task<T> ExecuteScalarAsync<T>(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteScalarAsync<T>(query, cancellationToken);
         /// <summary>
         /// Executes the given query or command and returns the number of affected rows.
         /// </summary>
@@ -162,6 +190,7 @@ namespace MoleSql
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The number of affected rows.</returns>
         public Task<int> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteNonQueryAsync(query, cancellationToken);
+        
         void CheckDisposed()
         {
             if (disposed) throw new ObjectDisposedException(nameof(MoleSqlDataContext));

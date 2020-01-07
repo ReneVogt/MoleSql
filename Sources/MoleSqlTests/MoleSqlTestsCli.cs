@@ -9,9 +9,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using MoleSqlTests.Asynchronous;
-
-// ReSharper disable AccessToDisposedClosure
 
 namespace MoleSqlTests
 {
@@ -22,7 +19,8 @@ namespace MoleSqlTests
         {
             try
             {
-                await MoleSqlTestContext.RunTest<ExecuteAsyncTests>(nameof(ExecuteAsyncTests.ToListAsync_BasicTest));
+                // enter command line test scenarios here
+                await Task.Yield();
             }
             catch (Exception e)
             {

@@ -32,6 +32,8 @@ namespace MoleSql.Mapper
             readonly QueryProvider queryProvider;
             readonly CancellationToken cancellationToken;
 
+            List<object> values;
+
             internal Enumerator(SqlDataReader reader, Func<ProjectionRow, T> projector, QueryProvider queryProvider, CancellationToken cancellationToken)
             {
                 this.reader = reader;
@@ -40,7 +42,9 @@ namespace MoleSql.Mapper
                 this.cancellationToken = cancellationToken;
             }
 
-            internal override object GetValue(int index) => reader.IsDBNull(index) ? null : reader.GetValue(index);
+            internal override object GetValue(int index) => values == null
+                                                                ? reader.IsDBNull(index) ? null : reader.GetValue(index)
+                                                                : values[index];
             internal override IEnumerable<TSubQuery> ExecuteSubQuery<TSubQuery>(LambdaExpression subQueryExpression)
             {
                 var projection = (ProjectionExpression)subQueryExpression.Body;
@@ -71,7 +75,15 @@ namespace MoleSql.Mapper
                     await DisposeAsync();
                     return false;
                 }
+
+                values = new List<object>();
+                for (int i = 0; i < reader.FieldCount; i++)
+                    values.Add(await reader.IsDBNullAsync(i, cancellationToken).ConfigureAwait(false)
+                                   ? null
+                                   : await reader.GetFieldValueAsync<object>(i, cancellationToken).ConfigureAwait(false));
+
                 Current = projector(this);
+                values = null;
                 return true;
             }
             public void Reset() { }

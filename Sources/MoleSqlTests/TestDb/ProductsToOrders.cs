@@ -9,12 +9,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace MoleSqlTests.TestDb
 {
     [ExcludeFromCodeCoverage]
-    class Customers
+    class ProductsToOrders
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Street { get; set; }
-        public string City { get; set; }
-        public override string ToString() => $"Custoemr '{Name}'";
+        public int ProductId { get; set; }
+        public int OrderId { get; set; }
+        public override string ToString() => $"Product/Order: {ProductId}/{OrderId}";
     }
 }

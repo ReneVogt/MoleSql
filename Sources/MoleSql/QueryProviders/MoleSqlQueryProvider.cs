@@ -10,10 +10,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,7 +84,7 @@ namespace MoleSql.QueryProviders
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects<T>();
         }
-        public async Task<IAsyncEnumerable<T>> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new()
+        public async IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, new()
         {
             CheckDisposed();
 
@@ -91,7 +92,9 @@ namespace MoleSql.QueryProviders
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync<T>(cancellationToken);
+            await foreach (var element in (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync<T>(
+                cancellationToken))
+                yield return element;
         }
         public IEnumerable ExecuteQuery(FormattableString query)
         {
@@ -103,7 +106,7 @@ namespace MoleSql.QueryProviders
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects();
         }
-        public async Task<IAsyncEnumerable<dynamic>> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 
@@ -111,7 +114,48 @@ namespace MoleSql.QueryProviders
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync(cancellationToken);
+            await foreach (var element in (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync(cancellationToken))
+                yield return element;
+        }
+        public object ExecuteScalar(FormattableString query)
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateParameterizedCommand(query);
+            cmd.Transaction = Transaction;
+            LogCommand(cmd);
+            OpenConnection();
+            return cmd.ExecuteNonQuery();
+        }
+        public T ExecuteScalar<T>(FormattableString query)
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateParameterizedCommand(query);
+            cmd.Transaction = Transaction;
+            LogCommand(cmd);
+            OpenConnection();
+            return (T)(object)cmd.ExecuteNonQuery();
+        }
+        public async Task<object> ExecuteScalarAsync(FormattableString query, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateParameterizedCommand(query);
+            cmd.Transaction = Transaction;
+            LogCommand(cmd);
+            await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+        }
+        public async Task<T> ExecuteScalarAsync<T>(FormattableString query, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
+
+            using var cmd = connection.CreateParameterizedCommand(query);
+            cmd.Transaction = Transaction;
+            LogCommand(cmd);
+            await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return (T)(object)await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
         public int ExecuteNonQuery(FormattableString query)
         {
@@ -142,7 +186,7 @@ namespace MoleSql.QueryProviders
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            var (sql, projection, parameters, aggregator, _) = SqlQueryTranslator.Translate(expression);
+            var (sql, projection, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(expression);
 
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -150,37 +194,28 @@ namespace MoleSql.QueryProviders
             LogCommand(cmd);
 
             OpenConnection();
+            if (isTopLevelAggregation)
+                return Convert.ChangeType(cmd.ExecuteScalar(), expression.Type, CultureInfo.InvariantCulture);
+
             SqlDataReader reader = cmd.ExecuteReader();
             Type elementType = TypeSystemHelper.GetElementType(expression.Type);
             var projector = projection.Compile();
 
-            IEnumerable sequence = (IEnumerable)Activator.CreateInstance(
+            return (IEnumerable)Activator.CreateInstance(
                 typeof(ProjectionReader<>).MakeGenericType(elementType),
                 BindingFlags.Instance | BindingFlags.NonPublic, null,
                 new object[] { reader, projector, this },
                 null);
-
-            if (aggregator == null) return sequence;
-
-            Delegate aggregatorDelegate = aggregator.Compile();
-            AggregateReader aggReader = (AggregateReader)Activator.CreateInstance(
-                typeof(AggregateReader<,>).MakeGenericType(elementType, aggregator.Body.Type),
-                BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { aggregatorDelegate },
-                null
-            );
-
-            return aggReader.Read(sequence);
         }
         [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
-        internal async Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken = default)
+        internal async IAsyncEnumerable<T> ExecuteAsync<T>(Expression expression, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 
             using var cmd = connection.CreateCommand();
             cmd.Transaction = Transaction;
 
-            var (sql, projection, parameters, _, aggregator) = SqlQueryTranslator.Translate(expression);
+            var (sql, projection, parameters, _) = SqlQueryTranslator.Translate(expression);
 
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -189,28 +224,31 @@ namespace MoleSql.QueryProviders
 
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             SqlDataReader reader = await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
-            Type elementType = TypeSystemHelper.GetElementType(expression.Type);
-            var projector = projection.Compile();
+            var projector = (Func<ProjectionRow, T>)projection.Compile();
+            var sequence = new ProjectionReader<T>(reader, projector, this);
+            await foreach (var element in sequence)
+                yield return element;
+        }
+        [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
+        internal async Task<T> ExecuteAggregateAsync<T>(Expression expression, CancellationToken cancellationToken = default)
+        {
+            CheckDisposed();
 
-            if (aggregator != null) elementType = elementType.GetGenericArguments().First();
+            using var cmd = connection.CreateCommand();
+            cmd.Transaction = Transaction;
 
-            var sequence = Activator.CreateInstance(
-                typeof(ProjectionReader<>).MakeGenericType(elementType),
-                BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { reader, projector, this },
-                null);
+            var (sql, _, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(expression);
+            if (!isTopLevelAggregation)
+                throw new InvalidOperationException("Invalid call: this expression must be a top level aggregation.");
 
-            if (aggregator == null) return sequence;
+            cmd.CommandText = sql;
+            parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
 
-            Delegate aggregatorDelegate = aggregator.Compile();
-            AggregateAsyncReader aggReader = (AggregateAsyncReader)Activator.CreateInstance(
-                typeof(AggregateAsyncReader<,>).MakeGenericType(elementType, aggregator.Body.Type),
-                BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { aggregatorDelegate },
-                null
-            );
+            LogCommand(cmd);
 
-            return aggReader.Read(sequence);
+            await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return (T)Convert.ChangeType(await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false), typeof(T),
+                                         CultureInfo.InvariantCulture);
         }
 
         void LogCommand(SqlCommand command)
