@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MoleSql.QueryProviders;
 
 namespace MoleSql
@@ -48,18 +49,29 @@ namespace MoleSql
         /// Creates a new <see cref="MoleSqlDataContext"/> for the specified connection.
         /// </summary>
         /// <param name="connectionString">A connection string defining the SQL server connection to use.</param>
-        public MoleSqlDataContext(string connectionString) : this(new SqlConnection(connectionString))
+        public MoleSqlDataContext(string connectionString) : this(new SqlConnection(connectionString), true)
         {
         }
-
         /// <summary>
         /// Creates a new <see cref="MoleSqlDataContext"/> for the given <see cref="SqlConnection"/>.
         /// </summary>
         /// <param name="connection">The <see cref="SqlConnection"/> to use with this context.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> was <code>null</code>.</exception>
-        public MoleSqlDataContext(SqlConnection connection)
+        public MoleSqlDataContext([NotNull] SqlConnection connection) : this(connection, false)
         {
-            provider = new MoleSqlQueryProvider(connection);
+        }
+        /// <summary>
+        /// Creates a new <see cref="MoleSqlDataContext"/> for the given <see cref="SqlConnection"/>.
+        /// </summary>
+        /// <param name="connection">The <see cref="SqlConnection"/> to use with this context.</param>
+        /// <param name="ownConnection"><code>true</code> if the <paramref name="connection"/> should be owned by this context
+        /// and disposed when this context is disposed, <code>false</code> if the caller stays responsible for the connection.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="connection"/> was <code>null</code>.</exception>
+        public MoleSqlDataContext([NotNull] SqlConnection connection, bool ownConnection)
+        {
+            if (connection == null)
+                throw new ArgumentNullException(nameof(connection));
+            provider = new MoleSqlQueryProvider(connection, ownConnection);
         }
         /// <inheritdoc />
         public void Dispose()

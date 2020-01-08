@@ -18,7 +18,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MoleSql.Helpers;
 using MoleSql.Mapper;
 using MoleSql.Translators;
@@ -35,16 +34,10 @@ namespace MoleSql.QueryProviders
         internal SqlTransaction Transaction { get; set; }
         internal TextWriter Log { get; set; }
 
-        internal MoleSqlQueryProvider(string connectionString) : this(new SqlConnection(connectionString), true)
-        {
-        }
-        internal MoleSqlQueryProvider([NotNull] SqlConnection connection) : this (connection, false)
-        {
-        }
-        internal MoleSqlQueryProvider([NotNull] SqlConnection connection, bool ownConnection)
+        internal MoleSqlQueryProvider(SqlConnection connection, bool ownConnection)
         {
             disposeConnection = ownConnection;
-            this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            this.connection = connection;
         }
         public void Dispose()
         {

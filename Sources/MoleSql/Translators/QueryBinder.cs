@@ -366,7 +366,11 @@ namespace MoleSql.Translators
             
             if (argument != null && hasPredicateArgument)
             {
-                source = Expression.Call(typeof(Queryable), "Where", method.GetGenericArguments(), source, argument);
+                var genericArguments = method.GetGenericArguments();
+                var declaringType = source.Type.IsGenericType && source.Type.GetGenericTypeDefinition() == typeof(IQueryable<>)
+                                        ? typeof(Queryable)
+                                        : typeof(Enumerable);
+                source = Expression.Call(declaringType, nameof(Queryable.Where), genericArguments, source, argument);
                 argument = null;
                 argumentHasPredicate = true;
             }

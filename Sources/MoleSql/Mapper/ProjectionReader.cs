@@ -57,6 +57,7 @@ namespace MoleSql.Mapper
                            : (IEnumerable<TSubQuery>)result;
             }
             public T Current { get; private set; }
+            [ExcludeFromCodeCoverage]
             object IEnumerator.Current => Current;
             public bool MoveNext()
             {
@@ -86,6 +87,7 @@ namespace MoleSql.Mapper
                 values = null;
                 return true;
             }
+            [ExcludeFromCodeCoverage]
             public void Reset() { }
             public void Dispose()
             {
@@ -98,7 +100,7 @@ namespace MoleSql.Mapper
             }
 
             static bool CanExpressionBeEvaluatedLocally(Expression expression) =>
-                expression?.NodeType != ExpressionType.Parameter && !expression.IsDbExpression();
+                expression.NodeType != ExpressionType.Parameter && !expression.IsDbExpression();
         }
 
         readonly SqlDataReader reader;
@@ -128,6 +130,7 @@ namespace MoleSql.Mapper
             used = true;
             return new Enumerator(reader, projector, queryProvider, cancellationToken);
         }
+        [ExcludeFromCodeCoverage]
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

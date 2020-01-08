@@ -5,6 +5,7 @@
  *
  */
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -31,14 +32,14 @@ namespace MoleSqlTests
         public void ExecuteQuery_Generic_CorrectResults()
         {
             using var context = MoleSqlTestContext.GetDbContext();
-            var query = context.ExecuteQuery<TestRow>($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description FROM Departments ORDER BY [Id]");
+            var query = context.ExecuteQuery<TestRow>($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description, [Name] AS IDontGetMapped FROM Departments ORDER BY [Id]");
             query.Select(x => (x.Identifier, x.Description)).Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
         }
         [TestMethod]
         public async Task ExecuteQueryAsync_Generic_CorrectResults()
         {
             using var context = MoleSqlTestContext.GetDbContext();
-            var query = context.ExecuteQueryAsync<TestRow>($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description FROM Departments ORDER BY [Id]", CancellationToken.None);
+            var query = context.ExecuteQueryAsync<TestRow>($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description, [Name] AS IDontGetMapped FROM Departments ORDER BY [Id]", CancellationToken.None);
 
             var resultList = new List<(int, string)>();
             await foreach (var element in query)
@@ -52,6 +53,20 @@ namespace MoleSqlTests
             using var context = MoleSqlTestContext.GetDbContext();
             var query = context.ExecuteQuery($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description FROM Departments ORDER BY [Id]");
             query.Cast<dynamic>().Select(x => (x.Identifier, x.Description)).Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
+        }
+        [TestMethod]
+        public void ExecuteQuery_Dynamic_CorrectResultsWithNulls()
+        {
+            using var context = MoleSqlTestContext.GetDbContext();
+            var query = context.ExecuteQuery($"SELECT TOP 2 [Name], [DateOfBirth], [LastSeen] FROM [Employees] ORDER BY [Id]");
+            var result = query.Cast<dynamic>().ToList();
+            result.Should().HaveCount(2);
+            Assert.AreEqual(result[0].Name, "Marc");
+            Assert.AreEqual(result[0].DateOfBirth, new DateTime(1970, 1, 1));
+            Assert.IsNull(result[0].LastSeen);
+            Assert.AreEqual(result[1].Name, "Marcel");
+            Assert.IsNull(result[1].DateOfBirth);
+            Assert.AreEqual(result[1].LastSeen, new DateTime(2010, 10, 25));
         }
         [TestMethod]
         public async Task ExecuteQueryAsync_Dynamic_CorrectResults()

@@ -115,6 +115,7 @@
     <Compile Include="TestAggregators.cs" />
     <Compile Include="TestExecuteQuery.cs" />
     <Compile Include="TestExecuteNonQuery.cs" />
+    <Compile Include="TestGrouping.cs" />
     <Compile Include="TestTables.cs" />
   </ItemGroup>
   <ItemGroup>
