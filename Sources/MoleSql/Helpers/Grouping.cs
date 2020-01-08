@@ -8,10 +8,12 @@
  */
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace MoleSql.Helpers
 {
+    [SuppressMessage("Microsoft.Performance", "CA1812", Justification="Is created via reflection.")]
     sealed class Grouping<TKey, TElement> : IGrouping<TKey, TElement>
     {
         public TKey Key { get; }
