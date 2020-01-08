@@ -157,7 +157,7 @@ namespace MoleSql.QueryProviders
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             return (T)await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
         }
-        public int ExecuteNonQuery(FormattableString query)
+        public Int32 ExecuteNonQuery(FormattableString query)
         {
             CheckDisposed();
 
@@ -167,7 +167,7 @@ namespace MoleSql.QueryProviders
             OpenConnection();
             return cmd.ExecuteNonQuery();
         }
-        public async Task<int> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
+        public async Task<Int32> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 

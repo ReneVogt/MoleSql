@@ -37,7 +37,7 @@ namespace MoleSql.Translators
         readonly Dictionary<Expression, GroupByInfo> groupByMap = new Dictionary<Expression, GroupByInfo>();
         Expression root;
         List<OrderClause> thenBys;
-        int aliasCount;
+        Int32 aliasCount;
         Expression currentGroupElement;
 
         QueryBinder()

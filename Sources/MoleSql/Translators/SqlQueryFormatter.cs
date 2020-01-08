@@ -23,12 +23,12 @@ namespace MoleSql.Translators
             Outer
         }
 
-        const int IndentationWidth = 2;
+        const Int32 IndentationWidth = 2;
 
         readonly StringBuilder commandTextBuilder = new StringBuilder();
         readonly List<(string name, object value)> parameters = new List<(string name, object value)>();
         
-        int depth;
+        Int32 depth;
 
         protected override Expression VisitMethodCall(MethodCallExpression m) => throw new NotSupportedException(
                                                                                      $"The method '{m.Method.Name}' is not supported.");
@@ -100,7 +100,7 @@ namespace MoleSql.Translators
             commandTextBuilder.Append("SELECT ");
 
 
-            for (int i = 0; i < selectExpression.Columns.Count; i++)
+            for (Int32 i = 0; i < selectExpression.Columns.Count; i++)
             {
                 ColumnDeclaration columnDeclaration = selectExpression.Columns[i];
                 if (i > 0)
@@ -129,7 +129,7 @@ namespace MoleSql.Translators
             {
                 AppendNewLine(Indentation.Same);
                 commandTextBuilder.Append("ORDER BY ");
-                for (int i = 0, n = selectExpression.OrderBy.Count; i < n; i++)
+                for (Int32 i = 0, n = selectExpression.OrderBy.Count; i < n; i++)
                 {
                     var orderClause = selectExpression.OrderBy[i];
                     if (i > 0) commandTextBuilder.Append(", ");
@@ -142,7 +142,7 @@ namespace MoleSql.Translators
             {
                 AppendNewLine(Indentation.Same);
                 commandTextBuilder.Append("GROUP BY ");
-                for (int i = 0; i < selectExpression.GroupBy.Count; i++)
+                for (Int32 i = 0; i < selectExpression.GroupBy.Count; i++)
                 {
                     if (i > 0)
                         commandTextBuilder.Append(", ");

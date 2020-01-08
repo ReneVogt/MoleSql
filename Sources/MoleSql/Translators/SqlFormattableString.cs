@@ -49,7 +49,7 @@ namespace MoleSql.Translators
                 }
             }
 
-            internal FormatCapturingParameter(object value, ref int parameterCount)
+            internal FormatCapturingParameter(object value, ref Int32 parameterCount)
             {
                 if (!(value is IEnumerable enumerable) || value is string)
                 {
@@ -57,7 +57,7 @@ namespace MoleSql.Translators
                     return;
                 }
 
-                int paramCount = parameterCount;
+                Int32 paramCount = parameterCount;
                 parameters = enumerable.Cast<object>()
                                        .Select(o => new SqlParameter(FormattableString.Invariant($"@p{paramCount++}"), o))
                                        .ToArray();
@@ -85,7 +85,7 @@ namespace MoleSql.Translators
         [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
         internal static SqlCommand CreateParameterizedCommand(this SqlConnection connection, FormattableString formattableQueryString)
         {
-            int parameters = 0;
+            Int32 parameters = 0;
             var formatArguments = formattableQueryString.GetArguments()
                                        .Select(arg => new FormatCapturingParameter(arg, ref parameters))
                                        .ToArray();

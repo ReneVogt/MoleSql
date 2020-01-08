@@ -68,6 +68,8 @@
     <Rule Id="IDE0022" Action="None" />
     <Rule Id="IDE0040" Action="None" />
     <Rule Id="IDE0040WithoutSuggestion" Action="None" />
+    <Rule Id="IDE0049" Action="None" />
+    <Rule Id="IDE0049WithoutSuggestion" Action="None" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeQuality.Analyzers" RuleNamespace="Microsoft.CodeQuality.Analyzers">
     <Rule Id="CA1710" Action="None" />

@@ -25,7 +25,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double> AverageAsync(this IQueryable<int> source, CancellationToken cancellationToken = default)
+        public static async Task<Double> AverageAsync(this IQueryable<Int32> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -36,7 +36,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Int32"/> values.
@@ -47,7 +47,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double?> AverageAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default)
+        public static async Task<Double?> AverageAsync(this IQueryable<Int32?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -58,7 +58,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Int64"/> values.
@@ -69,7 +69,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double> AverageAsync(this IQueryable<long> source, CancellationToken cancellationToken = default)
+        public static async Task<Double> AverageAsync(this IQueryable<Int64> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -80,7 +80,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Int64"/> values.
@@ -91,7 +91,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double?> AverageAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default)
+        public static async Task<Double?> AverageAsync(this IQueryable<Int64?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -102,7 +102,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Single"/> values.
@@ -113,7 +113,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<float> AverageAsync(this IQueryable<float> source, CancellationToken cancellationToken = default)
+        public static async Task<Single> AverageAsync(this IQueryable<Single> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -124,7 +124,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<float>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Single>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Single"/> values.
@@ -135,7 +135,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<float?> AverageAsync(this IQueryable<float?> source, CancellationToken cancellationToken = default)
+        public static async Task<Single?> AverageAsync(this IQueryable<Single?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -146,7 +146,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<float?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Single?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Double"/> values.
@@ -157,7 +157,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double> AverageAsync(this IQueryable<double> source, CancellationToken cancellationToken = default)
+        public static async Task<Double> AverageAsync(this IQueryable<Double> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -168,7 +168,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Double"/> values.
@@ -179,7 +179,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double?> AverageAsync(this IQueryable<double?> source, CancellationToken cancellationToken = default)
+        public static async Task<Double?> AverageAsync(this IQueryable<Double?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -190,7 +190,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Decimal"/> values.
@@ -201,7 +201,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<decimal> AverageAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default)
+        public static async Task<Decimal> AverageAsync(this IQueryable<Decimal> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -212,7 +212,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<decimal>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Decimal>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Decimal"/> values.
@@ -223,7 +223,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<decimal?> AverageAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default)
+        public static async Task<Decimal?> AverageAsync(this IQueryable<Decimal?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -234,7 +234,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<decimal?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Decimal?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Int32"/> values
@@ -247,7 +247,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int32>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -258,7 +258,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Int32"/> values
@@ -271,7 +271,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int32?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -282,7 +282,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Single"/> values
@@ -295,7 +295,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<float> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Single> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Single>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -306,7 +306,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<float>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Single>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Single"/> values
@@ -319,7 +319,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<float?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Single?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Single?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -330,7 +330,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<float?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Single?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Int64"/> values
@@ -343,7 +343,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int64>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -354,7 +354,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Int64"/> values
@@ -367,7 +367,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int64?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -378,7 +378,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Double"/> values
@@ -391,7 +391,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Double>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -402,7 +402,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Double"/> values
@@ -415,7 +415,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Double?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -426,7 +426,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<double?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Double?>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of <see cref="Decimal"/> values
@@ -439,7 +439,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<decimal> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Decimal> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Decimal>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -450,7 +450,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<decimal>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Decimal>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously computes the average of a sequence of nullable <see cref="Decimal"/> values
@@ -463,7 +463,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
-        public static async Task<decimal?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Decimal?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Decimal?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -474,7 +474,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(selector), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<decimal?>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Decimal?>(expression, cancellationToken).ConfigureAwait(false);
         }
     }
 }

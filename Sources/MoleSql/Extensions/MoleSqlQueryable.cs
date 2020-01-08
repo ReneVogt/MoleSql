@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -65,7 +66,9 @@ namespace MoleSql.Extensions
 
 #pragma warning disable IDE0060, CA1801 // Nicht verwendete Parameter entfernen
         // ReSharper disable UnusedParameter.Local
+        [ExcludeFromCodeCoverage]
         static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f, T1 unused1, T2 unused2) => f.Method;
+        [ExcludeFromCodeCoverage]
         static MethodInfo GetMethodInfo<T1, T2, T3, T4>(Func<T1, T2, T3, T4> f, T1 unused1, T2 unused2, T3 unused) => f.Method;
         // ReSharper restore UnusedParameter.Local
 #pragma warning restore IDE0060, CA1801 // Nicht verwendete Parameter entfernen

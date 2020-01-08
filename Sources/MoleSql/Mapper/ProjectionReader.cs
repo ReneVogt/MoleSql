@@ -77,7 +77,7 @@ namespace MoleSql.Mapper
                 }
 
                 values = new List<object>();
-                for (int i = 0; i < reader.FieldCount; i++)
+                for (Int32 i = 0; i < reader.FieldCount; i++)
                     values.Add(await reader.IsDBNullAsync(i, cancellationToken).ConfigureAwait(false)
                                    ? null
                                    : await reader.GetFieldValueAsync<object>(i, cancellationToken).ConfigureAwait(false));

@@ -25,8 +25,8 @@ namespace MoleSql.Extensions
         /// <returns>The number of elements in the sequence.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
-        /// <exception cref="OverflowException">The number of matching elements in the sequence is larger than <see cref="int.MaxValue"/>.</exception>
-        public static async Task<int> CountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
+        /// <exception cref="OverflowException">The number of matching elements in the sequence is larger than <see cref="Int32.MaxValue"/>.</exception>
+        public static async Task<Int32> CountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -37,7 +37,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<int>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Int32>(expression, cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Asynchronously returns the number of elements in the specified sequence that satisfies a condition.
@@ -49,8 +49,8 @@ namespace MoleSql.Extensions
         /// <returns>The number of elements in the sequence that satisfies the condition in the predicate function.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="predicate"/> were <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
-        /// <exception cref="OverflowException">The number of matching elements in the sequence is larger than <see cref="int.MaxValue"/>.</exception>
-        public static async Task<int> CountAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
+        /// <exception cref="OverflowException">The number of matching elements in the sequence is larger than <see cref="Int32.MaxValue"/>.</exception>
+        public static async Task<Int32> CountAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -61,7 +61,7 @@ namespace MoleSql.Extensions
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Quote(predicate), Expression.Constant(cancellationToken));
 
-            return await provider.ExecuteAggregateAsync<int>(expression, cancellationToken).ConfigureAwait(false);
+            return await provider.ExecuteAggregateAsync<Int32>(expression, cancellationToken).ConfigureAwait(false);
         }
     }
 }

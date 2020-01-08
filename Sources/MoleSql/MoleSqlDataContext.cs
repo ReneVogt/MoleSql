@@ -182,14 +182,14 @@ namespace MoleSql
         /// </summary>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <returns>The number of affected rows.</returns>
-        public int ExecuteNonQuery(FormattableString query) => provider.ExecuteNonQuery(query);
+        public Int32 ExecuteNonQuery(FormattableString query) => provider.ExecuteNonQuery(query);
         /// <summary>
         /// Executes the given query or command asynchronoulsy and returns a task that on completion returns the number of affected rows.
         /// </summary>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The number of affected rows.</returns>
-        public Task<int> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteNonQueryAsync(query, cancellationToken);
+        public Task<Int32> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteNonQueryAsync(query, cancellationToken);
         
         void CheckDisposed()
         {
