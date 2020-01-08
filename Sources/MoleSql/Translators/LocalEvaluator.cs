@@ -25,6 +25,8 @@ namespace MoleSql.Translators
             readonly HashSet<Expression> candidates = new HashSet<Expression>();
             readonly Func<Expression, bool> isEvaluatable;
             bool canBeEvaluated = true;
+            bool nestedCantBeEvaluated;
+            int nestedCompoundExpression;
 
             Nominator(Func<Expression, bool> isEvaluatable)
             {
@@ -39,10 +41,22 @@ namespace MoleSql.Translators
                 canBeEvaluated = true;
                 base.Visit(node);
                 canBeEvaluated &= isEvaluatable(node);
-                if (canBeEvaluated) candidates.Add(node);
+                if (canBeEvaluated && nestedCompoundExpression == 0) candidates.Add(node);
+                if (!canBeEvaluated) nestedCantBeEvaluated = true;
                 canBeEvaluated &= oldCanBeEvaluated;
                 return node;
             }
+            protected override Expression VisitMemberInit(MemberInitExpression node)
+            {
+                nestedCantBeEvaluated = false;
+                nestedCompoundExpression += 1;
+                var result = base.VisitMemberInit(node);
+                if (nestedCantBeEvaluated) canBeEvaluated = false;
+                nestedCompoundExpression -= 1;
+                if (nestedCompoundExpression == 0 && canBeEvaluated) candidates.Add(node);
+                return result;
+            }
+
             internal static HashSet<Expression> Nominate(Expression expression, Func<Expression, bool> canBeEvaluated)
             {
                 var nominator = new Nominator(canBeEvaluated);
@@ -61,7 +75,6 @@ namespace MoleSql.Translators
 
             public override Expression Visit(Expression node) => node == null ? null : candidates.Contains(node) ? Evaluate(node) : base.Visit(node);
 
-            internal static Expression Evaluate(Expression expression, HashSet<Expression> nominees) => new Evaluator(nominees).Visit(expression);
             static Expression Evaluate(Expression expression)
             {
                 if (expression.NodeType == ExpressionType.Constant)
@@ -71,6 +84,8 @@ namespace MoleSql.Translators
                 var function = lambda.Compile();
                 return Expression.Constant(function.DynamicInvoke(null), expression.Type);
             }
+
+            internal static Expression Evaluate(Expression expression, HashSet<Expression> nominees) => new Evaluator(nominees).Visit(expression);
         }
         /// <summary>
         /// Traverses the given <paramref name="expression"/> and evaluates all parts of it that can be
