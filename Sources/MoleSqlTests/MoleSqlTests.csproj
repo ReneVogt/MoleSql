@@ -99,6 +99,8 @@
     <Compile Include="TestNestedQueries.cs" />
     <Compile Include="TestAsyncExtensions.cs" />
     <Compile Include="TestExecuteScalar.cs" />
+    <Compile Include="TestJoinAndSelectMany.cs" />
+    <Compile Include="TestOrderBy.cs" />
     <Compile Include="TestSelectAndWhere.cs" />
     <Compile Include="MoleSqlTestsCli.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

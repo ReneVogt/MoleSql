@@ -220,7 +220,7 @@ namespace MoleSql.Translators
             {
                 map[resultSelector.Parameters[0]] = projection.Projector;
                 map[resultSelector.Parameters[1]] = collectionProjection.Projector;
-                Expression resultExpression = VisitSequence(resultSelector.Body);
+                Expression resultExpression = Visit(resultSelector.Body); //VisitSequence(resultSelector.Body);
                 Debug.Assert(resultExpression != null);
 
                 (projector, columns) = ColumnProjector.ProjectColumns(resultExpression, alias, projection.Source.Alias, collectionProjection.Source.Alias);
@@ -482,7 +482,7 @@ namespace MoleSql.Translators
                                                                                       typeof(Grouping<,>)
                                                                                         ? (ProjectionExpression)newExpression.Arguments[1]
                                                                                         : throw new InvalidOperationException(
-                                                                                              $"The expression of type '{expression.Type}' is not a sequence.");
+                                                                                              $"The expression of type '{expression.Type}' (node type '{expression.NodeType}') is not a sequence.");
         static Expression BuildPredicateWithNullsEqual(IEnumerable<Expression> source1, IEnumerable<Expression> source2)
         {
             // ReSharper disable once GenericEnumeratorNotDisposed - r# mistake

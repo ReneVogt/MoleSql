@@ -74,5 +74,17 @@ namespace MoleSqlTests
             result.Name.Should().Be("Alfons Allerlei");
             MoleSqlTestContext.AssertSqlDump(context, "SELECT [t0].[Id], [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Id] < @p0) -- @p0 Int Input [2]");
         }
+        [TestMethod]
+        public void Select_Coalesce()
+        {
+            using var context = MoleSqlTestContext.GetDbContext();
+            var query = from customer in context.Customers
+                        where customer.Name == "WithNullAddress"
+                        select new {customer.Name, City = customer.City ?? "ThisCityWasNull"};
+            var result = query.AsEnumerable().Single();
+            result.Name.Should().Be("WithNullAddress");
+            result.City.Should().Be("ThisCityWasNull");
+            MoleSqlTestContext.AssertSqlDump(context, "SELECT [t0].[Name], [t0].[City] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) -- @p0 NVarChar Input [WithNullAddress]");
+        }
     }
 }
