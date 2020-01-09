@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MoleSql.Exceptions;
 using MoleSql.Expressions;
 using MoleSql.Extensions;
 using MoleSql.Helpers;
@@ -99,9 +100,8 @@ namespace MoleSql.Translators
                                                                   ? BindAggregate(callExpression.Arguments[0], callExpression.Method,
                                                                                   GetSelectorFromAsyncAggregate(callExpression.Arguments),
                                                                                   callExpression == root, true)
-                                                                  : throw new NotSupportedException(
-                                                                        $"Asychronous operators like '{callExpression.Method.Name}' can only appear at the top of the expression tree."),
-                _ => throw new NotSupportedException($"The method '{callExpression.Method.Name}' is not supported.")
+                                                                  : throw callExpression.Method.CanOnlyAppearOnTopOfExpressionTree(),
+                _ => throw callExpression.Method.IsNotSupported()
             };
         }
         protected override Expression VisitConstant(ConstantExpression constant) => IsTable(constant.Value) ? (Expression)GetTableProjection(constant.Value) : constant;
@@ -456,7 +456,7 @@ namespace MoleSql.Translators
         {
             SelectExpression selectExpression => selectExpression.Alias,
             TableExpression tableExpression => tableExpression.Alias,
-            _ => throw new InvalidOperationException($"Invalid source node type '{source.NodeType}'.")
+            _ => throw source.NodeType.IsInvalid()
         };
         static bool IsTable(Expression expression) => IsTable((expression as ConstantExpression)?.Value);
         static bool IsTable(object value) => value is IQueryable query && query.Expression.NodeType == ExpressionType.Constant;
@@ -485,8 +485,7 @@ namespace MoleSql.Translators
                                                                                       expression.Type.GetGenericTypeDefinition() ==
                                                                                       typeof(Grouping<,>)
                                                                                         ? (ProjectionExpression)newExpression.Arguments[1]
-                                                                                        : throw new InvalidOperationException(
-                                                                                              $"The expression of type '{expression.Type}' (node type '{expression.NodeType}') is not a sequence.");
+                                                                                        : throw expression.IsNotASequence();
         static Expression BuildPredicateWithNullsEqual(IEnumerable<Expression> source1, IEnumerable<Expression> source2)
         {
             // ReSharper disable once GenericEnumeratorNotDisposed - r# mistake
@@ -510,8 +509,7 @@ namespace MoleSql.Translators
         }
         static AggregateType GetAggregateType(string methodName) => Enum.TryParse(methodName, out AggregateType type)
                                                                         ? type
-                                                                        : throw new NotSupportedException(
-                                                                              $"The aggregate type '{methodName}' is not supported.");
+                                                                        : throw methodName.IsUnsupportedAggregateType();
         static bool IsAsyncAggregateMethod(string methodName)
         {
             if (!methodName.EndsWith("Async", StringComparison.InvariantCulture)) return false;

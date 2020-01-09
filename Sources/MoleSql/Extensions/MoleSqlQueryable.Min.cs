@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MoleSql.Exceptions;
 
 namespace MoleSql.Extensions
 {
@@ -28,7 +29,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(MinAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(MinAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(MinAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -52,7 +53,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(MinAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(MinAsync).DoesNotSupportDifferentQueryProvider();
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
 

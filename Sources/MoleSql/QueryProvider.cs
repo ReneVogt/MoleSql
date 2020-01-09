@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MoleSql.Exceptions;
 using MoleSql.Helpers;
 using MoleSql.Mapper;
 using MoleSql.Translators;
@@ -255,8 +256,7 @@ namespace MoleSql
             cmd.Transaction = Transaction;
 
             var (sql, _, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(this, expression);
-            if (!isTopLevelAggregation)
-                throw new InvalidOperationException("Invalid call: this expression must be a top level aggregation.");
+            Debug.Assert(isTopLevelAggregation);
 
             cmd.CommandText = sql;
             parameters.ForEach(p => cmd.Parameters.AddWithValue(p.name, p.value));
@@ -283,7 +283,8 @@ namespace MoleSql
         }
         void CheckDisposed()
         {
-            if (disposed) throw new ObjectDisposedException(nameof(QueryProvider), "The query provider has already been disposed of.");
+            if (disposed)
+                throw typeof(QueryProvider).Name.ObjectDisposed();
         }
         void OpenConnection()
         {

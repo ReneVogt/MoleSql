@@ -6,10 +6,11 @@
  * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
  *
  */
-using System;
+
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using MoleSql.Exceptions;
 using MoleSql.Expressions;
 
 namespace MoleSql.Translators
@@ -33,8 +34,7 @@ namespace MoleSql.Translators
                                                                                             ? nameMap.TryGetValue(columnExpression.Name,
                                                                                                                   out var expression)
                                                                                                   ? Visit(expression)
-                                                                                                  : throw new InvalidOperationException(
-                                                                                                        "Reference to undefined column.")
+                                                                                                  : throw ThrowExtensions.ReferenceToUndefinedColumn()
                                                                                             : columnExpression;
 
         internal static SelectExpression Remove(SelectExpression outerSelect, params SelectExpression[] selectsToRemove) => Remove(outerSelect, (IEnumerable<SelectExpression>)selectsToRemove);

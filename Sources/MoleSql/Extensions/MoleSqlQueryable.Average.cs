@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MoleSql.Exceptions;
 
 namespace MoleSql.Extensions
 {
@@ -30,8 +31,8 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
-
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
+            
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
                                                     source.Expression, Expression.Constant(cancellationToken));
@@ -52,7 +53,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -74,7 +75,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -96,7 +97,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -118,7 +119,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -140,7 +141,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -162,7 +163,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -184,7 +185,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -206,7 +207,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -228,7 +229,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -254,7 +255,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -280,7 +281,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -306,7 +307,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -332,7 +333,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -358,7 +359,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -384,7 +385,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -410,7 +411,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -436,7 +437,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -462,7 +463,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -488,7 +489,7 @@ namespace MoleSql.Extensions
             if (selector == null)
                 throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AverageAsync).DoesNotSupportDifferentQueryProvider();
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,

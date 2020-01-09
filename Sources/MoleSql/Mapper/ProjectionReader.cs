@@ -15,6 +15,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MoleSql.Exceptions;
 using MoleSql.Expressions;
 using MoleSql.Helpers;
 using MoleSql.Translators;
@@ -118,14 +119,14 @@ namespace MoleSql.Mapper
         public IEnumerator<T> GetEnumerator()
         {
             if (used)
-                throw new ObjectDisposedException(nameof(ProjectionReader<T>), "Cannot enumerate the SqlDataReader more than once.");
+                throw nameof(ProjectionReader<T>).CanOnlyBeIteratedOnce();
             used = true;
             return new Enumerator(reader, projector, queryProvider, CancellationToken.None);
         }
         public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             if (used)
-                throw new ObjectDisposedException(nameof(ProjectionReader<T>), "Cannot enumerate the SqlDataReader more than once.");
+                throw nameof(ProjectionReader<T>).CanOnlyBeIteratedOnce();
             used = true;
             return new Enumerator(reader, projector, queryProvider, cancellationToken);
         }

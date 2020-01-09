@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using MoleSql.Exceptions;
 using MoleSql.Expressions;
 
 namespace MoleSql.Translators
@@ -30,12 +31,11 @@ namespace MoleSql.Translators
         
         Int32 depth;
 
-        protected override Expression VisitMethodCall(MethodCallExpression m) => throw new NotSupportedException(
-                                                                                     $"The method '{m.Method.Name}' is not supported.");
+        protected override Expression VisitMethodCall(MethodCallExpression m) => throw m.Method.IsNotSupported();
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             if (unaryExpression.NodeType != ExpressionType.Not)
-                throw new NotSupportedException($"The unary operator '{unaryExpression.NodeType}' is not supported.");
+                throw unaryExpression.IsNotSupported();
 
             commandTextBuilder.Append(" NOT ");
             Visit(unaryExpression.Operand);
@@ -54,7 +54,7 @@ namespace MoleSql.Translators
                 {
                     ExpressionType.Equal => " IS NULL",
                     ExpressionType.NotEqual => " IS NOT NULL",
-                    _ => throw new InvalidOperationException($"Cannot apply operator '{binaryExpression.NodeType}' to NULL values.")
+                    _ => throw binaryExpression.CannotBeAppliedToNullValues()
                 });
                 commandTextBuilder.Append(")");
                 return binaryExpression;
@@ -71,7 +71,7 @@ namespace MoleSql.Translators
                     ExpressionType.LessThanOrEqual => " <= ",
                     ExpressionType.GreaterThan => " > ",
                     ExpressionType.GreaterThanOrEqual => " >= ",
-                    _ => throw new NotSupportedException($"The binary operator '{binaryExpression.NodeType}' is not supported.")
+                    _ => throw binaryExpression.IsNotSupported()
                 });
             Visit(binaryExpression.Right);
             commandTextBuilder.Append(")");
@@ -80,7 +80,7 @@ namespace MoleSql.Translators
         protected override Expression VisitConstant(ConstantExpression constant)
         {
             if (constant.Value == null)
-                throw new InvalidOperationException("Cannot translate a binary expression with a left side value of NULL.");
+                throw ThrowExtensions.NullValuesOnLeftSideNotSupported();
             string name = $"@p{parameters.Count}";
             commandTextBuilder.Append(name);
             parameters.Add((name, constant.Value));
@@ -162,7 +162,7 @@ namespace MoleSql.Translators
                 JoinType.CrossJoin => "CROSS JOIN ",
                 JoinType.InnerJoin => "INNER JOIN ",
                 JoinType.CrossApply => "CROSS APPLY ",
-                _ => throw new NotSupportedException($"The JOIN type '{joinExpression.JoinType}' is not supported.")
+                _ => throw joinExpression.JoinType.IsNotSupported()
             });
 
             VisitSource(joinExpression.Right);
@@ -196,7 +196,7 @@ namespace MoleSql.Translators
                     VisitJoin((JoinExpression)source);
                     break;
                 default:
-                    throw new InvalidOperationException($"Select source type '{source.NodeType}' is not valid.");
+                    throw source.NodeType.IsInvalidSelectSourceType();
             }
 
             return source;
@@ -252,7 +252,7 @@ namespace MoleSql.Translators
                 AggregateType.Max => "MAX",
                 AggregateType.Sum => "SUM",
                 AggregateType.Average => "AVG",
-                _ => throw new NotSupportedException($"Aggregate type '{aggregateType}' is not supported.")
+                _ => throw aggregateType.IsNotSupported()
             };
         static bool RequiresAsteriskWhenNoArgument(AggregateType aggregateType) => aggregateType == AggregateType.Count;
 

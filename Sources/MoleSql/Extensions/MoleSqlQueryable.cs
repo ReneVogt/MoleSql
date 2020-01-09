@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MoleSql.Exceptions;
 
 namespace MoleSql.Extensions
 {
@@ -35,7 +36,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(ToListAsync)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(ToListAsync).DoesNotSupportDifferentQueryProvider();
 
             return provider.ExecuteAsync<T>(source.Expression, cancellationToken).ToListAsync(cancellationToken);
         }
@@ -72,7 +73,7 @@ namespace MoleSql.Extensions
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
-                throw new NotSupportedException($"{nameof(AsAsyncEnumerable)} only supports queries based on a {nameof(QueryProvider)}.");
+                throw nameof(AsAsyncEnumerable).DoesNotSupportDifferentQueryProvider();
 
             return provider.ExecuteAsync<T>(source.Expression, cancellationToken);
         }
