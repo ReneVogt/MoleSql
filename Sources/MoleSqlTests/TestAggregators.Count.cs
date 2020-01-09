@@ -86,7 +86,7 @@ namespace MoleSqlTests
         {
             using var context = GetDbContext();
             var result = await context.AggregatorTest.CountAsync(c => c.IntValue < 4);
-            result.Should().Be(4);
+            result.Should().Be(5);
         }
     }
 }
