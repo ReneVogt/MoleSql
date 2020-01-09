@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
@@ -304,7 +305,11 @@ namespace MoleSql
             if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Nullable<>))
                 return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
 
-            return Activator.CreateInstance(typeof(Nullable<>).MakeGenericType(Nullable.GetUnderlyingType(type)), value);
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            Debug.Assert(underlyingType?.IsValueType == true);
+            return Activator.CreateInstance(
+                typeof(Nullable<>).MakeGenericType(underlyingType), 
+                Convert.ChangeType(value, underlyingType, CultureInfo.InvariantCulture));
         }
     }
 }

@@ -145,21 +145,47 @@ namespace MoleSqlTests
                                                  nameof(MoleSqlQueryable.AverageAsync))
             );
         }
+        //[TestMethod]
+        //public async Task AverageAsync_Customers_WithoutSelector()
+        //{
+        //    using var context = GetDbContext();
+        //    // ReSharper disable once ReplaceWithSingleCallToCount
+        //    var result = await context.Customers.Where(c => c.Id < 4).Select(c => c.Id).AverageAsync();
+        //    result.Should().Be(2);
+        //}
+        //[TestMethod]
+        //public async Task AverageAsync_Customers_WithSelector()
+        //{
+        //    using var context = GetDbContext();
+        //    // ReSharper disable once ReplaceWithSingleCallToCount
+        //    var result = await context.Customers.Where(c => c.Id < 4).AverageAsync(c => c.Id);
+        //    result.Should().Be(2);
+        //}
         [TestMethod]
-        public async Task AverageAsync_Customers_WithoutSelector()
+        public async Task AverageAsync_CorrectValues()
         {
             using var context = GetDbContext();
-            // ReSharper disable once ReplaceWithSingleCallToCount
-            var result = await context.Customers.Where(c => c.Id < 4).Select(c => c.Id).AverageAsync();
-            result.Should().Be(2);
-        }
-        [TestMethod]
-        public async Task AverageAsync_Customers_WithSelector()
-        {
-            using var context = GetDbContext();
-            // ReSharper disable once ReplaceWithSingleCallToCount
-            var result = await context.Customers.Where(c => c.Id < 4).AverageAsync(c => c.Id);
-            result.Should().Be(2);
+            (await context.AggregatorTest.Select(a => a.IntValue).AverageAsync()).Should().Be(2, "should work for Int32");
+            (await context.AggregatorTest.AverageAsync(a => a.IntValue)).Should().Be(2, "should work for Int32 with selector");
+            (await context.AggregatorTest.Select(a => a.LongValue).AverageAsync()).Should().Be(2, "should work for Int64");
+            (await context.AggregatorTest.AverageAsync(a => a.LongValue)).Should().Be(2, "should work for Int64 with selector");
+            (await context.AggregatorTest.Select(a => a.FloatValue).AverageAsync()).Should().Be(15f / 6, "should work for Float");
+            (await context.AggregatorTest.AverageAsync(a => a.FloatValue)).Should().Be(15f / 6, "should work for Float with selector");
+            (await context.AggregatorTest.Select(a => a.DoubleValue).AverageAsync()).Should().Be(15d / 6, "should work for Double");
+            (await context.AggregatorTest.AverageAsync(a => a.DoubleValue)).Should().Be(15d / 6, "should work for Double with selector");
+            (await context.AggregatorTest.Select(a => a.DecimalValue).AverageAsync()).Should().Be(15m / 6, "should work for Decimal");
+            (await context.AggregatorTest.AverageAsync(a => a.DecimalValue)).Should().Be(15m / 6, "should work for Decimal with selector");
+
+            (await context.AggregatorTest.Select(a => a.NullableIntValue).AverageAsync()).Should().Be(2, "should work for Int32?");
+            (await context.AggregatorTest.AverageAsync(a => a.NullableIntValue)).Should().Be(2, "should work for Int32? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableLongValue).AverageAsync()).Should().Be(2, "should work for Int64?");
+            (await context.AggregatorTest.AverageAsync(a => a.NullableLongValue)).Should().Be(2, "should work for Int64? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableFloatValue).AverageAsync()).Should().Be(15f / 6, "should work for Float?");
+            (await context.AggregatorTest.AverageAsync(a => a.NullableFloatValue)).Should().Be(15f / 6, "should work for Float? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableDoubleValue).AverageAsync()).Should().Be(15d / 6, "should work for Double?");
+            (await context.AggregatorTest.AverageAsync(a => a.NullableDoubleValue)).Should().Be(15d / 6, "should work for Double? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableDecimalValue).AverageAsync()).Should().Be(15m / 6, "should work for Decimal?");
+            (await context.AggregatorTest.AverageAsync(a => a.NullableDecimalValue)).Should().Be(15m / 6, "should work for Decimal? with selector");
         }
     }
 }

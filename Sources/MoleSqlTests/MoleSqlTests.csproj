@@ -96,6 +96,7 @@
     <Compile Include="TestAggregators.Sum.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>
+    <Compile Include="TestDb\AggregatorTestTable.cs" />
     <Compile Include="TestNestedQueries.cs" />
     <Compile Include="TestAsyncExtensions.cs" />
     <Compile Include="TestExecuteScalar.cs" />
