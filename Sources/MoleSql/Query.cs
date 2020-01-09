@@ -4,13 +4,14 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using JetBrains.Annotations;
-using MoleSql.QueryProviders;
 
 namespace MoleSql
 {
@@ -18,17 +19,17 @@ namespace MoleSql
     /// The root element for MoleSql queries.
     /// </summary>
     /// <typeparam name="T">The type of the table.</typeparam>
-    public class MoleSqlQuery<T> : IOrderedQueryable<T>
+    public class Query<T> : IQueryable<T>, IQueryable, IEnumerable<T>, IEnumerable, IOrderedQueryable<T>, IOrderedQueryable, IAsyncEnumerable<T>
     {
         readonly QueryProvider provider;
 
-        internal MoleSqlQuery([NotNull] QueryProvider provider)
+        internal Query([NotNull] QueryProvider provider)
         {
             this.provider = provider;
             Expression = Expression.Constant(this);
         }
 
-        internal MoleSqlQuery([NotNull] QueryProvider provider, [NotNull] Expression expression)
+        internal Query([NotNull] QueryProvider provider, [NotNull] Expression expression)
         {
             this.provider = provider;
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
@@ -45,10 +46,11 @@ namespace MoleSql
         public IQueryProvider Provider => provider;
 
         /// <inheritdoc />
-        public IEnumerator<T> GetEnumerator()
-        {
-            return ((IEnumerable<T>)provider.Execute(Expression)).GetEnumerator();
-        }
+        public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)provider.Execute(Expression)).GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        /// <inheritdoc />
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default) =>
+            provider.ExecuteAsync<T>(Expression, cancellationToken).GetAsyncEnumerator(cancellationToken);
+
     }
 }

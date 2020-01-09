@@ -4,6 +4,7 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -22,66 +24,87 @@ using MoleSql.Helpers;
 using MoleSql.Mapper;
 using MoleSql.Translators;
 
-namespace MoleSql.QueryProviders 
+namespace MoleSql 
 {
-    sealed class MoleSqlQueryProvider : QueryProvider, IDisposable
+    sealed class QueryProvider : IQueryProvider, IDisposable
     {
-        readonly SqlConnection connection;
         readonly bool disposeConnection;
 
         bool disposed;
 
+        internal SqlConnection Connection { get; }
         internal SqlTransaction Transaction { get; set; }
         internal TextWriter Log { get; set; }
 
-        internal MoleSqlQueryProvider(SqlConnection connection, bool ownConnection)
+        internal QueryProvider(SqlConnection connection, bool ownConnection)
         {
             disposeConnection = ownConnection;
-            this.connection = connection;
+            Connection = connection;
         }
         public void Dispose()
         {
             if (disposed) return;
-            if (disposeConnection) connection.Dispose();
+            if (disposeConnection) Connection.Dispose();
             disposed = true;
         }
+        IQueryable<S> IQueryProvider.CreateQuery<S>(Expression expression)
+        {
+            return new Query<S>(this, expression);
+        }
+        IQueryable IQueryProvider.CreateQuery(Expression expression)
+        {
+            Type elementType = TypeSystemHelper.GetElementType(expression.Type);
 
-        public SqlTransaction BeginTransaction()
-        {
-            OpenConnection();
-            return connection.BeginTransaction();
+            try
+            {
+                return (IQueryable)Activator.CreateInstance(typeof(Query<>).MakeGenericType(elementType), this, expression);
+            }
+            catch (TargetInvocationException tie) when (tie.InnerException != null)
+            {
+                throw tie.InnerException;
+            }
         }
-        public SqlTransaction BeginTransaction(string transactionName)
+        S IQueryProvider.Execute<S>(Expression expression)
         {
-            OpenConnection();
-            return connection.BeginTransaction(transactionName);
-        }
-        public SqlTransaction BeginTransaction(IsolationLevel iso)
-        {
-            OpenConnection();
-            return connection.BeginTransaction(iso);
-        }
-        public SqlTransaction BeginTransaction(IsolationLevel iso, string transactionName)
-        {
-            OpenConnection();
-            return connection.BeginTransaction(iso, transactionName);
+            return (S)Execute(expression);
         }
 
-        public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new()
+        internal SqlTransaction BeginTransaction()
+        {
+            OpenConnection();
+            return Connection.BeginTransaction();
+        }
+        internal SqlTransaction BeginTransaction(string transactionName)
+        {
+            OpenConnection();
+            return Connection.BeginTransaction(transactionName);
+        }
+        internal SqlTransaction BeginTransaction(IsolationLevel iso)
+        {
+            OpenConnection();
+            return Connection.BeginTransaction(iso);
+        }
+        internal SqlTransaction BeginTransaction(IsolationLevel iso, string transactionName)
+        {
+            OpenConnection();
+            return Connection.BeginTransaction(iso, transactionName);
+        }
+
+        internal IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new()
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects<T>();
         }
-        public async IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, new()
+        internal async IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, new()
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
@@ -89,82 +112,82 @@ namespace MoleSql.QueryProviders
                 cancellationToken))
                 yield return element;
         }
-        public IEnumerable ExecuteQuery(FormattableString query)
+        internal IEnumerable ExecuteQuery(FormattableString query)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects();
         }
-        public async IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        internal async IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             await foreach (var element in (await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false)).ReadObjectsAsync(cancellationToken))
                 yield return element;
         }
-        public object ExecuteScalar(FormattableString query)
+        internal object ExecuteScalar(FormattableString query)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             OpenConnection();
             return cmd.ExecuteScalar();
         }
-        public T ExecuteScalar<T>(FormattableString query)
+        internal T ExecuteScalar<T>(FormattableString query)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             OpenConnection();
             return (T)cmd.ExecuteScalar();
         }
-        public async Task<object> ExecuteScalarAsync(FormattableString query, CancellationToken cancellationToken = default)
+        internal async Task<object> ExecuteScalarAsync(FormattableString query, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             return await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
         }
-        public async Task<T> ExecuteScalarAsync<T>(FormattableString query, CancellationToken cancellationToken = default)
+        internal async Task<T> ExecuteScalarAsync<T>(FormattableString query, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             return (T)await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
         }
-        public Int32 ExecuteNonQuery(FormattableString query)
+        internal Int32 ExecuteNonQuery(FormattableString query)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             OpenConnection();
             return cmd.ExecuteNonQuery();
         }
-        public async Task<Int32> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
+        internal async Task<Int32> ExecuteNonQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateParameterizedCommand(query);
+            using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
@@ -172,11 +195,11 @@ namespace MoleSql.QueryProviders
         }
 
         [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
-        public override object Execute(Expression expression)
+        public object Execute(Expression expression)
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateCommand();
+            using var cmd = Connection.CreateCommand();
             cmd.Transaction = Transaction;
 
             var (sql, projection, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(this, expression);
@@ -205,7 +228,7 @@ namespace MoleSql.QueryProviders
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateCommand();
+            using var cmd = Connection.CreateCommand();
             cmd.Transaction = Transaction;
 
             var (sql, projection, parameters, _) = SqlQueryTranslator.Translate(this, expression);
@@ -227,7 +250,7 @@ namespace MoleSql.QueryProviders
         {
             CheckDisposed();
 
-            using var cmd = connection.CreateCommand();
+            using var cmd = Connection.CreateCommand();
             cmd.Transaction = Transaction;
 
             var (sql, _, parameters, isTopLevelAggregation) = SqlQueryTranslator.Translate(this, expression);
@@ -259,19 +282,19 @@ namespace MoleSql.QueryProviders
         }
         void CheckDisposed()
         {
-            if (disposed) throw new ObjectDisposedException(nameof(MoleSqlQueryProvider), "The query provider has already been disposed of.");
+            if (disposed) throw new ObjectDisposedException(nameof(QueryProvider), "The query provider has already been disposed of.");
         }
         void OpenConnection()
         {
             CheckDisposed();
-            if (connection.State == ConnectionState.Closed)
-                connection.Open();
+            if (Connection.State == ConnectionState.Closed)
+                Connection.Open();
         }
         async ValueTask OpenConnectionAsync(CancellationToken cancellationToken)
         {
             CheckDisposed();
-            if (connection.State == ConnectionState.Closed)
-                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            if (Connection.State == ConnectionState.Closed)
+                await Connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         }
 
         static object ChangeType(object value, Type type)

@@ -12,15 +12,15 @@ using MoleSql;
 namespace MoleSqlTests.TestDb
 {
     [ExcludeFromCodeCoverage]
-    class TestDbContext : MoleSqlDataContext
+    class TestDbContext : DataContext
     {
         readonly bool disposeTransaction;
-        internal MoleSqlQuery<Customers> Customers => GetTable<Customers>();
-        internal MoleSqlQuery<Employees> Employees => GetTable<Employees>();
-        internal MoleSqlQuery<Orders> Orders => GetTable<Orders>();
-        internal MoleSqlQuery<Departments> Departments => GetTable<Departments>();
-        internal MoleSqlQuery<Products> Products => GetTable<Products>();
-        internal MoleSqlQuery<ProductsToOrders> ProductsToOrders => GetTable<ProductsToOrders>();
+        internal Query<Customers> Customers => GetTable<Customers>();
+        internal Query<Employees> Employees => GetTable<Employees>();
+        internal Query<Orders> Orders => GetTable<Orders>();
+        internal Query<Departments> Departments => GetTable<Departments>();
+        internal Query<Products> Products => GetTable<Products>();
+        internal Query<ProductsToOrders> ProductsToOrders => GetTable<ProductsToOrders>();
 
         public TestDbContext(bool disposeTransaction = false)
             : base(ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString)

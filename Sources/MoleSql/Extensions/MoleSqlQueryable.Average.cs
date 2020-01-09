@@ -10,7 +10,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using MoleSql.QueryProviders;
 
 namespace MoleSql.Extensions
 {
@@ -23,14 +22,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double> AverageAsync(this IQueryable<Int32> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -45,14 +44,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double?> AverageAsync(this IQueryable<Int32?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -67,14 +66,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double> AverageAsync(this IQueryable<Int64> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -89,14 +88,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double?> AverageAsync(this IQueryable<Int64?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -111,14 +110,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Single> AverageAsync(this IQueryable<Single> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -133,14 +132,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Single?> AverageAsync(this IQueryable<Single?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -155,14 +154,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double> AverageAsync(this IQueryable<Double> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -177,14 +176,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double?> AverageAsync(this IQueryable<Double?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -199,14 +198,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Decimal> AverageAsync(this IQueryable<Decimal> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -221,14 +220,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Decimal?> AverageAsync(this IQueryable<Decimal?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -245,14 +244,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int32>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -269,14 +268,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int32?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -293,14 +292,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Single> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Single>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -317,14 +316,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Single?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Single?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -341,14 +340,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int64>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -365,14 +364,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int64?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -389,14 +388,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Double>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -413,14 +412,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Double?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -437,14 +436,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Decimal> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Decimal>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -461,14 +460,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The average of the sequence values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="InvalidOperationException"><paramref name="source"/> contains no elements.</exception>
         public static async Task<Decimal?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Decimal?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AverageAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(AverageAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,

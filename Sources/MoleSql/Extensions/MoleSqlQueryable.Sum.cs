@@ -10,7 +10,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using MoleSql.QueryProviders;
 
 namespace MoleSql.Extensions
 {
@@ -28,8 +27,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -49,8 +48,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -70,8 +69,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -91,8 +90,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -112,8 +111,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -133,8 +132,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -154,8 +153,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -175,8 +174,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -196,8 +195,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -217,8 +216,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -240,8 +239,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -263,8 +262,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -286,8 +285,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -309,8 +308,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -332,8 +331,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -355,8 +354,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -378,8 +377,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -401,8 +400,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -424,8 +423,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -447,8 +446,8 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(SumAsync, source, selector, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,

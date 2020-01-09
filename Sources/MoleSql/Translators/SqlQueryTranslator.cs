@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using MoleSql.Expressions;
 using MoleSql.Extensions;
-using MoleSql.QueryProviders;
 
 namespace MoleSql.Translators
 {
@@ -22,10 +21,10 @@ namespace MoleSql.Translators
         /// <summary>
         /// Translates the given <paramref name="expression"/> into an SQL query.
         /// </summary>
-        /// <param name="provider">The <see cref="MoleSqlQueryProvider"/> that executes this query. This is necessary to determine locally evaluatable expression subtrees.</param>
+        /// <param name="provider">The <see cref="QueryProvider"/> that executes this query. This is necessary to determine locally evaluatable expression subtrees.</param>
         /// <param name="expression">The expression tree to translate.</param>
         /// <returns>A <see cref="TranslationResult"/> holding the information required to build a <see cref="SqlCommand"/> to execute the query.</returns>
-        internal static TranslationResult Translate(MoleSqlQueryProvider provider, Expression expression)
+        internal static TranslationResult Translate(QueryProvider provider, Expression expression)
         {
             if (!(expression is ProjectionExpression projectionExpression))
             {
@@ -45,7 +44,7 @@ namespace MoleSql.Translators
             return new TranslationResult(commandText, projector, parameters, projectionExpression.IsTopLevelAggregation);
         }
 
-        static bool CanExpressionBeEvaluatedLocally(MoleSqlQueryProvider provider, Expression expression) =>
+        static bool CanExpressionBeEvaluatedLocally(QueryProvider provider, Expression expression) =>
             expression?.NodeType != ExpressionType.Parameter &&
             expression?.NodeType != ExpressionType.Lambda &&
             !expression.IsDbExpression() &&

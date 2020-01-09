@@ -10,7 +10,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using MoleSql.QueryProviders;
 
 namespace MoleSql.Extensions
 {
@@ -24,14 +23,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The number of elements in the sequence.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="OverflowException">The number of matching elements in the sequence is larger than <see cref="Int32.MaxValue"/>.</exception>
         public static async Task<Int32> CountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(CountAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(CountAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(CountAsync, source, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,
@@ -48,14 +47,14 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>The number of elements in the sequence that satisfies the condition in the predicate function.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="predicate"/> were <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="OverflowException">The number of matching elements in the sequence is larger than <see cref="Int32.MaxValue"/>.</exception>
         public static async Task<Int32> CountAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(CountAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(CountAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var methodInfo = GetMethodInfo(CountAsync, source, predicate, cancellationToken);
             Expression expression = Expression.Call(null, methodInfo,

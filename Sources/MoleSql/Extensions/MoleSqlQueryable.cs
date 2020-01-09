@@ -13,12 +13,11 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MoleSql.QueryProviders;
 
 namespace MoleSql.Extensions
 {
     /// <summary>
-    /// Provides special operators IQueryables based on <see cref="MoleSqlQueryProvider"/> instances.
+    /// Provides special operators IQueryables based on <see cref="QueryProvider"/> instances.
     /// </summary>
     public static partial class MoleSqlQueryable
     {
@@ -30,13 +29,13 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>A task that on completion returns a list of the resulting rows.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         public static async Task<List<T>> ToListAsync<T>([NotNull] this IQueryable<T> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(ToListAsync)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(ToListAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
             var query = provider.ExecuteAsync<T>(source.Expression, cancellationToken);
             List<T> list = new List<T>();
@@ -53,13 +52,13 @@ namespace MoleSql.Extensions
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>A sequence of rows that can be iterated asynchronously.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="MoleSqlQueryProvider"/>.</exception>
+        /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         public static IAsyncEnumerable<T> AsAsyncEnumerable<T>([NotNull] this IQueryable<T> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is MoleSqlQueryProvider provider))
-                throw new NotSupportedException($"{nameof(AsAsyncEnumerable)} only supports queries based on a {nameof(MoleSqlQueryProvider)}.");
+            if (!(source.Provider is QueryProvider provider))
+                throw new NotSupportedException($"{nameof(AsAsyncEnumerable)} only supports queries based on a {nameof(QueryProvider)}.");
 
             return provider.ExecuteAsync<T>(source.Expression, cancellationToken);
         }

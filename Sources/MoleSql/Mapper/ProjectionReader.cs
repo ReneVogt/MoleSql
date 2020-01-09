@@ -17,7 +17,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MoleSql.Expressions;
 using MoleSql.Helpers;
-using MoleSql.QueryProviders;
 using MoleSql.Translators;
 
 namespace MoleSql.Mapper
@@ -29,12 +28,12 @@ namespace MoleSql.Mapper
         {
             readonly SqlDataReader reader;
             readonly Func<ProjectionRow, T> projector;
-            readonly QueryProvider queryProvider;
+            readonly IQueryProvider queryProvider;
             readonly CancellationToken cancellationToken;
 
             List<object> values;
 
-            internal Enumerator(SqlDataReader reader, Func<ProjectionRow, T> projector, QueryProvider queryProvider, CancellationToken cancellationToken)
+            internal Enumerator(SqlDataReader reader, Func<ProjectionRow, T> projector, IQueryProvider queryProvider, CancellationToken cancellationToken)
             {
                 this.reader = reader;
                 this.projector = projector;
@@ -105,11 +104,11 @@ namespace MoleSql.Mapper
 
         readonly SqlDataReader reader;
         readonly Func<ProjectionRow, T> projector;
-        readonly QueryProvider queryProvider;
+        readonly IQueryProvider queryProvider;
 
         bool used;
 
-        internal ProjectionReader(SqlDataReader reader, Func<ProjectionRow, T> projector, QueryProvider queryProvider)
+        internal ProjectionReader(SqlDataReader reader, Func<ProjectionRow, T> projector, IQueryProvider queryProvider)
         {
             this.reader = reader;
             this.projector = projector;

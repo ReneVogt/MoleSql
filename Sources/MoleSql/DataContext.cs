@@ -14,16 +14,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MoleSql.QueryProviders;
 
 namespace MoleSql
 {
     /// <summary>
     /// Represents a data context for the MoleSQL ORM framework.
     /// </summary>
-    public class MoleSqlDataContext : IDisposable
+    public class DataContext : IDisposable
     {
-        readonly MoleSqlQueryProvider provider;
+        readonly QueryProvider provider;
 
         bool disposed;
 
@@ -46,32 +45,32 @@ namespace MoleSql
         }
 
         /// <summary>
-        /// Creates a new <see cref="MoleSqlDataContext"/> for the specified connection.
+        /// Creates a new <see cref="DataContext"/> for the specified connection.
         /// </summary>
         /// <param name="connectionString">A connection string defining the SQL server connection to use.</param>
-        public MoleSqlDataContext(string connectionString) : this(new SqlConnection(connectionString), true)
+        public DataContext(string connectionString) : this(new SqlConnection(connectionString), true)
         {
         }
         /// <summary>
-        /// Creates a new <see cref="MoleSqlDataContext"/> for the given <see cref="SqlConnection"/>.
+        /// Creates a new <see cref="DataContext"/> for the given <see cref="SqlConnection"/>.
         /// </summary>
         /// <param name="connection">The <see cref="SqlConnection"/> to use with this context.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> was <code>null</code>.</exception>
-        public MoleSqlDataContext([NotNull] SqlConnection connection) : this(connection, false)
+        public DataContext([NotNull] SqlConnection connection) : this(connection, false)
         {
         }
         /// <summary>
-        /// Creates a new <see cref="MoleSqlDataContext"/> for the given <see cref="SqlConnection"/>.
+        /// Creates a new <see cref="DataContext"/> for the given <see cref="SqlConnection"/>.
         /// </summary>
         /// <param name="connection">The <see cref="SqlConnection"/> to use with this context.</param>
         /// <param name="ownConnection"><code>true</code> if the <paramref name="connection"/> should be owned by this context
         /// and disposed when this context is disposed, <code>false</code> if the caller stays responsible for the connection.</param>
         /// <exception cref="ArgumentNullException"><paramref name="connection"/> was <code>null</code>.</exception>
-        public MoleSqlDataContext([NotNull] SqlConnection connection, bool ownConnection)
+        public DataContext([NotNull] SqlConnection connection, bool ownConnection)
         {
             if (connection == null)
                 throw new ArgumentNullException(nameof(connection));
-            provider = new MoleSqlQueryProvider(connection, ownConnection);
+            provider = new QueryProvider(connection, ownConnection);
         }
         /// <inheritdoc />
         public void Dispose()
@@ -80,7 +79,7 @@ namespace MoleSql
             GC.SuppressFinalize(this);
         }
         /// <summary>
-        /// Disposes of this <see cref="MoleSqlDataContext"/> and the underlying connection if necessary.
+        /// Disposes of this <see cref="DataContext"/> and the underlying connection if necessary.
         /// </summary>
         /// <param name="disposing"><code>true</code> if called by <see cref="Dispose()"/>, <code>false</code> if called from a finalizer.</param>
         protected virtual void Dispose(bool disposing)
@@ -95,10 +94,10 @@ namespace MoleSql
         /// </summary>
         /// <typeparam name="T">The table to query.</typeparam>
         /// <returns>An <see cref="IQueryable{T}"/> representing a query to the table specified by <typeparamref name="T"/>.</returns>
-        public MoleSqlQuery<T> GetTable<T>()
+        public Query<T> GetTable<T>()
         {
             CheckDisposed();
-            return new MoleSqlQuery<T>(provider);
+            return new Query<T>(provider);
         }
 
         /// <summary>
@@ -205,7 +204,7 @@ namespace MoleSql
         
         void CheckDisposed()
         {
-            if (disposed) throw new ObjectDisposedException(nameof(MoleSqlDataContext));
+            if (disposed) throw new ObjectDisposedException(nameof(DataContext));
         }
     }
 }

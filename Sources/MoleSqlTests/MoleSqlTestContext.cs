@@ -42,7 +42,7 @@ namespace MoleSqlTests
                     DataSource = source.DataSource,
                     IntegratedSecurity = true
                 };
-                using var context = new MoleSqlDataContext(master.ToString());
+                using var context = new DataContext(master.ToString());
                 context.ExecuteNonQuery(
                     $"ALTER DATABASE MoleSqlTestDb SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE MoleSqlTestDb;");
                 File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestDb_log.ldf"));
@@ -79,7 +79,7 @@ namespace MoleSqlTests
         }
         internal static TestDbContext GetDbContext() => new TestDbContext {Log = GetLog()};
         internal static TestDbContext GetDbContextWithTransaction() => new TestDbContext(true) {Log = GetLog()};
-        internal static void AssertSqlDump(MoleSqlDataContext context, string expected)
+        internal static void AssertSqlDump(DataContext context, string expected)
         {
             if (!(context?.Log is StringWriter sw)) return;
             string log = sw.ToString();
