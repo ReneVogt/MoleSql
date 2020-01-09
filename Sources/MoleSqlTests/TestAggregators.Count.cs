@@ -12,6 +12,9 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql.Extensions;
 
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable InvokeAsExtensionMethod
+
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace MoleSqlTests
@@ -42,37 +45,48 @@ namespace MoleSqlTests
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
-        public void CountAsync_NotOnTopPred_NotSupportedException()
+        public void CountAsync_NotOnTopPredicate_NotSupportedException()
         {
             using var context = GetDbContext();
             context.Customers.Select(customer => new {T = context.Customers.CountAsync(x => true, default)}).Select(a => a).ToList();
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task CountAsync_WrongQueryProvider_Exception()
+        public async Task CountAsync_SourceNull_Exception()
         {
-            await new[] { 1 }.AsQueryable().CountAsync();
+            await Task.WhenAll(
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.CountAsync((IQueryable<int>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.CountAsync((IQueryable<int>)null, i => i > 0), "source")
+            );
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task CountAsyncPred_WrongQueryProvider_Exception()
+        public async Task CountAsync_SelectorNull_Exception()
         {
-            await new[] { 1 }.AsQueryable().CountAsync(x => true);
+            using var context = GetDbContext();
+            var query = context.AggregatorTest;
+            await ShouldThrowArgumentNullException(() => MoleSqlQueryable.CountAsync(query, null), "predicate");
         }
         [TestMethod]
-        public async Task CountAsync_Customers_WithoutPredicate()
+        public async Task CountAsync_WrongProvider_Exception()
+        {
+            await Task.WhenAll(
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.CountAsync(Enumerable.Empty<int>().AsQueryable()), nameof(MoleSqlQueryable.CountAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.CountAsync(Enumerable.Empty<int>().AsQueryable(), i => i > 5))
+            );
+        }
+        [TestMethod]
+        public async Task CountAsync_WithoutPredicate_CorrectValues()
         {
             using var context = GetDbContext();
             // ReSharper disable once ReplaceWithSingleCallToCount
-            var result = await context.Customers.Where(c => c.Id < 4).CountAsync();
-            result.Should().Be(3);
+            var result = await context.AggregatorTest.Where(c => c.IntValue > 3).CountAsync();
+            result.Should().Be(2);
         }
         [TestMethod]
-        public async Task CountAsync_Customers_WithPredicate()
+        public async Task CountAsync_WithPredicate_CorrectValues()
         {
             using var context = GetDbContext();
-            var result = await context.Customers.CountAsync(c => c.Id < 4);
-            result.Should().Be(3);
+            var result = await context.AggregatorTest.CountAsync(c => c.IntValue < 4);
+            result.Should().Be(4);
         }
     }
 }

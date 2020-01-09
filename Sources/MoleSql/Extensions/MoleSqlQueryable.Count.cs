@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace MoleSql.Extensions
 {
@@ -25,7 +26,7 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="OverflowException">The number of matching elements in the sequence is larger than <see cref="Int32.MaxValue"/>.</exception>
-        public static async Task<Int32> CountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
+        public static async Task<Int32> CountAsync<TSource>([NotNull] this IQueryable<TSource> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -49,10 +50,12 @@ namespace MoleSql.Extensions
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="predicate"/> were <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
         /// <exception cref="OverflowException">The number of matching elements in the sequence is larger than <see cref="Int32.MaxValue"/>.</exception>
-        public static async Task<Int32> CountAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
+        public static async Task<Int32> CountAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (predicate == null)
+                throw new ArgumentNullException(nameof(predicate));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(CountAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 

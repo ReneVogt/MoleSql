@@ -84,19 +84,19 @@ namespace MoleSqlTests
         public async Task AverageAsync_SelectorNull_Exception()
         {
             using var context = GetDbContext();
-            var query = context.Employees;
+            var query = context.AggregatorTest;
             await Task.WhenAll(
                 // ReSharper disable once RedundantCast
                 ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, int?>>)null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, long>>)null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, long?>>)null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, float>>)null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, float?>>)null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, double>>)null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, double?>>)null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, decimal>>)null), "selector"),
-                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, decimal?>>)null), "selector")
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, int?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, long>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, long?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, float>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, float?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, double>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, double?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, decimal>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<AggregatorTestTable, decimal?>>)null), "selector")
             );
         }
         [TestMethod]
@@ -145,22 +145,6 @@ namespace MoleSqlTests
                                                  nameof(MoleSqlQueryable.AverageAsync))
             );
         }
-        //[TestMethod]
-        //public async Task AverageAsync_Customers_WithoutSelector()
-        //{
-        //    using var context = GetDbContext();
-        //    // ReSharper disable once ReplaceWithSingleCallToCount
-        //    var result = await context.Customers.Where(c => c.Id < 4).Select(c => c.Id).AverageAsync();
-        //    result.Should().Be(2);
-        //}
-        //[TestMethod]
-        //public async Task AverageAsync_Customers_WithSelector()
-        //{
-        //    using var context = GetDbContext();
-        //    // ReSharper disable once ReplaceWithSingleCallToCount
-        //    var result = await context.Customers.Where(c => c.Id < 4).AverageAsync(c => c.Id);
-        //    result.Should().Be(2);
-        //}
         [TestMethod]
         public async Task AverageAsync_CorrectValues()
         {
