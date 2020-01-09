@@ -75,7 +75,7 @@ namespace MoleSql.Extensions
             if (!(source.Provider is QueryProvider provider))
                 throw nameof(AsAsyncEnumerable).DoesNotSupportDifferentQueryProvider();
 
-            return provider.ExecuteAsync<T>(source.Expression, cancellationToken);
+            return source as IAsyncEnumerable<T> ?? provider.ExecuteAsync<T>(source.Expression, cancellationToken);
         }
 
 #pragma warning disable IDE0060, CA1801 // Nicht verwendete Parameter entfernen

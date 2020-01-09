@@ -86,5 +86,31 @@ namespace MoleSqlTests
             result.City.Should().Be("ThisCityWasNull");
             AssertAndLogSql(context, "SELECT [t0].[Name], [t0].[City] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) -- @p0 NVarChar Input [WithNullAddress]");
         }
+        [TestMethod]
+        public void Select_WhereWithMethodCall()
+        {
+            using var context = GetDbContext();
+            var query = from customer in context.Customers
+                        where customer.Name == GetName()
+                        select customer.Name;
+            var result = query.AsEnumerable().Single();
+            result.Should().Be("WithNullAddress");
+
+            AssertAndLogSql(context, "SELECT [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) -- @p0 NVarChar Input [WithNullAddress]");
+        }
+        [TestMethod]
+        public void Select_WithMethodCall()
+        {
+            using var context = GetDbContext();
+            var query = from customer in context.Customers
+                        where customer.Name == GetName()
+                        select GetLength(customer.Name);
+            var result = query.AsEnumerable().Single();
+            result.Should().Be(15);
+
+            AssertAndLogSql(context, "SELECT [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) -- @p0 NVarChar Input [WithNullAddress]");
+        }
+        static string GetName() => "WithNullAddress";
+        static int GetLength(string s) => s.Length;
     }
 }

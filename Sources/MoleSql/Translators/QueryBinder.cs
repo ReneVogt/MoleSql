@@ -26,7 +26,7 @@ namespace MoleSql.Translators
         {
             internal string Alias { get; }
             internal Expression Element { get; }
-            
+
             internal GroupByInfo(string alias, Expression element)
             {
                 Alias = alias;
@@ -34,6 +34,7 @@ namespace MoleSql.Translators
             }
         }
 
+        readonly Dictionary<Type, Func<MethodCallExpression, Expression>> methodTypeHandlers;
         readonly Dictionary<ParameterExpression, Expression> map = new Dictionary<ParameterExpression, Expression>();
         readonly Dictionary<Expression, GroupByInfo> groupByMap = new Dictionary<Expression, GroupByInfo>();
         Expression root;
@@ -43,15 +44,21 @@ namespace MoleSql.Translators
 
         QueryBinder()
         {
+            methodTypeHandlers = new Dictionary<Type, Func<MethodCallExpression, Expression>>
+            {
+                [typeof(Queryable)] = VisitQueryableMethodCall,
+                [typeof(Enumerable)] = VisitEnumerableMethodCall,
+                [typeof(MoleSqlQueryable)] = VisitMoleSqlQueryableMethodCall
+            };
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression callExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression callExpression) =>
+            callExpression.Method.DeclaringType != null &&
+            methodTypeHandlers.TryGetValue(callExpression.Method.DeclaringType, out var handler)
+                ? handler(callExpression)
+                : base.VisitMethodCall(callExpression);
+        Expression VisitQueryableMethodCall(MethodCallExpression callExpression)
         {
-            if (callExpression.Method.DeclaringType != typeof(Queryable) && 
-                callExpression.Method.DeclaringType != typeof(Enumerable) &&
-                callExpression.Method.DeclaringType != typeof(MoleSqlQueryable))
-                return base.VisitMethodCall(callExpression);
-
             return callExpression.Method.Name switch
             {
                 nameof(Queryable.Where) => BindWhere(callExpression.Type, callExpression.Arguments[0],
@@ -93,16 +100,30 @@ namespace MoleSql.Translators
                                                              ? (LambdaExpression)callExpression.Arguments[3].StripQuotes()
                                                              : null),
                 var name when Enum.GetNames(typeof(AggregateType)).Contains(name) => BindAggregate(
-                    callExpression.Arguments[0], callExpression.Method,
+                    callExpression.Arguments[0], callExpression.Method.DeclaringType, GetAggregateType(name), callExpression.Method.ReturnType,
+                    callExpression.Method.GetGenericArguments(),
                     callExpression.Arguments.Count > 1 ? (LambdaExpression)callExpression.Arguments[1].StripQuotes() : null,
-                    callExpression == root, false),
-                var name when IsAsyncAggregateMethod(name) => callExpression == root
-                                                                  ? BindAggregate(callExpression.Arguments[0], callExpression.Method,
-                                                                                  GetSelectorFromAsyncAggregate(callExpression.Arguments),
-                                                                                  callExpression == root, true)
-                                                                  : throw callExpression.Method.CanOnlyAppearOnTopOfExpressionTree(),
+                    callExpression == root),
                 _ => throw callExpression.Method.IsNotSupported()
             };
+
+        }
+        Expression VisitEnumerableMethodCall(MethodCallExpression callExpression) => VisitQueryableMethodCall(callExpression);
+        Expression VisitMoleSqlQueryableMethodCall(MethodCallExpression callExpression)
+        {
+            if (!IsAsyncAggregateMethod(callExpression.Method.Name))
+                throw callExpression.Method.IsNotSupported();
+            if (callExpression != root)
+                throw callExpression.Method.CanOnlyAppearOnTopOfExpressionTree();
+
+            var source = callExpression.Arguments[0];
+            var declaringType = callExpression.Method.DeclaringType;
+            var aggregateType = GetAggregateType(callExpression.Method.Name.Substring(0, callExpression.Method.Name.Length - 5));
+            var returnType = callExpression.Method.ReturnType.GetGenericArguments().First(); // must be Task<T>
+            var genericArguments = callExpression.Method.GetGenericArguments();
+
+            return BindAggregate(source, declaringType, aggregateType, returnType, genericArguments,
+                                 GetSelectorFromAsyncAggregate(callExpression.Arguments), true);
         }
         protected override Expression VisitConstant(ConstantExpression constant) => IsTable(constant.Value) ? (Expression)GetTableProjection(constant.Value) : constant;
         protected override Expression VisitParameter(ParameterExpression parameter) =>
@@ -348,28 +369,16 @@ namespace MoleSql.Translators
                 new SelectExpression(TypeSystemHelper.GetSequenceType(resultExpression.Type), alias, columns, projection.Source, null, null, groupExpressions),
                 projector);
         }
-        Expression BindAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot, bool isAsync)
+        Expression BindAggregate(Expression source, Type declaringType, AggregateType aggregateType, Type returnType, Type[] genericArguments, LambdaExpression argument, bool isRoot)
         {
-            Type returnType = method.ReturnType;
-
-            if (isAsync)
-                returnType = returnType.GetGenericArguments().First();
-
-            string aggregateName = isAsync
-                                       ? method.Name.Substring(0, method.Name.Length - 5)
-                                       : method.Name;
-            
-            AggregateType aggregateType = GetAggregateType(aggregateName);
-            
             bool hasPredicateArgument = HasPredicateArgument(aggregateType);
             bool argumentHasPredicate = false;
             
             if (argument != null && hasPredicateArgument)
             {
-                var genericArguments = method.GetGenericArguments();
-                var declaringType = source.Type.IsGenericType && source.Type.GetGenericTypeDefinition() == typeof(IQueryable<>)
-                                        ? typeof(Queryable)
-                                        : typeof(Enumerable);
+                declaringType = declaringType == typeof(Enumerable)
+                                    ? typeof(Enumerable)
+                                    : typeof(Queryable);
                 source = Expression.Call(declaringType, nameof(Queryable.Where), genericArguments, source, argument);
                 argument = null;
                 argumentHasPredicate = true;
