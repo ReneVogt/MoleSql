@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 
 namespace MoleSql.Extensions
 {
@@ -23,7 +24,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Int32.MaxValue"/>.</exception>
-        public static async Task<Int32> SumAsync(this IQueryable<Int32> source, CancellationToken cancellationToken = default)
+        public static async Task<Int32> SumAsync([NotNull] this IQueryable<Int32> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -44,7 +45,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Int32.MaxValue"/>.</exception>
-        public static async Task<Int32?> SumAsync(this IQueryable<Int32?> source, CancellationToken cancellationToken = default)
+        public static async Task<Int32?> SumAsync([NotNull] this IQueryable<Int32?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -65,7 +66,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Int64.MaxValue"/>.</exception>
-        public static async Task<Int64> SumAsync(this IQueryable<Int64> source, CancellationToken cancellationToken = default)
+        public static async Task<Int64> SumAsync([NotNull] this IQueryable<Int64> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -86,7 +87,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Int64.MaxValue"/>.</exception>
-        public static async Task<Int64?> SumAsync(this IQueryable<Int64?> source, CancellationToken cancellationToken = default)
+        public static async Task<Int64?> SumAsync([NotNull] this IQueryable<Int64?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -107,7 +108,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Single.MaxValue"/>.</exception>
-        public static async Task<Single> SumAsync(this IQueryable<Single> source, CancellationToken cancellationToken = default)
+        public static async Task<Single> SumAsync([NotNull] this IQueryable<Single> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -128,7 +129,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Single.MaxValue"/>.</exception>
-        public static async Task<Single?> SumAsync(this IQueryable<Single?> source, CancellationToken cancellationToken = default)
+        public static async Task<Single?> SumAsync([NotNull] this IQueryable<Single?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -149,7 +150,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Double.MaxValue"/>.</exception>
-        public static async Task<Double> SumAsync(this IQueryable<Double> source, CancellationToken cancellationToken = default)
+        public static async Task<Double> SumAsync([NotNull] this IQueryable<Double> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -170,7 +171,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Double.MaxValue"/>.</exception>
-        public static async Task<Double?> SumAsync(this IQueryable<Double?> source, CancellationToken cancellationToken = default)
+        public static async Task<Double?> SumAsync([NotNull] this IQueryable<Double?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -191,7 +192,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Decimal.MaxValue"/>.</exception>
-        public static async Task<Decimal> SumAsync(this IQueryable<Decimal> source, CancellationToken cancellationToken = default)
+        public static async Task<Decimal> SumAsync([NotNull] this IQueryable<Decimal> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -212,7 +213,7 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Decimal.MaxValue"/>.</exception>
-        public static async Task<Decimal?> SumAsync(this IQueryable<Decimal?> source, CancellationToken cancellationToken = default)
+        public static async Task<Decimal?> SumAsync([NotNull] this IQueryable<Decimal?> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
@@ -235,10 +236,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Int32.MaxValue"/>.</exception>
-        public static async Task<Int32> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int32>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Int32> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Int32>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -258,10 +261,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Int32.MaxValue"/>.</exception>
-        public static async Task<Int32?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int32?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Int32?> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Int32?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -281,10 +286,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Int64.MaxValue"/>.</exception>
-        public static async Task<Int64> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int64>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Int64> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Int64>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -304,10 +311,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Int64.MaxValue"/>.</exception>
-        public static async Task<Int64?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Int64?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Int64?> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Int64?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -327,10 +336,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Single.MaxValue"/>.</exception>
-        public static async Task<Single> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Single>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Single> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Single>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -350,10 +361,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Single.MaxValue"/>.</exception>
-        public static async Task<Single?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Single?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Single?> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Single?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -373,10 +386,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Double.MaxValue"/>.</exception>
-        public static async Task<Double> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Double>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Double> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Double>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -396,10 +411,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Double.MaxValue"/>.</exception>
-        public static async Task<Double?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Double?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Double?> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Double?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -419,10 +436,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Decimal.MaxValue"/>.</exception>
-        public static async Task<Decimal> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Decimal>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Decimal> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Decimal>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 
@@ -442,10 +461,12 @@ namespace MoleSql.Extensions
         /// <returns>The sum of the projected values.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> are <code>null</code>.</exception>
         /// <exception cref="OverflowException">The sum is larger than <see cref="Decimal.MaxValue"/>.</exception>
-        public static async Task<Decimal?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, Decimal?>> selector, CancellationToken cancellationToken = default)
+        public static async Task<Decimal?> SumAsync<TSource>([NotNull] this IQueryable<TSource> source, [NotNull] Expression<Func<TSource, Decimal?>> selector, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
+            if (selector == null)
+                throw new ArgumentNullException(nameof(selector));
             if (!(source.Provider is QueryProvider provider))
                 throw new NotSupportedException($"{nameof(SumAsync)} only supports queries based on a {nameof(QueryProvider)}.");
 

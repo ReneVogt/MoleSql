@@ -7,10 +7,16 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql.Extensions;
+using MoleSqlTests.TestDb;
+// ReSharper disable InvokeAsExtensionMethod
+// ReSharper disable AssignNullToNotNullAttribute
+
+// ReSharper disable AccessToDisposedClosure
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
@@ -19,166 +25,147 @@ namespace MoleSqlTests
     public partial class TestAggregators
     {
         [TestMethod]
-        public void Sum_SumIds_WithoutSelector()
+        public void Sum_WithoutSelector_CorrectValues()
         {
             using var context = GetDbContext();
-            var result = context.Employees.Where(e => e.Id < 5 && e.Id > 1).Select(e => e.Id).Sum();
-            result.Should().Be(9);
+            context.AggregatorTest.Select(c => c.IntValue).Sum().Should().Be(14);
         }
         [TestMethod]
-        public void Sum_SumIds_WithSelector()
+        public void Sum_WithSelector_CorrectValues()
         {
             using var context = GetDbContext();
-            var result = context.Employees.Where(e => e.Id < 5 && e.Id > 1).Sum(e => e.Id);
-            result.Should().Be(9);
+            context.AggregatorTest.Sum(c => c.IntValue).Should().Be(14);
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
         public void SumAsync_NotOnTop_NotSupportedException()
         {
             using var context = GetDbContext();
-            context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).SumAsync(default) }).AsEnumerable().ToList();
+            Action test = () => context.AggregatorTest.Select(c => new { T = context.AggregatorTest.Select(x => x.IntValue).SumAsync(default) }).AsEnumerable().ToList();
+            test.Should().Throw<NotSupportedException>().Where(e => e.Message.Contains(nameof(MoleSqlQueryable.SumAsync)));
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
         public void SumAsync_NotOnTopSelector_NotSupportedException()
         {
             using var context = GetDbContext();
-            context.Customers.Select(customer => new { T = context.Customers.SumAsync(c => c.Id, default) }).AsEnumerable().ToList();
+            Action test = () => context.AggregatorTest.Select(x => new { T = context.AggregatorTest.SumAsync(c => c.IntValue, default) }).AsEnumerable().ToList();
+            test.Should().Throw<NotSupportedException>().Where(e => e.Message.Contains(nameof(MoleSqlQueryable.SumAsync)));
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncInt_WrongQueryProvider_Exception()
+        public async Task SumAsync_SourceNull_Exception()
         {
-            await new[] { 1 }.AsQueryable().SumAsync();
+            await Task.WhenAll(
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<int>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<int?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<long>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<long?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<float>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<float?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<double>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<double?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<decimal>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<decimal?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (int)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (int?)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (long)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (long?)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (float)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (float?)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (double)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (double?)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (decimal)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync((IQueryable<object>)null, i => (decimal?)i), "source")
+            );
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableInt_WrongQueryProvider_Exception()
-        {
-            await new int?[] { 1 }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncIntPred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1 }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableIntPred_WrongQueryProvider_Exception()
-        {
-            await new int?[] { 1 }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncLong_WrongQueryProvider_Exception()
-        {
-            await new[] { 1L }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableLong_WrongQueryProvider_Exception()
-        {
-            await new long?[] { 1 }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncLongPred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1L }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableLongPred_WrongQueryProvider_Exception()
-        {
-            await new long?[] { 1 }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncFloat_WrongQueryProvider_Exception()
-        {
-            await new[] { 1f }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableFloat_WrongQueryProvider_Exception()
-        {
-            await new float?[] { 1f }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncFloatPred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1f }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableFloatPred_WrongQueryProvider_Exception()
-        {
-            await new float?[] { 1f }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncDouble_WrongQueryProvider_Exception()
-        {
-            await new[] { 1d }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableDouble_WrongQueryProvider_Exception()
-        {
-            await new double?[] { 1d }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncDoublePred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1d }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableDoublePred_WrongQueryProvider_Exception()
-        {
-            await new double?[] { 1d }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncDecimal_WrongQueryProvider_Exception()
-        {
-            await new[] { 1m }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableDecimal_WrongQueryProvider_Exception()
-        {
-            await new decimal?[] { 1m }.AsQueryable().SumAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncDecimalPred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1m }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task SumAsyncNullableDecimalPred_WrongQueryProvider_Exception()
-        {
-            await new decimal?[] { 1m }.AsQueryable().SumAsync(x => x);
-        }
-        [TestMethod]
-        public async Task SumAsync_SumIds_WithoutSelector()
+        public async Task SumAsync_SelectorNull_Exception()
         {
             using var context = GetDbContext();
-            var result = await context.Employees.Where(e => e.Id < 5 && e.Id > 1).Select(e => e.Id).SumAsync();
-            result.Should().Be(9);
+            var query = context.AggregatorTest;
+            await Task.WhenAll(
+                // ReSharper disable once RedundantCast
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, int?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, long>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, long?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, float>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, float?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, double>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, double?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, decimal>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.SumAsync(query, (Expression<Func<AggregatorTestTable, decimal?>>)null), "selector")
+            );
         }
         [TestMethod]
-        public async Task SumAsync_SumIds_WithSelector()
+        public async Task SumAsync_WrongProvider_Exception()
+        {
+            await Task.WhenAll(
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<int>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<int?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<long>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<long?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<float>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<float?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<double>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<double?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<decimal>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<decimal?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => 0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (int?)0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (long)0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (long?)0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (float)0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (float?)0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (double)0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (double?)0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (decimal)0),
+                                                 nameof(MoleSqlQueryable.SumAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.SumAsync(Enumerable.Empty<object>().AsQueryable(), o => (decimal?)0),
+                                                 nameof(MoleSqlQueryable.SumAsync))
+            );
+        }
+        [TestMethod]
+        public async Task SumAsync_CorrectValues()
         {
             using var context = GetDbContext();
-            var result = await context.Employees.Where(e => e.Id < 5 && e.Id > 1).SumAsync(e => e.Id);
-            result.Should().Be(9);
+            (await context.AggregatorTest.Select(a => a.IntValue).SumAsync()).Should().Be(14, "should work for Int314");
+            (await context.AggregatorTest.SumAsync(a => a.IntValue)).Should().Be(14, "should work for Int314 with selector");
+            (await context.AggregatorTest.Select(a => a.LongValue).SumAsync()).Should().Be(14, "should work for Int64");
+            (await context.AggregatorTest.SumAsync(a => a.LongValue)).Should().Be(14, "should work for Int64 with selector");
+            (await context.AggregatorTest.Select(a => a.FloatValue).SumAsync()).Should().Be(14, "should work for Float");
+            (await context.AggregatorTest.SumAsync(a => a.FloatValue)).Should().Be(14, "should work for Float with selector");
+            (await context.AggregatorTest.Select(a => a.DoubleValue).SumAsync()).Should().Be(14, "should work for Double");
+            (await context.AggregatorTest.SumAsync(a => a.DoubleValue)).Should().Be(14, "should work for Double with selector");
+            (await context.AggregatorTest.Select(a => a.DecimalValue).SumAsync()).Should().Be(14, "should work for Decimal");
+            (await context.AggregatorTest.SumAsync(a => a.DecimalValue)).Should().Be(14, "should work for Decimal with selector");
+
+            (await context.AggregatorTest.Select(a => a.NullableIntValue).SumAsync()).Should().Be(14, "should work for Int314?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableIntValue)).Should().Be(14, "should work for Int314? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableLongValue).SumAsync()).Should().Be(14, "should work for Int64?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableLongValue)).Should().Be(14, "should work for Int64? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableFloatValue).SumAsync()).Should().Be(14, "should work for Float?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableFloatValue)).Should().Be(14, "should work for Float? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableDoubleValue).SumAsync()).Should().Be(14, "should work for Double?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableDoubleValue)).Should().Be(14, "should work for Double? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableDecimalValue).SumAsync()).Should().Be(14, "should work for Decimal?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableDecimalValue)).Should().Be(14, "should work for Decimal? with selector");
         }
     }
 }

@@ -22,33 +22,31 @@ namespace MoleSqlTests
     public partial class TestAggregators
     {
         [TestMethod]
-        public void Count_Customers_WithoutPredicate()
+        public void Count_WithoutPredicate_CorrectValues()
         {
             using var context = GetDbContext();
             // ReSharper disable once ReplaceWithSingleCallToCount
-            var result = context.Customers.Where(c => c.Id < 4).Count();
-            result.Should().Be(3);
+            context.AggregatorTest.Where(c => c.IntValue > 3).Count().Should().Be(2);
         }
         [TestMethod]
-        public void Count_Customers_WithPredicate()
+        public void Count_WithPredicate_CorrectValues()
         {
             using var context = GetDbContext();
-            var result = context.Customers.Count(c => c.Id < 4);
-            result.Should().Be(3);
+            context.AggregatorTest.Count(c => c.IntValue < 4).Should().Be(5);
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public void CountAsync_NotOnTop_NotSupportedException()
         {
             using var context = GetDbContext();
-            context.Customers.Select(customer => new { T = context.Departments.CountAsync(default) }).ToList();
+            context.AggregatorTest.Select(customer => new { T = context.AggregatorTest.CountAsync(default) }).ToList();
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public void CountAsync_NotOnTopPredicate_NotSupportedException()
         {
             using var context = GetDbContext();
-            context.Customers.Select(customer => new {T = context.Customers.CountAsync(x => true, default)}).Select(a => a).ToList();
+            context.AggregatorTest.Select(x => new {T = context.AggregatorTest.CountAsync(y => true, default)}).Select(a => a).ToList();
         }
         [TestMethod]
         public async Task CountAsync_SourceNull_Exception()

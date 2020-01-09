@@ -39,14 +39,14 @@ namespace MoleSqlTests
         public void MinAsync_NotOnTop_NotSupportedException()
         {
             using var context = GetDbContext();
-            context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).MinAsync(default) }).AsEnumerable().ToList();
+            context.AggregatorTest.Select(x => new { T = context.AggregatorTest.Select(c => c.IntValue).MinAsync(default) }).AsEnumerable().ToList();
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public void MinAsync_NotOnTopSelector_NotSupportedException()
         {
             using var context = GetDbContext();
-            context.Customers.Select(customer => new { T = context.Customers.MinAsync(c => c.Id, default) }).AsEnumerable().ToList();
+            context.AggregatorTest.Select(x => new { T = context.AggregatorTest.MinAsync(c => c.IntValue, default) }).AsEnumerable().ToList();
         }
         [TestMethod]
         public async Task MinAsync_SourceNull_Exception()

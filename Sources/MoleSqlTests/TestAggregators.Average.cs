@@ -25,33 +25,29 @@ namespace MoleSqlTests
     public partial class TestAggregators : MoleSqlTestBase
     {
         [TestMethod]
-        public void Average_Customers_WithoutSelector()
+        public void Average_WithoutSelector_CorrectValues()
         {
             using var context = GetDbContext();
-            // ReSharper disable once ReplaceWithSingleCallToCount
-            var result = context.Customers.Where(c => c.Id < 4).Select(c => c.Id).Average();
-            result.Should().Be(2);
+            context.AggregatorTest.Select(c => c.IntValue).Average().Should().Be(2);
         }
         [TestMethod]
-        public void Average_Customers_WithSelector()
+        public void Average_WithSelector_CorrectValues()
         {
             using var context = GetDbContext();
-            // ReSharper disable once ReplaceWithSingleCallToCount
-            var result = context.Customers.Where(c => c.Id < 4).Average(c => c.Id);
-            result.Should().Be(2);
+            context.AggregatorTest.Average(c => c.IntValue).Should().Be(2);
         }
         [TestMethod]
         public void AverageAsync_NotOnTop_NotSupportedException()
         {
             using var context = GetDbContext();
-            Action test = () => context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).AverageAsync(default) }).AsEnumerable().ToList();
+            Action test = () => context.AggregatorTest.Select(x => new { T = context.AggregatorTest.Select(c => c.IntValue).AverageAsync(default) }).AsEnumerable().ToList();
             test.Should().Throw<NotSupportedException>().Where(e => e.Message.Contains(nameof(MoleSqlQueryable.AverageAsync)));
         }
         [TestMethod]
         public void AverageAsync_NotOnTopSelector_NotSupportedException()
         {
             using var context = GetDbContext();
-            Action test = () => context.Customers.Select(customer => new { T = context.Customers.AverageAsync(c => c.Id, default) }).AsEnumerable().ToList();
+            Action test = () => context.AggregatorTest.Select(x => new { T = context.AggregatorTest.AverageAsync(c => c.IntValue, default) }).AsEnumerable().ToList();
             test.Should().Throw<NotSupportedException>().Where(e => e.Message.Contains(nameof(MoleSqlQueryable.AverageAsync)));
         }
         [TestMethod]
