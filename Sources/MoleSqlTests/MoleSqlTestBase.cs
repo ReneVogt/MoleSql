@@ -34,11 +34,11 @@ namespace MoleSqlTests
             else
                 TestContext?.WriteLine(msg);
         }
-        internal void AssertAndLogSql(TestDbContext context, string expected)
+        internal void AssertAndLogSql(TestDbContext context, string expected) => AssertAndLogSql(context.LogBuilder.ToString(), expected);
+        internal void AssertAndLogSql(string logged, string expected)
         {
-            string log = context.LogBuilder.ToString();
-            Log(log);
-            Assert.AreEqual(NormalizeSql(expected), NormalizeSql(log));
+            Log(logged);
+            Assert.AreEqual(NormalizeSql(expected), NormalizeSql(logged));
         }
         internal void AssertSql(TestDbContext context, string expected)
         {

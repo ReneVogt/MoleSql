@@ -16,6 +16,7 @@ namespace MoleSqlTests.TestDb
     [ExcludeFromCodeCoverage]
     class TestDbContext : DataContext
     {
+        internal static string ConnectionString => ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
         readonly bool disposeTransaction;
         internal Query<Customers> Customers => GetTable<Customers>();
         internal Query<Employees> Employees => GetTable<Employees>();
@@ -27,7 +28,7 @@ namespace MoleSqlTests.TestDb
         internal StringBuilder LogBuilder { get; } = new StringBuilder();
 
         public TestDbContext(bool disposeTransaction = false)
-            : base(ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString)
+            : base(ConnectionString)
         {
             this.disposeTransaction = disposeTransaction;
             Log = new StringWriter(LogBuilder);

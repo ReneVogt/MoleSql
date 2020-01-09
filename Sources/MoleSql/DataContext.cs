@@ -36,6 +36,10 @@ namespace MoleSql
             set => provider.Log = value;
         }
         /// <summary>
+        /// Gets the underlying <see cref="SqlConnection"/> of this context.
+        /// </summary>
+        public SqlConnection Connection => provider.Connection;
+        /// <summary>
         /// Gets or sets the transaction to use when interacting with the database.
         /// </summary>
         public SqlTransaction Transaction
@@ -159,7 +163,7 @@ namespace MoleSql
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>An asynchronous enumeratorion of the query results. Those will be dynamic objects.</returns>
-        public IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken) => provider.ExecuteQueryAsync(query, cancellationToken);
+        public IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteQueryAsync(query, cancellationToken);
         /// <summary>
         /// Executes the query, and returns the first column of the first row in the result set returned by the query. Additional columns or rows are ignored.
         /// </summary>
