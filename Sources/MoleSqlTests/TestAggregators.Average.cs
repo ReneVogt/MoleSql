@@ -7,12 +7,18 @@
 
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql.Extensions;
+using MoleSqlTests.TestDb;
 
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable InvokeAsExtensionMethod
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
+#pragma warning disable CS4014
 
 namespace MoleSqlTests
 {
@@ -35,138 +41,109 @@ namespace MoleSqlTests
             result.Should().Be(2);
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
         public void AverageAsync_NotOnTop_NotSupportedException()
         {
             using var context = GetDbContext();
-            context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).AverageAsync(default) }).AsEnumerable().ToList();
+            Action test = () => context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).AverageAsync(default) }).AsEnumerable().ToList();
+            test.Should().Throw<NotSupportedException>().Where(e => e.Message.Contains(nameof(MoleSqlQueryable.AverageAsync)));
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
         public void AverageAsync_NotOnTopSelector_NotSupportedException()
         {
             using var context = GetDbContext();
-            context.Customers.Select(customer => new { T = context.Customers.AverageAsync(c => c.Id, default) }).AsEnumerable().ToList();
+            Action test = () => context.Customers.Select(customer => new { T = context.Customers.AverageAsync(c => c.Id, default) }).AsEnumerable().ToList();
+            test.Should().Throw<NotSupportedException>().Where(e => e.Message.Contains(nameof(MoleSqlQueryable.AverageAsync)));
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncInt_WrongQueryProvider_Exception()
+        public async Task AverageAsync_SourceNull_Exception()
         {
-            await new[] { 1 }.AsQueryable().AverageAsync();
+            await Task.WhenAll(
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<int>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<int?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<long>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<long?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<float>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<float?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<double>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<double?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<decimal>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<decimal?>)null), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (int)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (int?)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (long)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (long?)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (float)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (float?)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (double)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (double?)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (decimal)i), "source"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync((IQueryable<object>)null, i => (decimal?)i), "source")
+            );
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableInt_WrongQueryProvider_Exception()
+        public async Task AverageAsync_SelectorNull_Exception()
         {
-            await new int?[] { 1 }.AsQueryable().AverageAsync();
+            using var context = GetDbContext();
+            var query = context.Employees;
+            await Task.WhenAll(
+                // ReSharper disable once RedundantCast
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, int?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, long>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, long?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, float>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, float?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, double>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, double?>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, decimal>>)null), "selector"),
+                ShouldThrowArgumentNullException(() => MoleSqlQueryable.AverageAsync(query, (Expression<Func<Employees, decimal?>>)null), "selector")
+            );
         }
         [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncIntPred_WrongQueryProvider_Exception()
+        public async Task AverageAsync_WrongProvider_Exception()
         {
-            await new[] { 1 }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableIntPred_WrongQueryProvider_Exception()
-        {
-            await new int?[] { 1 }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncLong_WrongQueryProvider_Exception()
-        {
-            await new[] { 1L }.AsQueryable().AverageAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableLong_WrongQueryProvider_Exception()
-        {
-            await new long?[] { 1 }.AsQueryable().AverageAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncLongPred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1L }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableLongPred_WrongQueryProvider_Exception()
-        {
-            await new long?[] { 1 }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncFloat_WrongQueryProvider_Exception()
-        {
-            await new[] { 1f }.AsQueryable().AverageAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableFloat_WrongQueryProvider_Exception()
-        {
-            await new float?[] { 1f }.AsQueryable().AverageAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncFloatPred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1f }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableFloatPred_WrongQueryProvider_Exception()
-        {
-            await new float?[] { 1f }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncDouble_WrongQueryProvider_Exception()
-        {
-            await new[] { 1d }.AsQueryable().AverageAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableDouble_WrongQueryProvider_Exception()
-        {
-            await new double?[] { 1d }.AsQueryable().AverageAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncDoublePred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1d }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableDoublePred_WrongQueryProvider_Exception()
-        {
-            await new double?[] { 1d }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncDecimal_WrongQueryProvider_Exception()
-        {
-            await new[] { 1m }.AsQueryable().AverageAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableDecimal_WrongQueryProvider_Exception()
-        {
-            await new decimal?[] { 1m }.AsQueryable().AverageAsync();
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncDecimalPred_WrongQueryProvider_Exception()
-        {
-            await new[] { 1m }.AsQueryable().AverageAsync(x => x);
-        }
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException))]
-        public async Task AverageAsyncNullableDecimalPred_WrongQueryProvider_Exception()
-        {
-            await new decimal?[] { 1m }.AsQueryable().AverageAsync(x => x);
+            await Task.WhenAll(
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<int>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<int?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<long>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<long?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<float>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<float?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<double>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<double?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<decimal>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<decimal?>().AsQueryable()),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => 0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (int?)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (long)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (long?)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (float)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (float?)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (double)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (double?)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (decimal)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync)),
+                ShouldThrowNotSupportedException(() => MoleSqlQueryable.AverageAsync(Enumerable.Empty<object>().AsQueryable(), o => (decimal?)0),
+                                                 nameof(MoleSqlQueryable.AverageAsync))
+            );
         }
         [TestMethod]
         public async Task AverageAsync_Customers_WithoutSelector()

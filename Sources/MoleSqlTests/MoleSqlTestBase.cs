@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using FluentAssertions;
 using FluentAssertions.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql;
@@ -48,7 +49,28 @@ namespace MoleSqlTests
         static readonly char[] splitChars = { '\r', '\n', '\t', '\v', ' ' };
         static string NormalizeSql(string sql) => string.Join(" ", sql.Split(splitChars, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()));
 
-
+        internal async Task ShouldThrowArgumentNullException(Func<Task> task, string parameter = null)
+        {
+            try
+            {
+                await task();
+            }
+            catch (ArgumentNullException e)
+            {
+                if (parameter != null) e.ParamName.Should().Be(parameter);
+            }
+        }
+        internal async Task ShouldThrowNotSupportedException(Func<Task> task, string contains = null)
+        {
+            try
+            {
+                await task();
+            }
+            catch (NotSupportedException e)
+            {
+                if (contains != null) e.Message.Should().Contain(contains);
+            }
+        }
         [AssemblyInitialize]
         [SuppressMessage("Stil", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Test framework dictates signature.")]
         public static void InitializeTestAssembly(TestContext testContext)
