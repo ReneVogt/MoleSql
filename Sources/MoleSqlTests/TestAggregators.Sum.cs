@@ -21,14 +21,14 @@ namespace MoleSqlTests
         [TestMethod]
         public void Sum_SumIds_WithoutSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = context.Employees.Where(e => e.Id < 5 && e.Id > 1).Select(e => e.Id).Sum();
             result.Should().Be(9);
         }
         [TestMethod]
         public void Sum_SumIds_WithSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = context.Employees.Where(e => e.Id < 5 && e.Id > 1).Sum(e => e.Id);
             result.Should().Be(9);
         }
@@ -36,14 +36,14 @@ namespace MoleSqlTests
         [ExpectedException(typeof(NotSupportedException))]
         public void SumAsync_NotOnTop_NotSupportedException()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).SumAsync(default) }).AsEnumerable().ToList();
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public void SumAsync_NotOnTopSelector_NotSupportedException()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             context.Customers.Select(customer => new { T = context.Customers.SumAsync(c => c.Id, default) }).AsEnumerable().ToList();
         }
         [TestMethod]
@@ -169,14 +169,14 @@ namespace MoleSqlTests
         [TestMethod]
         public async Task SumAsync_SumIds_WithoutSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = await context.Employees.Where(e => e.Id < 5 && e.Id > 1).Select(e => e.Id).SumAsync();
             result.Should().Be(9);
         }
         [TestMethod]
         public async Task SumAsync_SumIds_WithSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = await context.Employees.Where(e => e.Id < 5 && e.Id > 1).SumAsync(e => e.Id);
             result.Should().Be(9);
         }

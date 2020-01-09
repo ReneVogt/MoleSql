@@ -111,7 +111,7 @@
     <Compile Include="TestDb\Orders.cs" />
     <Compile Include="TestDb\Customers.cs" />
     <Compile Include="TestDb\TestDbContext.cs" />
-    <Compile Include="MoleSqlTestContext.cs" />
+    <Compile Include="MoleSqlTestBase.cs" />
     <Compile Include="TestAggregators.cs" />
     <Compile Include="TestExecuteQuery.cs" />
     <Compile Include="TestExecuteNonQuery.cs" />

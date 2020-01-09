@@ -15,12 +15,12 @@ namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class TestGrouping
+    public class TestGrouping : MoleSqlTestBase
     {
         [TestMethod]
         public async Task SimpleGroup_ProductsByCategory()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from product in context.Products
                         where product.Id < 10
                         group product by product.Category
@@ -31,7 +31,7 @@ namespace MoleSqlTests
             var result = await query.ToListAsync();
 
             result.Should().Equal(4, 2, 3);
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT 
     ( 
         SELECT COUNT(*) 
@@ -50,7 +50,7 @@ FROM
         [TestMethod]
         public async Task GroupWithAllAggregators_ProductsByCategory()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from product in context.Products
                         where product.Id < 10
                         group product by product.Category
@@ -95,7 +95,7 @@ FROM
             result[2].AveragePrice.Should().Be(52.3333m);
             result[2].TotalPrice.Should().Be(157);
 
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT 
     [t7].[Category], 
     ( 

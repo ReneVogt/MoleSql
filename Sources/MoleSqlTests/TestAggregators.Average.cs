@@ -16,12 +16,12 @@ using MoleSql.Extensions;
 
 namespace MoleSqlTests
 {
-    public partial class TestAggregators
+    public partial class TestAggregators : MoleSqlTestBase
     {
         [TestMethod]
         public void Average_Customers_WithoutSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             // ReSharper disable once ReplaceWithSingleCallToCount
             var result = context.Customers.Where(c => c.Id < 4).Select(c => c.Id).Average();
             result.Should().Be(2);
@@ -29,7 +29,7 @@ namespace MoleSqlTests
         [TestMethod]
         public void Average_Customers_WithSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             // ReSharper disable once ReplaceWithSingleCallToCount
             var result = context.Customers.Where(c => c.Id < 4).Average(c => c.Id);
             result.Should().Be(2);
@@ -38,14 +38,14 @@ namespace MoleSqlTests
         [ExpectedException(typeof(NotSupportedException))]
         public void AverageAsync_NotOnTop_NotSupportedException()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).AverageAsync(default) }).AsEnumerable().ToList();
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public void AverageAsync_NotOnTopSelector_NotSupportedException()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             context.Customers.Select(customer => new { T = context.Customers.AverageAsync(c => c.Id, default) }).AsEnumerable().ToList();
         }
         [TestMethod]
@@ -171,7 +171,7 @@ namespace MoleSqlTests
         [TestMethod]
         public async Task AverageAsync_Customers_WithoutSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             // ReSharper disable once ReplaceWithSingleCallToCount
             var result = await context.Customers.Where(c => c.Id < 4).Select(c => c.Id).AverageAsync();
             result.Should().Be(2);
@@ -179,7 +179,7 @@ namespace MoleSqlTests
         [TestMethod]
         public async Task AverageAsync_Customers_WithSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             // ReSharper disable once ReplaceWithSingleCallToCount
             var result = await context.Customers.Where(c => c.Id < 4).AverageAsync(c => c.Id);
             result.Should().Be(2);

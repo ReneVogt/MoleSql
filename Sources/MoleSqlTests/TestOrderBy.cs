@@ -14,19 +14,19 @@ namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class TestOrderBy
+    public class TestOrderBy : MoleSqlTestBase
     {
         [TestMethod]
         public void SimpleOrderBy()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from department in context.Departments
                         where department.Id < 7
                         orderby department.Name
                         select department.Name;
             var result = query.ToList();
             result.Should().Equal("Development", "DoubleName", "DoubleName", "Marketing", "Sales", "Support");
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
@@ -36,14 +36,14 @@ ORDER BY [t0].[Name]
         [TestMethod]
         public void SimpleOrderByDescending()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from department in context.Departments
                         where department.Id < 7
                         orderby department.Name descending
                         select department.Name;
             var result = query.ToList();
             result.Should().Equal("Support", "Sales", "Marketing", "DoubleName", "DoubleName", "Development");
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
@@ -53,7 +53,7 @@ ORDER BY [t0].[Name] DESC
         [TestMethod]
         public void MixedOrderByDescending()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from department in context.Departments
                         where department.Id < 7
                         orderby department.Name descending, department.Id
@@ -72,7 +72,7 @@ ORDER BY [t0].[Name] DESC
             result[4].Name.Should().Be("DoubleName");
             result[5].Id.Should().Be(4);
             result[5].Name.Should().Be("Development");
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT [t0].[Id], [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 

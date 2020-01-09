@@ -21,7 +21,7 @@ namespace MoleSqlTests
         [TestMethod]
         public void Count_Customers_WithoutPredicate()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             // ReSharper disable once ReplaceWithSingleCallToCount
             var result = context.Customers.Where(c => c.Id < 4).Count();
             result.Should().Be(3);
@@ -29,7 +29,7 @@ namespace MoleSqlTests
         [TestMethod]
         public void Count_Customers_WithPredicate()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = context.Customers.Count(c => c.Id < 4);
             result.Should().Be(3);
         }
@@ -37,14 +37,14 @@ namespace MoleSqlTests
         [ExpectedException(typeof(NotSupportedException))]
         public void CountAsync_NotOnTop_NotSupportedException()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             context.Customers.Select(customer => new { T = context.Departments.CountAsync(default) }).ToList();
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public void CountAsync_NotOnTopPred_NotSupportedException()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             context.Customers.Select(customer => new {T = context.Customers.CountAsync(x => true, default)}).Select(a => a).ToList();
         }
         [TestMethod]
@@ -62,7 +62,7 @@ namespace MoleSqlTests
         [TestMethod]
         public async Task CountAsync_Customers_WithoutPredicate()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             // ReSharper disable once ReplaceWithSingleCallToCount
             var result = await context.Customers.Where(c => c.Id < 4).CountAsync();
             result.Should().Be(3);
@@ -70,7 +70,7 @@ namespace MoleSqlTests
         [TestMethod]
         public async Task CountAsync_Customers_WithPredicate()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = await context.Customers.CountAsync(c => c.Id < 4);
             result.Should().Be(3);
         }

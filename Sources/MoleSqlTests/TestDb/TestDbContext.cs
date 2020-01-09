@@ -4,9 +4,11 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
-using System;
+
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Text;
 using MoleSql;
 
 namespace MoleSqlTests.TestDb
@@ -22,11 +24,13 @@ namespace MoleSqlTests.TestDb
         internal Query<Products> Products => GetTable<Products>();
         internal Query<ProductsToOrders> ProductsToOrders => GetTable<ProductsToOrders>();
 
+        internal StringBuilder LogBuilder { get; } = new StringBuilder();
+
         public TestDbContext(bool disposeTransaction = false)
             : base(ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString)
         {
             this.disposeTransaction = disposeTransaction;
-            Log = Console.Out;
+            Log = new StringWriter(LogBuilder);
 
             if (!disposeTransaction) return;
             Transaction = BeginTransaction();

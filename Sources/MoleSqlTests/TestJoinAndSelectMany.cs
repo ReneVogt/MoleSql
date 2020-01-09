@@ -16,12 +16,12 @@ namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class TestJoinAndSelectMany
+    public class TestJoinAndSelectMany : MoleSqlTestBase
     {
         [TestMethod]
         public void SimpleInnerJoin()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from customer in context.Customers
                         join order in context.Orders
                             on customer.Id equals order.CustomerId
@@ -37,7 +37,7 @@ namespace MoleSqlTests
             result[1].Customer.Should().Be("Alfons Allerlei");
             result[1].Employee.Should().Be("René");
             result[1].Date.Should().Be(new DateTime(2020, 1, 8));
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT [t7].[Name], [t7].[Name1], [t7].[Date] 
 FROM ( 
     SELECT [t4].[Name], [t4].[Date], [t5].[Name] AS Name1 
@@ -56,7 +56,7 @@ WHERE ([t7].[Name1] = @p0)
         [TestMethod]
         public void SimpleSelectMany()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from employee in context.Employees
                         from order in context.Orders
                         where employee.Name == "René" && employee.Id == order.EmployeeId
@@ -67,7 +67,7 @@ WHERE ([t7].[Name1] = @p0)
             result[0].Date.Should().Be(new DateTime(2020, 1, 7));
             result[1].Salary.Should().Be(1);
             result[1].Date.Should().Be(new DateTime(2020, 1, 8));
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT [t0].[Salary], [t2].[Date] 
 FROM [Employees] AS t0 
 CROSS JOIN [Orders] AS t2 
@@ -77,7 +77,7 @@ WHERE (([t0].[Name] = @p0) AND ([t0].[Id] = [t2].[EmployeeId]))
         [TestMethod]
         public void LittleMoreComplexSelectMany()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from employee in context.Employees
                         from order in context.Orders
                         from customer in context.Customers
@@ -91,7 +91,7 @@ WHERE (([t0].[Name] = @p0) AND ([t0].[Id] = [t2].[EmployeeId]))
             result[1].Name.Should().Be("Alfons Allerlei");
             result[1].Salary.Should().Be(1);
             result[1].Date.Should().Be(new DateTime(2020, 1, 8));
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT [t7].[Name1], [t7].[Salary], [t7].[Date] 
 FROM ( 
     SELECT [t4].[Id], [t4].[Name], [t4].[Salary], [t4].[CustomerId], [t4].[EmployeeId], [t4].[Date], [t5].[Id] AS Id2, [t5].[Name] AS Name1 

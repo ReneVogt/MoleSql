@@ -14,12 +14,12 @@ namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class TestNextedQueries
+    public class TestNextedQueries : MoleSqlTestBase
     {
         [TestMethod]
         public void NestedQuery_CorrectResult()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = from employee in context.Employees
                         where employee.Name == "René"
                         select new
@@ -32,7 +32,7 @@ namespace MoleSqlTests
             result[0].Name.Should().Be("René");
             result[0].Orders.Should().HaveCountGreaterThan(0);
             result[0].Orders[0].Id.Should().Be(1);
-            MoleSqlTestContext.AssertSqlDump(context, @"
+            AssertAndLogSql(context, @"
 SELECT [t0].[Name], [t0].[Id] 
 FROM [Employees] AS t0 WHERE ([t0].[Name] = @p0) 
 -- @p0 NVarChar Input [René] 

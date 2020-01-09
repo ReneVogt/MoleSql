@@ -21,14 +21,14 @@ namespace MoleSqlTests
         [TestMethod]
         public void Max_MaxEmployeeSalary_WithoutSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = context.Employees.Select(e => e.Salary).Max();
             result.Should().Be(200000);
         }
         [TestMethod]
         public void Max_MaxEmployeeSalary_WithSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = context.Employees.Max(e => e.Salary);
             result.Should().Be(200000);
         }
@@ -36,14 +36,14 @@ namespace MoleSqlTests
         [ExpectedException(typeof(NotSupportedException))]
         public void MaxAsync_NotOnTop_NotSupportedException()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             context.Customers.Select(customer => new { T = context.Customers.Select(c => c.Id).MaxAsync(default) }).AsEnumerable().ToList();
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public void MaxAsync_NotOnTopSelector_NotSupportedException()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             context.Customers.Select(customer => new { T = context.Customers.MaxAsync(c => c.Id, default) }).AsEnumerable().ToList();
         }
         [TestMethod]
@@ -55,14 +55,14 @@ namespace MoleSqlTests
         [TestMethod]
         public async Task MaxAsync_MaxEmployeeSalary_WithoutSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = await context.Employees.Select(e => e.Salary).MaxAsync();
             result.Should().Be(200000);
         }
         [TestMethod]
         public async Task MaxAsync_MaxEmployeeSalary_WithSelector()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var result = await context.Employees.MaxAsync(e => e.Salary);
             result.Should().Be(200000);
         }

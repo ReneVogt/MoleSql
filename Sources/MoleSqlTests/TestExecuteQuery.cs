@@ -18,7 +18,7 @@ namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class TestExecuteQuery
+    public class TestExecuteQuery : MoleSqlTestBase
     {
         sealed class TestRow
         {
@@ -31,14 +31,14 @@ namespace MoleSqlTests
         [TestMethod]
         public void ExecuteQuery_Generic_CorrectResults()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = context.ExecuteQuery<TestRow>($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description, [Name] AS IDontGetMapped FROM Departments ORDER BY [Id]");
             query.Select(x => (x.Identifier, x.Description)).Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
         }
         [TestMethod]
         public async Task ExecuteQueryAsync_Generic_CorrectResults()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = context.ExecuteQueryAsync<TestRow>($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description, [Name] AS IDontGetMapped FROM Departments ORDER BY [Id]", CancellationToken.None);
 
             var resultList = new List<(int, string)>();
@@ -50,14 +50,14 @@ namespace MoleSqlTests
         [TestMethod]
         public void ExecuteQuery_Dynamic_CorrectResults()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = context.ExecuteQuery($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description FROM Departments ORDER BY [Id]");
             query.Cast<dynamic>().Select(x => (x.Identifier, x.Description)).Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
         }
         [TestMethod]
         public void ExecuteQuery_Dynamic_CorrectResultsWithNulls()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = context.ExecuteQuery($"SELECT TOP 2 [Name], [DateOfBirth], [LastSeen] FROM [Employees] ORDER BY [Id]");
             var result = query.Cast<dynamic>().ToList();
             result.Should().HaveCount(2);
@@ -71,7 +71,7 @@ namespace MoleSqlTests
         [TestMethod]
         public async Task ExecuteQueryAsync_Dynamic_CorrectResults()
         {
-            using var context = MoleSqlTestContext.GetDbContext();
+            using var context = GetDbContext();
             var query = context.ExecuteQueryAsync($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description FROM Departments ORDER BY [Id]", CancellationToken.None);
 
             var resultList = new List<(int, string)>();
