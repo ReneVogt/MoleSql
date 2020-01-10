@@ -7,8 +7,8 @@
 
 using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql;
 
 namespace MoleSqlTests.TestDb
@@ -28,11 +28,11 @@ namespace MoleSqlTests.TestDb
 
         internal StringBuilder LogBuilder { get; } = new StringBuilder();
 
-        public TestDbContext(bool disposeTransaction = false)
+        public TestDbContext(TestContext testContext, bool disposeTransaction = false)
             : base(ConnectionString)
         {
             this.disposeTransaction = disposeTransaction;
-            Log = new StringWriter(LogBuilder);
+            Log = new SqlLogger(testContext, LogBuilder);
 
             if (!disposeTransaction) return;
             Transaction = BeginTransaction();

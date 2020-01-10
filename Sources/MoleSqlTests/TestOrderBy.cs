@@ -26,7 +26,7 @@ namespace MoleSqlTests
                         select department.Name;
             var result = query.ToList();
             result.Should().Equal("Development", "DoubleName", "DoubleName", "Marketing", "Sales", "Support");
-            AssertAndLogSql(context, @"
+            AssertSql(context, @"
 SELECT [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
@@ -43,7 +43,7 @@ ORDER BY [t0].[Name]
                         select department.Name;
             var result = query.ToList();
             result.Should().Equal("Support", "Sales", "Marketing", "DoubleName", "DoubleName", "Development");
-            AssertAndLogSql(context, @"
+            AssertSql(context, @"
 SELECT [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
@@ -72,7 +72,7 @@ ORDER BY [t0].[Name] DESC
             result[4].Name.Should().Be("DoubleName");
             result[5].Id.Should().Be(4);
             result[5].Name.Should().Be("Development");
-            AssertAndLogSql(context, @"
+            AssertSql(context, @"
 SELECT [t0].[Id], [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 

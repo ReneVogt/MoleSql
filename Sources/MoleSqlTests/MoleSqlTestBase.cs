@@ -26,19 +26,10 @@ namespace MoleSqlTests
     {
         public TestContext TestContext { get; set; }
 
-        internal TestDbContext GetDbContext() => new TestDbContext();
-        internal TestDbContext GetDbContextWithTransaction() => new TestDbContext(true);
-        internal void Log(string msg)
+        internal TestDbContext GetDbContext() => new TestDbContext(TestContext);
+        internal TestDbContext GetDbContextWithTransaction() => new TestDbContext(TestContext, true);
+        internal void AssertSql(string logged, string expected)
         {
-            if (Environment.UserInteractive)
-                Console.WriteLine(msg);
-            else
-                TestContext?.WriteLine(msg);
-        }
-        internal void AssertAndLogSql(TestDbContext context, string expected) => AssertAndLogSql(context.LogBuilder.ToString(), expected);
-        internal void AssertAndLogSql(string logged, string expected)
-        {
-            Log(logged);
             Assert.AreEqual(NormalizeSql(expected), NormalizeSql(logged));
         }
         internal void AssertSql(TestDbContext context, string expected)

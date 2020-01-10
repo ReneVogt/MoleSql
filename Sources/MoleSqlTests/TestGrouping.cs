@@ -4,6 +4,8 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +33,7 @@ namespace MoleSqlTests
             var result = await query.ToListAsync();
 
             result.Should().Equal(4, 2, 3);
-            AssertAndLogSql(context, @"
+            AssertSql(context, @"
 SELECT 
     ( 
         SELECT COUNT(*) 
@@ -95,7 +97,7 @@ FROM
             result[2].AveragePrice.Should().Be(52.3333m);
             result[2].TotalPrice.Should().Be(157);
 
-            AssertAndLogSql(context, @"
+            AssertSql(context, @"
 SELECT 
     [t7].[Category], 
     ( 
@@ -142,6 +144,72 @@ SELECT
 -- @p5 Int Input [10]
 -- @p6 Int Input [10]
 -- @p7 Int Input [10]");
+        }
+        [TestMethod]
+        public async Task Group_TotalSalesOfEmployeeId2()
+        {
+            using var context = GetDbContext();
+            var query = from employee in context.Employees
+                        where employee.Id == 2
+                        join order in context.Orders on employee.Id equals order.EmployeeId
+                        join pto in context.ProductsToOrders on order.Id equals pto.OrderId
+                        join product in context.Products on pto.ProductId equals product.Id
+                        group new {employee.Name, product.Price} by new {employee.Id, employee.Name}
+                        into x
+                        select new {x.Key.Name, Total = x.Sum(product => product.Price)};
+            
+            var result = await query.ToListAsync();
+            result.Should().HaveCount(1);
+            result[0].Name.Should().Be("Marc");
+            result[0].Total.Should().Be(130);
+
+            AssertSql(context, @"
+SELECT [t8].[Name], SUM([t9].[Price]) AS agg2 
+FROM ( 
+    SELECT [t5].[Id], [t5].[Name], [t6].[ProductId] 
+    FROM ( 
+        SELECT [t2].[Id], [t2].[Name], [t3].[Id] AS Id1 
+        FROM ( 
+            SELECT [t0].[Id], [t0].[Name] 
+            FROM [Employees] AS t0 
+            WHERE ([t0].[Id] = @p0) 
+        ) AS t2 
+    INNER JOIN [Orders] AS t3 
+        ON ([t2].[Id] = [t3].[EmployeeId]) 
+    ) AS t5 
+    INNER JOIN [ProductsToOrders] AS t6 
+        ON ([t5].[Id1] = [t6].[OrderId]) 
+    ) AS t8 
+    INNER JOIN [Products] AS t9 
+        ON ([t8].[ProductId] = [t9].[Id]) 
+    GROUP BY [t8].[Id], [t8].[Name] 
+-- @p0 Int Input [2]");
+        }
+        [TestMethod]
+        public async Task Group_HowToFailIGrouping()
+        {
+            using var context = GetDbContext();
+            var query = from product in context.Products
+                        group product by product.Category
+                        into x
+                        orderby x.Key
+                        select new
+                        {
+                            Category = x.Key,
+                            DoesItFail = x.Where(p => p.Id > 5).OrderBy(n => n).Select(p => p.Name)
+                        };
+
+            await ((Func<Task>)(async() => await query.ToListAsync()))
+                .Should()
+                .ThrowAsync<InvalidOperationException>()
+                .WithMessage("*undefined column*");
+
+            Assert.Inconclusive("This should be translated somehow.");
+
+            //var result = (await query.ToListAsync()).Select(x => new { x.Category, List = x.DoesItFail.ToList() }).ToList();
+            //result.Should().HaveCountGreaterThan(0);
+
+            //AssertSql(context, @"");
         }
     }
 }

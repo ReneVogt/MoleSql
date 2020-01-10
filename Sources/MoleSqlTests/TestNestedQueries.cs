@@ -32,7 +32,7 @@ namespace MoleSqlTests
             result[0].Name.Should().Be("René");
             result[0].Orders.Should().HaveCountGreaterThan(0);
             result[0].Orders[0].Id.Should().Be(1);
-            AssertAndLogSql(context, @"
+            AssertSql(context, @"
 SELECT [t0].[Name], [t0].[Id] 
 FROM [Employees] AS t0 WHERE ([t0].[Name] = @p0) 
 -- @p0 NVarChar Input [René] 

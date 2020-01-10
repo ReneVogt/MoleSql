@@ -51,7 +51,7 @@ namespace MoleSqlTests
             using var _ = context.Transaction = context.BeginTransaction(transactionName);
             var result = await context.ExecuteScalarAsync<string>($"SELECT name FROM sys.dm_tran_active_transactions WHERE name = {transactionName}");
             result.Should().Be(transactionName);
-            AssertAndLogSql(logBuilder.ToString(), $"SELECT name FROM sys.dm_tran_active_transactions WHERE name = @p0 -- @p0 NVarChar Input [{transactionName}]");
+            AssertSql(logBuilder.ToString(), $"SELECT name FROM sys.dm_tran_active_transactions WHERE name = @p0 -- @p0 NVarChar Input [{transactionName}]");
         }
         [TestMethod]
         public async Task Transaction_NameAndLevel()

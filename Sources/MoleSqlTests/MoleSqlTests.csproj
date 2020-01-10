@@ -81,6 +81,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SqlLogger.cs" />
     <Compile Include="TestAggregators.Average.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>

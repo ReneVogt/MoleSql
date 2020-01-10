@@ -25,14 +25,14 @@ namespace MoleSqlTests
             using var context = GetDbContext();
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             context.Employees.ToList();
-            AssertAndLogSql(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0");
+            AssertSql(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0");
         }
         [TestMethod]
         public async Task EmployeesAsync_ExpectedTableProjection()
         {
             using var context = GetDbContext();
             await ((IAsyncEnumerable<Employees>)context.Employees).ToListAsync();
-            AssertAndLogSql(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0");
+            AssertSql(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0");
         }
     }
 }

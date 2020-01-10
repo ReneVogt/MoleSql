@@ -277,9 +277,8 @@ namespace MoleSql
 
             foreach (SqlParameter parameter in command.Parameters)
                 logbuilder.AppendLine($"-- {parameter.ParameterName} {parameter.SqlDbType} {parameter.Direction} [{parameter.SqlValue}]");
-            logbuilder.AppendLine();
 
-            log.Write(logbuilder.ToString());
+            log.WriteLine(logbuilder.ToString());
         }
         void CheckDisposed()
         {
