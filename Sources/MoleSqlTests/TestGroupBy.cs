@@ -16,10 +16,62 @@ namespace MoleSqlTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class TestGrouping : MoleSqlTestBase
+    public class TestGroupBy : MoleSqlTestBase
     {
         [TestMethod]
-        public async Task SimpleGroup_ProductsByCategory()
+        public async Task GroupBy_SimpleUsingGroupingClass_ProductsByCategory()
+        {
+            using var context = GetDbContext();
+            var query = from product in context.Products
+                        where product.Id < 10
+                        group product by product.Category
+                        into g
+                        orderby g.Key
+                        select g;
+
+            var result = await query.ToListAsync();
+            result.Should().HaveCount(3);
+            result[0].Key.Should().Be(1);
+            result[0].Count().Should().Be(4);
+            result[1].Key.Should().Be(2);
+            result[1].Count().Should().Be(2);
+            result[2].Key.Should().Be(3);
+            result[2].Count().Should().Be(3);
+
+            AssertSql(context, @"
+SELECT [t7].[Category]
+FROM (
+  SELECT [t0].[Category]
+  FROM [Products] AS t0
+  WHERE ([t0].[Id] < @p0)
+  GROUP BY [t0].[Category]
+) AS t7
+ORDER BY [t7].[Category]
+-- @p0 Int Input [10]
+
+SELECT [t3].[Id], [t3].[Name], [t3].[Price], [t3].[Category]
+FROM [Products] AS t3
+WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3].[Category] = @p2)))
+-- @p0 Int Input [10]
+-- @p1 Int Input [1]
+-- @p2 Int Input [1]
+
+SELECT [t3].[Id], [t3].[Name], [t3].[Price], [t3].[Category]
+FROM [Products] AS t3
+WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3].[Category] = @p2)))
+-- @p0 Int Input [10]
+-- @p1 Int Input [2]
+-- @p2 Int Input [2]
+
+SELECT [t3].[Id], [t3].[Name], [t3].[Price], [t3].[Category]
+FROM [Products] AS t3
+WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3].[Category] = @p2)))
+-- @p0 Int Input [10]
+-- @p1 Int Input [3]
+-- @p2 Int Input [3]");
+        }
+        [TestMethod]
+        public async Task GroupBy_SimpleWithOrderAndSelect_ProductsByCategory()
         {
             using var context = GetDbContext();
             var query = from product in context.Products
@@ -49,7 +101,7 @@ FROM
 -- @p0 Int Input [10] -- @p1 Int Input [10]");
         }
         [TestMethod]
-        public async Task GroupWithAllAggregators_ProductsByCategory()
+        public async Task GroupBy_WithAllAggregators_ProductsByCategory()
         {
             using var context = GetDbContext();
             var query = from product in context.Products
@@ -145,7 +197,7 @@ SELECT
 -- @p7 Int Input [10]");
         }
         [TestMethod]
-        public async Task Group_TotalSalesOfEmployeeId2()
+        public async Task GroupBy_TotalSalesOfEmployeeId2()
         {
             using var context = GetDbContext();
             var query = from employee in context.Employees
@@ -185,7 +237,7 @@ FROM (
 -- @p0 Int Input [2]");
         }
         [TestMethod]
-        public async Task Group_HowToFailIGrouping()
+        public async Task GroupBy_HowToFailIGrouping()
         {
             using var context = GetDbContext();
             var query = from product in context.Products

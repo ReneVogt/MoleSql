@@ -26,6 +26,7 @@ namespace MoleSql.Helpers
         }
 
         public IEnumerator<TElement> GetEnumerator() => elements.GetEnumerator();
+        [ExcludeFromCodeCoverage]
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
