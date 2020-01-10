@@ -34,7 +34,7 @@ namespace MoleSql.Exceptions
         internal static InvalidOperationException ReferenceToUndefinedColumn() =>
             new InvalidOperationException(Resources.Exception_ReferenceToUndefinedColumn);
         internal static ObjectDisposedException ObjectDisposed(this string typename) =>
-            new ObjectDisposedException(string.Format(CultureInfo.InvariantCulture, Resources.Exception_ObjectDisposed, typename));
+            new ObjectDisposedException(typename, string.Format(CultureInfo.InvariantCulture, Resources.Exception_ObjectDisposed, typename));
         internal static NotSupportedException IsNotSupported(this MethodInfo method) =>
             new NotSupportedException(string.Format(CultureInfo.InvariantCulture, Resources.Exception_MethodNotSupported,
                                                     $"{method.DeclaringType}.{method.Name}"));

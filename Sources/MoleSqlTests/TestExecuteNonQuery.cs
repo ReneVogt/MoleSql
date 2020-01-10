@@ -4,10 +4,13 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MoleSql;
 
 namespace MoleSqlTests
 {
@@ -16,12 +19,26 @@ namespace MoleSqlTests
     public class TestExecuteNonQuery : MoleSqlTestBase
     {
         [TestMethod]
-        public void UdateRows_CorrectRowCount()
+        public void ExecuteNonQuery_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteNonQuery($"")).Should().Throw<ObjectDisposedException>().WithMessage($"*{nameof(DataContext)}*");
+        }
+        [TestMethod]
+        public void ExecuteNonQuery_UdateRows_CorrectRowCount()
         {
             const string Name = "Alfons Allerlei";
             using var context = GetDbContextWithTransaction();
             context.ExecuteNonQuery($"UPDATE Customers SET Name = 'Hello World' WHERE [Name] = {Name}").Should().Be(1);
             AssertSql(context, "UPDATE Customers SET Name = 'Hello World' WHERE [Name] = @p0 -- @p0 NVarChar Input [Alfons Allerlei]");
+        }
+        [TestMethod]
+        public void ExecuteNonQueryAsync_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteNonQueryAsync($"")).Should().Throw<ObjectDisposedException>().WithMessage($"*{nameof(DataContext)}*");
         }
         [TestMethod]
         public async Task ExecuteNonQueryAsync_YieldsCorrectResult()

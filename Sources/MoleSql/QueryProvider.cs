@@ -36,6 +36,13 @@ namespace MoleSql
 
         internal SqlConnection Connection { get; }
         internal SqlTransaction Transaction { get; set; }
+        /// <summary>
+        /// When writing to this <see cref="TextWriter"/>, please only
+        /// use the <see cref="TextWriter.WriteLine(string)"/> overload.
+        /// That's what is promised to clients so it's easier to implement
+        /// a class deriving from <see cref="TextWriter"/> to use with
+        /// this provider.
+        /// </summary>
         internal TextWriter Log { get; set; }
 
         internal QueryProvider(SqlConnection connection, bool ownConnection)

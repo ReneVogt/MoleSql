@@ -5,10 +5,12 @@
  *
  */
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MoleSql;
 
 namespace MoleSqlTests
 {
@@ -16,6 +18,34 @@ namespace MoleSqlTests
     [ExcludeFromCodeCoverage]
     public class TestExecuteScalar : MoleSqlTestBase
     {
+        [TestMethod]
+        public void ExecuteScalar_NonGeneric_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteScalar($"")).Should().Throw<ObjectDisposedException>().WithMessage($"*{nameof(DataContext)}*");
+        }
+        [TestMethod]
+        public void ExecuteScalarAsync_NonGeneric_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteScalarAsync($"")).Should().Throw<ObjectDisposedException>().WithMessage($"*{nameof(DataContext)}*");
+        }
+        [TestMethod]
+        public void ExecuteScalar_Generic_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteScalar<int>($"")).Should().Throw<ObjectDisposedException>().WithMessage($"*{nameof(DataContext)}*");
+        }
+        [TestMethod]
+        public void ExecuteScalarAsync_Generic_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteScalarAsync<int>($"")).Should().Throw<ObjectDisposedException>().WithMessage($"*{nameof(DataContext)}*");
+        }
         [TestMethod]
         public void ExecuteScalar_NonGeneric_CorrectCount()
         {

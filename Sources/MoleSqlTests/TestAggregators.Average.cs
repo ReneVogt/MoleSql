@@ -22,7 +22,7 @@ using MoleSqlTests.TestDb;
 
 namespace MoleSqlTests
 {
-    public partial class TestAggregators : MoleSqlTestBase
+    public partial class TestAggregators
     {
         [TestMethod]
         public void Average_WithoutSelector_CorrectValues()

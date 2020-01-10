@@ -29,6 +29,34 @@ namespace MoleSqlTests
         }
 
         [TestMethod]
+        public void ExecuteQuery_Generic_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteQuery<object>($"")).Should().Throw<ObjectDisposedException>();
+        }
+        [TestMethod]
+        public void ExecuteQueryAsync_Generic_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteQueryAsync<object>($"")).Should().Throw<ObjectDisposedException>();
+        }
+        [TestMethod]
+        public void ExecuteQuery_Dynamic_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteQuery($"")).Should().Throw<ObjectDisposedException>();
+        }
+        [TestMethod]
+        public void ExecuteQueryAsync_Dynamic_AfterDispose_ObjectDisposedException()
+        {
+            var context = GetDbContext();
+            context.Dispose();
+            context.Invoking(ctx => ctx.ExecuteQueryAsync($"")).Should().Throw<ObjectDisposedException>();
+        }
+        [TestMethod]
         public void ExecuteQuery_Generic_CorrectResults()
         {
             using var context = GetDbContext();
