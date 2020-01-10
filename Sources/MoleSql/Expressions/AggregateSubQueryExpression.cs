@@ -7,6 +7,7 @@
  *
  */
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
@@ -29,6 +30,7 @@ namespace MoleSql.Expressions
             NodeType = (ExpressionType)DbExpressionType.AggregateSubQuery;
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"AggregateSubQuery '{GroupByAlias}' SELECT: ({AggregateInGroupSelect}) SubQuery: ({AggregateAsSubQuery})";
     }
 }

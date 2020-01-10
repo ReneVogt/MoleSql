@@ -7,6 +7,7 @@
  *
  */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
@@ -22,6 +23,7 @@ namespace MoleSql.Expressions
             Expression = expression;
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"ColumnDeclaration '{Name}': {Expression}";
     }
 }

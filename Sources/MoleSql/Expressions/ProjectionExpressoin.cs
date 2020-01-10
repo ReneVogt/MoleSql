@@ -7,6 +7,7 @@
  *
  */
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
@@ -29,6 +30,7 @@ namespace MoleSql.Expressions
             NodeType = (ExpressionType)DbExpressionType.Projection;
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"Projection: Source: ({Source}) Projector: ({Projector}){(IsTopLevelAggregation ? " TLA" : string.Empty)}";
     }
 }

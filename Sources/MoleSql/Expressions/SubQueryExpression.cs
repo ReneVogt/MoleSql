@@ -7,6 +7,7 @@
  *
  */
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
@@ -25,6 +26,7 @@ namespace MoleSql.Expressions
             NodeType = (ExpressionType)DbExpressionType.SubQuery;
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"SubQuery: ({SelectExpression})";
     }
 }

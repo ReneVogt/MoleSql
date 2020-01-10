@@ -7,6 +7,7 @@
  *
  */
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace MoleSql.Expressions
@@ -33,6 +34,7 @@ namespace MoleSql.Expressions
             NodeType = (ExpressionType)DbExpressionType.Join;
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString() => $"{JoinType} Left: ({Left}) Right: ({Right}) Condition: ({Condition})";
     }
 }

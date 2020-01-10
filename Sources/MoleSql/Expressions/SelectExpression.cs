@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -38,6 +39,7 @@ namespace MoleSql.Expressions
             NodeType = (ExpressionType)DbExpressionType.Select;
         }
 
+        [ExcludeFromCodeCoverage]
         public override string ToString()
         {
             string groups = GroupBy == null ? null : $" GROUP: ({string.Join(", ", GroupBy.Select(g => $"({g})"))})";
