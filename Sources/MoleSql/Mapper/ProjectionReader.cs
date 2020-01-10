@@ -29,12 +29,12 @@ namespace MoleSql.Mapper
         {
             readonly SqlDataReader reader;
             readonly Func<ProjectionRow, T> projector;
-            readonly IQueryProvider queryProvider;
+            readonly QueryProvider queryProvider;
             readonly CancellationToken cancellationToken;
 
             List<object> values;
 
-            internal Enumerator(SqlDataReader reader, Func<ProjectionRow, T> projector, IQueryProvider queryProvider, CancellationToken cancellationToken)
+            internal Enumerator(SqlDataReader reader, Func<ProjectionRow, T> projector, QueryProvider queryProvider, CancellationToken cancellationToken)
             {
                 this.reader = reader;
                 this.projector = projector;
@@ -105,11 +105,11 @@ namespace MoleSql.Mapper
 
         readonly SqlDataReader reader;
         readonly Func<ProjectionRow, T> projector;
-        readonly IQueryProvider queryProvider;
+        readonly QueryProvider queryProvider;
 
         bool used;
 
-        internal ProjectionReader(SqlDataReader reader, Func<ProjectionRow, T> projector, IQueryProvider queryProvider)
+        internal ProjectionReader(SqlDataReader reader, Func<ProjectionRow, T> projector, QueryProvider queryProvider)
         {
             this.reader = reader;
             this.projector = projector;

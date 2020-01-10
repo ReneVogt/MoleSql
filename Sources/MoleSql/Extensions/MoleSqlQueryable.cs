@@ -64,18 +64,16 @@ namespace MoleSql.Extensions
         /// </summary>
         /// <typeparam name="T">The type of the resulting rows.</typeparam>
         /// <param name="source">The source query to execute.</param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>A sequence of rows that can be iterated asynchronously.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
-        public static IAsyncEnumerable<T> AsAsyncEnumerable<T>([NotNull] this IQueryable<T> source, CancellationToken cancellationToken = default)
+        public static IAsyncEnumerable<T> AsAsyncEnumerable<T>([NotNull] this IQueryable<T> source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            if (!(source.Provider is QueryProvider provider))
-                throw nameof(AsAsyncEnumerable).DoesNotSupportDifferentQueryProvider();
-
-            return source as IAsyncEnumerable<T> ?? provider.ExecuteAsync<T>(source.Expression, cancellationToken);
+            return source.Provider is QueryProvider 
+                       ? (IAsyncEnumerable<T>)source
+                       : throw nameof(AsAsyncEnumerable).DoesNotSupportDifferentQueryProvider();
         }
 
 #pragma warning disable IDE0060, CA1801 // Nicht verwendete Parameter entfernen

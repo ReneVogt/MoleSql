@@ -5,7 +5,6 @@
  *
  */
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -199,17 +198,10 @@ FROM (
                             DoesItFail = x.Where(p => p.Id > 5).OrderBy(n => n).Select(p => p.Name)
                         };
 
-            await ((Func<Task>)(async() => await query.ToListAsync()))
-                .Should()
-                .ThrowAsync<InvalidOperationException>()
-                .WithMessage("*undefined column*");
-
-            Assert.Inconclusive("This should be translated somehow.");
-
-            //var result = (await query.ToListAsync()).Select(x => new { x.Category, List = x.DoesItFail.ToList() }).ToList();
-            //result.Should().HaveCountGreaterThan(0);
-
-            //AssertSql(context, @"");
+            var result = await query.ToListAsync();
+            result.Should().HaveCountGreaterThan(0);
+            // TODO: check result when query works
+            AssertSql(context, @"");
         }
     }
 }

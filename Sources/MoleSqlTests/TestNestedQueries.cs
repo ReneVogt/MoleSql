@@ -17,7 +17,7 @@ namespace MoleSqlTests
     public class TestNextedQueries : MoleSqlTestBase
     {
         [TestMethod]
-        public void NestedQuery_CorrectResult()
+        public void NestedQuery_ReferencedList_CorrectResult()
         {
             using var context = GetDbContext();
             var query = from employee in context.Employees
@@ -41,6 +41,38 @@ SELECT [t3].[Id], [t3].[CustomerId], [t3].[EmployeeId], [t3].[Date], [t3].[Disco
 FROM [Orders] AS t3 WHERE ([t3].[EmployeeId] = @p0) 
 ORDER BY [t3].[Id] 
 -- @p0 Int Input [5]");
+        }
+        [TestMethod]
+        public void NestedQuery_GroupedToIGroupings_IEnumerableToIQueryable()
+        {
+            using var context = GetDbContext();
+            var query = from employee in context.Employees
+                        where employee.Name == "René"
+                        select new
+                        {
+                            employee.Name,
+                            OrderCount = context.Orders.GroupBy(order => order.CustomerId)
+                        };
+            var result = query.ToList();
+            result.Should().HaveCount(1);
+            // TODO: check result when query works
+            AssertSql(context, @"");
+        }
+        [TestMethod]
+        public void NestedQuery_GroupedToIGroupingsWithSelector_IEnumerableToIQueryable()
+        {
+            using var context = GetDbContext();
+            var query = from employee in context.Employees
+                        where employee.Name == "René"
+                        select new
+                        {
+                            employee.Name,
+                            OrderCount = context.Orders.GroupBy(order => order.CustomerId).Select(g => g.Count())
+                        };
+            var result = query.ToList();
+            result.Should().HaveCount(1);
+            // TODO: check result when query works
+            AssertSql(context, @"");
         }
     }
 }
