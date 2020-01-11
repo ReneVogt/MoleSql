@@ -119,9 +119,16 @@
     <Compile Include="DatabaseTests\TestGroupBy.cs" />
     <Compile Include="DatabaseTests\TestTransactions.cs" />
     <Compile Include="DatabaseTests\TestTablesAndBasics.cs" />
-    <Compile Include="UnitTests\TestTypeSystemHelper.GetElementType.cs" />
-    <Compile Include="UnitTests\TestTypeSystemHelper.GetSequenceType.cs" />
+    <Compile Include="UnitTests\TestQuery.cs" />
+    <Compile Include="UnitTests\TestQueryProvider.cs" />
+    <Compile Include="UnitTests\TestDataContext.cs" />
+    <Compile Include="UnitTests\TestTypeSystemHelper.GetElementType.cs">
+      <DependentUpon>TestTypeSystemHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="UnitTests\TestTypeSystemHelper.cs" />
+    <Compile Include="UnitTests\TestTypeSystemHelper.GetSequenceType.cs">
+      <DependentUpon>TestTypeSystemHelper.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

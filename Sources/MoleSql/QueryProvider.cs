@@ -66,7 +66,12 @@ namespace MoleSql
 
             try
             {
-                return (IQueryable)Activator.CreateInstance(typeof(Query<>).MakeGenericType(elementType), this, expression);
+                return (IQueryable)Activator.CreateInstance(
+                    typeof(Query<>).MakeGenericType(elementType),
+                    BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance,
+                    null,
+                    new object[] {this, expression},
+                    CultureInfo.InvariantCulture);
             }
             catch (TargetInvocationException tie) when (tie.InnerException != null)
             {
