@@ -10,12 +10,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MoleSql;
 using MoleSql.Extensions;
+
 // ReSharper disable AccessToDisposedClosure
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
@@ -27,7 +29,7 @@ namespace MoleSqlTests
             var context = GetDbContext();
             var table = context.AggregatorTest;
             context.Dispose();
-            table.Invoking(t => t.MaxAsync()).Should().Throw<ObjectDisposedException>();
+            table.Invoking(t => t.MaxAsync()).Should().Throw<ObjectDisposedException>().Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void AggregatedSubqueryReferences_CorrectResult()

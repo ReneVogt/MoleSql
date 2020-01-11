@@ -12,7 +12,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql.Extensions;
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]

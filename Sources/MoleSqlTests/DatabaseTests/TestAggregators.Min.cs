@@ -13,12 +13,13 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql.Extensions;
 using MoleSqlTests.TestDb;
+
 // ReSharper disable AssignNullToNotNullAttribute
 // ReSharper disable InvokeAsExtensionMethod
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     public partial class TestAggregators
     {

@@ -19,7 +19,7 @@ using MoleSqlTests.TestDb;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     public partial class TestAggregators
     {

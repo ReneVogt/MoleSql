@@ -16,7 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql;
 using MoleSqlTests.TestDb;
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]

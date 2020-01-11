@@ -10,8 +10,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MoleSql;
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
@@ -22,28 +23,40 @@ namespace MoleSqlTests
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Invoking(ctx => ctx.ExecuteScalar($"")).Should().Throw<ObjectDisposedException>();
+            context.Invoking(ctx => ctx.ExecuteScalar($""))
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteScalarAsync_NonGeneric_AfterDispose_ObjectDisposedException()
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Awaiting(async ctx => await ctx.ExecuteScalarAsync($"")).Should().Throw<ObjectDisposedException>();
+            context.Awaiting(async ctx => await ctx.ExecuteScalarAsync($""))
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteScalar_Generic_AfterDispose_ObjectDisposedException()
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Invoking(ctx => ctx.ExecuteScalar<int>($"")).Should().Throw<ObjectDisposedException>();
+            context.Invoking(ctx => ctx.ExecuteScalar<int>($""))
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteScalarAsync_Generic_AfterDispose_ObjectDisposedException()
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Awaiting(async ctx => await ctx.ExecuteScalarAsync<int>($"")).Should().Throw<ObjectDisposedException>();
+            context.Awaiting(async ctx => await ctx.ExecuteScalarAsync<int>($""))
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteScalar_NonGeneric_CorrectCount()

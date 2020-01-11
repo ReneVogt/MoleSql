@@ -4,13 +4,15 @@
  * Published under MIT license as described in the LICENSE.md file.
  *
  */
+
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 // ReSharper disable AccessToDisposedClosure
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]

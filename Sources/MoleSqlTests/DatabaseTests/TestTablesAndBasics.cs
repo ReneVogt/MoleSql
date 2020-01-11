@@ -14,13 +14,15 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql;
 using MoleSql.Extensions;
+using MoleSql.Mapper;
 using MoleSqlTests.TestDb;
+// ReSharper disable PossibleMultipleEnumeration
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
-    public class TestTables : MoleSqlTestBase
+    public class TestTablesAndBasics : MoleSqlTestBase
     {
         [TestMethod]
         public void Table_Employees_ExpectedTableProjection()
@@ -43,7 +45,11 @@ namespace MoleSqlTests
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Invoking(ctx => ctx.Employees).Should().Throw<ObjectDisposedException>().WithMessage($"*{nameof(DataContext)}*");
+            context.Invoking(ctx => ctx.Employees)
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(DataContext))
+                   .WithMessage($"*{nameof(DataContext)}*");
         }
         [TestMethod]
         public void Table_QueryEmployeesAfterDisposed_ObjectDisposedException()
@@ -58,6 +64,30 @@ namespace MoleSqlTests
                  .Where(e => e.ObjectName == typename)
                  .WithMessage($"*{typename}*");
 
+        }
+        [TestMethod]
+        public void Basics_DontUseQueryTwice()
+        {
+            using var context = GetDbContext();
+            var query = context.Employees;
+            var enumerable = (IEnumerable<Employees>)query.Provider.Execute(query.Expression);
+            enumerable.Count().Should().BeGreaterThan(0);
+            enumerable.Invoking(e => e.ToList())
+                      .Should()
+                      .Throw<ObjectDisposedException>()
+                      .Where(e => e.ObjectName == nameof(ProjectionReader<Employees>));
+        }
+        [TestMethod]
+        public async Task Basics_DontUseQueryTwice_Async()
+        {
+            using var context = GetDbContext();
+            var query = context.Employees;
+            var enumerable = (IAsyncEnumerable<Employees>)query.Provider.Execute(query.Expression);
+            (await enumerable.ToListAsync()).Should().HaveCountGreaterThan(0);
+            enumerable.Awaiting(async e => await e.ToListAsync())
+                      .Should()
+                      .Throw<ObjectDisposedException>()
+                      .Where(e => e.ObjectName == nameof(ProjectionReader<Employees>));
         }
     }
 }

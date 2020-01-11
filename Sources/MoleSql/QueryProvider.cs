@@ -290,7 +290,7 @@ namespace MoleSql
         void CheckDisposed()
         {
             if (disposed)
-                throw typeof(QueryProvider).Name.ObjectDisposed();
+                throw nameof(QueryProvider).ObjectDisposed();
         }
         void OpenConnection()
         {

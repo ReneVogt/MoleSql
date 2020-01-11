@@ -12,9 +12,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MoleSql;
 using MoleSql.Extensions;
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
@@ -58,7 +59,7 @@ namespace MoleSqlTests
         public void AsAsyncEnumerable_WrongProvider_Exception()
         {
             IQueryable<int> query = new[]{1,2,3}.AsQueryable();
-            query.Invoking(q => q.AsAsyncEnumerable()).Should().Throw<NotSupportedException>();
+            query.Invoking(q => q.AsAsyncEnumerable()).Should().Throw<NotSupportedException>().WithMessage($"*{typeof(QueryProvider).FullName}*");
         }
         [TestMethod]
         public async Task AsAsyncEnumerable_CorrectList()

@@ -20,7 +20,7 @@ namespace MoleSql.Exceptions
             string.Format(CultureInfo.InvariantCulture, Resources.Exception_DoesNotSupportDifferentQueryProvider, methodName,
                           typeof(QueryProvider).FullName));
         internal static ObjectDisposedException CanOnlyBeIteratedOnce(this string typeName) =>
-            new ObjectDisposedException(string.Format(CultureInfo.InvariantCulture, Resources.Exception_CanOnlyBeIteratedOnce, typeName));
+            new ObjectDisposedException(typeName, string.Format(CultureInfo.InvariantCulture, Resources.Exception_CanOnlyBeIteratedOnce, typeName));
         internal static InvalidOperationException CannotBeAppliedToNullValues(this BinaryExpression binaryExpression) =>
             new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, Resources.Exception_BinaryExpressionCannotBeAppliedToNullValues, binaryExpression.NodeType));
         internal static NotSupportedException IsNotSupported(this BinaryExpression binaryExpression) =>

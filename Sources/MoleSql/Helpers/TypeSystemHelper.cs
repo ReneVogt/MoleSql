@@ -12,38 +12,71 @@ using System.Linq;
 
 namespace MoleSql.Helpers 
 {
+    /// <summary>
+    /// Provides helper methods (extensions) for common type system questions:
+    /// <see cref="GetElementType"/> finds the type of an element
+    /// in a sequential type (<see cref="IEnumerable{T}"/>) and <see cref="GetSequenceType"/>
+    /// creates an <see cref="IEnumerable{T}"/> for the given element type.
+    /// </summary>
     static class TypeSystemHelper
     {
-        internal static Type GetElementType(Type seqType)
+        /// <summary>
+        /// Determines if the given <paramref name="sequenceType"/> is in any way
+        /// assignable to an <see cref="IEnumerable{T}"/> and if so, returns the
+        /// generic type argument for this interface.
+        /// It therefor uses the private <see cref="FindIEnumerable"/> method which
+        /// determines if the given type or any of it's base types implements the
+        /// <see cref="IEnumerable{T}"/> interface.
+        /// </summary>
+        /// <param name="sequenceType">The <see cref="Type"/> to investigate.</param>
+        /// <returns>The <paramref name="sequenceType"/> itself if it does not implement any
+        /// kind of <see cref="IEnumerable{T}"/> or that "T" if one is found.</returns>
+        internal static Type GetElementType(Type sequenceType)
         {
-            Type ienum = FindIEnumerable(seqType);
-            if (ienum == null) return seqType;
-            return ienum.GetGenericArguments()[0];
+            Type enumerable = FindIEnumerable(sequenceType);
+            if (enumerable == null) return sequenceType;
+            return enumerable.GetGenericArguments()[0];
         }
+       
+        /// <summary>
+        /// Creates the <see cref="IEnumerable{T}"/> type with <paramref name="elementType"/>
+        /// as generic argument.
+        /// </summary>
+        /// <param name="elementType">The element type of the created sequence type.</param>
+        /// <returns>A <see cref="Type"/> instance representing the <see cref="IEnumerable{T}"/> of <paramref name="elementType"/> type.</returns>
         internal static Type GetSequenceType(Type elementType) => typeof(IEnumerable<>).MakeGenericType(elementType);
 
-        static Type FindIEnumerable(Type seqType)
+        /// <summary>
+        /// Checks if the given <paramref name="sequenceType"/> or one of its base
+        /// types represents or implements or derives from a type implementing the
+        /// <see cref="IEnumerable{T}"/> interface and if so, returns this constructed
+        /// <see cref="IEnumerable{T}"/>.
+        /// </summary>
+        /// <param name="sequenceType">The <see cref="Type"/> to investigate.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> that is in any way implemented by <paramref name="sequenceType"/> or
+        /// <code>null</code> <paramref name="sequenceType"/> is not assignable to any version of <see cref="IEnumerable{T}"/>.</returns>
+        static Type FindIEnumerable(Type sequenceType)
         {
-            if (seqType == null || seqType == typeof(string))
+            if (sequenceType == null || sequenceType == typeof(string))
                 return null;
 
-            if (seqType.IsArray)
-                return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
+            if (sequenceType.IsArray)
+                return typeof(IEnumerable<>).MakeGenericType(sequenceType.GetElementType());
 
             Type enumerationType;
-            if (seqType.IsGenericType)
+            if (sequenceType.IsGenericType)
             {
-                var ienumTypes = from arg in seqType.GetGenericArguments()
+                var ienumTypes = from arg in sequenceType.GetGenericArguments()
                                  select typeof(IEnumerable<>).MakeGenericType(arg);
-                enumerationType = ienumTypes.FirstOrDefault(t => t.IsAssignableFrom(seqType));
+                enumerationType = ienumTypes.FirstOrDefault(t => t.IsAssignableFrom(sequenceType));
                 if (enumerationType != null) return enumerationType;
             }
 
-            enumerationType = seqType.GetInterfaces().Select(FindIEnumerable).FirstOrDefault(t => t != null);
+            enumerationType = sequenceType.GetInterfaces().Select(FindIEnumerable).FirstOrDefault(t => t != null);
             if (enumerationType != null) return enumerationType;
 
-            if (seqType.BaseType != null && seqType.BaseType != typeof(object))
-                return FindIEnumerable(seqType.BaseType);
+            if (sequenceType.BaseType != null && sequenceType.BaseType != typeof(object))
+                return FindIEnumerable(sequenceType.BaseType);
 
             return null;
         }

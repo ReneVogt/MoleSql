@@ -13,9 +13,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MoleSql;
 using MoleSql.Extensions;
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
@@ -34,28 +35,40 @@ namespace MoleSqlTests
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Invoking(ctx => ctx.ExecuteQuery<object>($"")).Should().Throw<ObjectDisposedException>();
+            context.Invoking(ctx => ctx.ExecuteQuery<object>($""))
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteQueryAsync_Generic_AfterDispose_ObjectDisposedException()
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Awaiting(async ctx => await ctx.ExecuteQueryAsync<object>($"").ToListAsync()).Should().Throw<ObjectDisposedException>();
+            context.Awaiting(async ctx => await ctx.ExecuteQueryAsync<object>($"").ToListAsync())
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteQuery_Dynamic_AfterDispose_ObjectDisposedException()
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Invoking(ctx => ctx.ExecuteQuery($"")).Should().Throw<ObjectDisposedException>();
+            context.Invoking(ctx => ctx.ExecuteQuery($""))
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteQueryAsync_Dynamic_AfterDispose_ObjectDisposedException()
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Awaiting(async ctx => await ctx.ExecuteQueryAsync($"").ToListAsync()).Should().Throw<ObjectDisposedException>();
+            context.Awaiting(async ctx => await ctx.ExecuteQueryAsync($"").ToListAsync())
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteQuery_Generic_CorrectResults()

@@ -764,6 +764,46 @@
             The lambda expressions will be created by the <see cref="T:MoleSql.Translators.ProjectionBuilder"/> and the reading will be done in the <see cref="T:MoleSql.Mapper.ProjectionReader`1"/>.
             </summary>
         </member>
+        <member name="T:MoleSql.Helpers.TypeSystemHelper">
+            <summary>
+            Provides helper methods (extensions) for common type system questions:
+            <see cref="M:MoleSql.Helpers.TypeSystemHelper.GetElementType(System.Type)"/> finds the type of an element
+            in a sequential type (<see cref="T:System.Collections.Generic.IEnumerable`1"/>) and <see cref="M:MoleSql.Helpers.TypeSystemHelper.GetSequenceType(System.Type)"/>
+            creates an <see cref="T:System.Collections.Generic.IEnumerable`1"/> for the given element type.
+            </summary>
+        </member>
+        <member name="M:MoleSql.Helpers.TypeSystemHelper.GetElementType(System.Type)">
+            <summary>
+            Determines if the given <paramref name="sequenceType"/> is in any way
+            assignable to an <see cref="T:System.Collections.Generic.IEnumerable`1"/> and if so, returns the
+            generic type argument for this interface.
+            It therefor uses the private <see cref="M:MoleSql.Helpers.TypeSystemHelper.FindIEnumerable(System.Type)"/> method which
+            determines if the given type or any of it's base types implements the
+            <see cref="T:System.Collections.Generic.IEnumerable`1"/> interface.
+            </summary>
+            <param name="sequenceType">The <see cref="T:System.Type"/> to investigate.</param>
+            <returns>The <paramref name="sequenceType"/> itself if it does not implement any
+            kind of <see cref="T:System.Collections.Generic.IEnumerable`1"/> or that "T" if one is found.</returns>
+        </member>
+        <member name="M:MoleSql.Helpers.TypeSystemHelper.GetSequenceType(System.Type)">
+            <summary>
+            Creates the <see cref="T:System.Collections.Generic.IEnumerable`1"/> type with <paramref name="elementType"/>
+            as generic argument.
+            </summary>
+            <param name="elementType">The element type of the created sequence type.</param>
+            <returns>A <see cref="T:System.Type"/> instance representing the <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <paramref name="elementType"/> type.</returns>
+        </member>
+        <member name="M:MoleSql.Helpers.TypeSystemHelper.FindIEnumerable(System.Type)">
+            <summary>
+            Checks if the given <paramref name="sequenceType"/> or one of its base
+            types represents or implements or derives from a type implementing the
+            <see cref="T:System.Collections.Generic.IEnumerable`1"/> interface and if so, returns this constructed
+            <see cref="T:System.Collections.Generic.IEnumerable`1"/>.
+            </summary>
+            <param name="sequenceType">The <see cref="T:System.Type"/> to investigate.</param>
+            <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1"/> that is in any way implemented by <paramref name="sequenceType"/> or
+            <code>null</code> <paramref name="sequenceType"/> is not assignable to any version of <see cref="T:System.Collections.Generic.IEnumerable`1"/>.</returns>
+        </member>
         <member name="M:MoleSql.Mapper.SqlDataReaderMapper.ReadObjects``1(System.Data.SqlClient.SqlDataReader)">
             <summary>
             Reads rows from a <see cref="T:System.Data.SqlClient.SqlDataReader"/> and stores the values in instances of <typeparamref name="T"/>.

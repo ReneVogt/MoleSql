@@ -10,8 +10,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MoleSql;
 
-namespace MoleSqlTests
+namespace MoleSqlTests.DatabaseTests
 {
     [TestClass]
     [ExcludeFromCodeCoverage]
@@ -22,7 +23,10 @@ namespace MoleSqlTests
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Invoking(ctx => ctx.ExecuteNonQuery($"")).Should().Throw<ObjectDisposedException>();
+            context.Invoking(ctx => ctx.ExecuteNonQuery($""))
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public void ExecuteNonQuery_UdateRows_CorrectRowCount()
@@ -37,7 +41,10 @@ namespace MoleSqlTests
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Awaiting(async ctx => await ctx.ExecuteNonQueryAsync($"")).Should().Throw<ObjectDisposedException>();
+            context.Awaiting(async ctx => await ctx.ExecuteNonQueryAsync($""))
+                   .Should()
+                   .Throw<ObjectDisposedException>()
+                   .Where(e => e.ObjectName == nameof(QueryProvider));
         }
         [TestMethod]
         public async Task ExecuteNonQueryAsync_YieldsCorrectResult()

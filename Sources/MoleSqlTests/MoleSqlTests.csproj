@@ -43,11 +43,10 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>MoleSql.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions, Version=5.10.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
@@ -82,28 +81,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SqlLogger.cs" />
-    <Compile Include="TestAggregators.Average.cs">
+    <Compile Include="DatabaseTests\TestAggregators.Average.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>
-    <Compile Include="TestAggregators.Count.cs">
+    <Compile Include="DatabaseTests\TestAggregators.Count.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>
-    <Compile Include="TestAggregators.Max.cs">
+    <Compile Include="DatabaseTests\TestAggregators.Max.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>
-    <Compile Include="TestAggregators.Min.cs">
+    <Compile Include="DatabaseTests\TestAggregators.Min.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>
-    <Compile Include="TestAggregators.Sum.cs">
+    <Compile Include="DatabaseTests\TestAggregators.Sum.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>
     <Compile Include="TestDb\AggregatorTestTable.cs" />
-    <Compile Include="TestNestedQueries.cs" />
-    <Compile Include="TestAsyncExtensions.cs" />
-    <Compile Include="TestExecuteScalar.cs" />
-    <Compile Include="TestJoinAndSelectMany.cs" />
-    <Compile Include="TestOrderBy.cs" />
-    <Compile Include="TestSelectAndWhere.cs" />
+    <Compile Include="DatabaseTests\TestNestedQueries.cs" />
+    <Compile Include="DatabaseTests\TestAsyncExtensions.cs" />
+    <Compile Include="DatabaseTests\TestExecuteScalar.cs" />
+    <Compile Include="DatabaseTests\TestJoinAndSelectMany.cs" />
+    <Compile Include="DatabaseTests\TestOrderBy.cs" />
+    <Compile Include="DatabaseTests\TestSelectAndWhere.cs" />
     <Compile Include="MoleSqlTestsCli.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestDb\Employees.cs" />
@@ -114,15 +113,19 @@
     <Compile Include="TestDb\Customers.cs" />
     <Compile Include="TestDb\TestDbContext.cs" />
     <Compile Include="MoleSqlTestBase.cs" />
-    <Compile Include="TestAggregators.cs" />
-    <Compile Include="TestExecuteQuery.cs" />
-    <Compile Include="TestExecuteNonQuery.cs" />
-    <Compile Include="TestGroupBy.cs" />
-    <Compile Include="TestTransactions.cs" />
-    <Compile Include="TestTables.cs" />
+    <Compile Include="DatabaseTests\TestAggregators.cs" />
+    <Compile Include="DatabaseTests\TestExecuteQuery.cs" />
+    <Compile Include="DatabaseTests\TestExecuteNonQuery.cs" />
+    <Compile Include="DatabaseTests\TestGroupBy.cs" />
+    <Compile Include="DatabaseTests\TestTransactions.cs" />
+    <Compile Include="DatabaseTests\TestTablesAndBasics.cs" />
+    <Compile Include="UnitTests\TestTypeSystemHelper.GetElementType.cs" />
+    <Compile Include="UnitTests\TestTypeSystemHelper.GetSequenceType.cs" />
+    <Compile Include="UnitTests\TestTypeSystemHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="MoleSql.pfx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
