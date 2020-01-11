@@ -15,6 +15,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql;
 using MoleSql.Extensions;
+using MoleSqlTests.TestDb;
 
 namespace MoleSqlTests.DatabaseTests
 {
@@ -76,6 +77,20 @@ namespace MoleSqlTests.DatabaseTests
             using var context = GetDbContext();
             var query = context.ExecuteQuery<TestRow>($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description, [Name] AS IDontGetMapped FROM Departments ORDER BY [Id]");
             query.Select(x => (x.Identifier, x.Description)).Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
+        }
+        [TestMethod]
+        public void ExecuteQuery_InClause_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var ids = new[] { 1, 2, 3, 4 };
+            var query = context.ExecuteQuery<Departments>($"SELECT [Id], [Name] FROM Departments WHERE [Id] IN {ids:int} ORDER BY [Id]");
+            query.Select(department => (department.Id, department.Name)).Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
+            AssertSql(context, @"
+SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY [Id]
+-- @p0 Int Input [1]
+-- @p1 Int Input [2]
+-- @p2 Int Input [3]
+-- @p3 Int Input [4]");
         }
         [TestMethod]
         public async Task ExecuteQueryAsync_Generic_CorrectResults()

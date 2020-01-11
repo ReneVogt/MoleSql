@@ -86,5 +86,27 @@ namespace MoleSqlTests.DatabaseTests
             var result = await context.ExecuteScalarAsync<int>($"SELECT COUNT([Id]) FROM (SELECT TOP 4 [Id] FROM Employees) AS X");
             result.Should().Be(4);
         }
+        [TestMethod]
+        public async Task ExecuteScalarAsync_StringParameter_CorrectResults()
+        {
+            const string departmentName = "Sales";
+            using var context = GetDbContext();
+            // ReSharper disable once InterpolatedStringExpressionIsNotIFormattable
+            var result = await context.ExecuteScalarAsync<int>($"SELECT [Id] FROM Departments WHERE [Name] = {departmentName:NVarChar}");
+            result.Should().Be(2);
+            AssertSql(context, @"
+SELECT [Id] FROM Departments WHERE [Name] = @p0
+-- @p0 NVarChar Input [Sales]");
+        }
+        [TestMethod]
+        public async Task ExecuteScalarAsync_IntParameter_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var result = await context.ExecuteScalarAsync<int>($"SELECT [Id] FROM Departments WHERE [Id] = {2:Int}");
+            result.Should().Be(2);
+            AssertSql(context, @"
+SELECT [Id] FROM Departments WHERE [Id] = @p0
+-- @p0 Int Input [2]");
+        }
     }
 }
