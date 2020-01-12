@@ -31,26 +31,10 @@ namespace MoleSql.Translators
             this.columns = columns;
         }
 
-        protected override Expression VisitColumn(ColumnExpression column)
-        {
-            if (column.Alias != alias) return base.VisitColumn(column);
-
-            return Expression.Call(row, getValueMethod.MakeGenericMethod(column.Type), Expression.Constant(columns.IndexOf(column.Name)));
-
-            //if (!column.Type.IsGenericType || column.Type.GetGenericTypeDefinition() != typeof(Nullable<>))
-            //    return Expression.Convert(
-            //        Expression.Call(typeof(Convert), nameof(Convert.ChangeType), null,
-            //                        getValueCall,
-            //                        Expression.Constant(column.Type)
-            //        ),
-            //        column.Type
-            //    );
-
-            //var underlyingType = Nullable.GetUnderlyingType(column.Type);
-            //var constructor = column.Type.GetConstructor(new[] {underlyingType});
-            //Debug.Assert(constructor != null && underlyingType != null);
-            //return Expression.Convert(Expression.New(constructor, Expression.Convert(getValueCall, underlyingType)), column.Type);
-        }
+        protected override Expression VisitColumn(ColumnExpression column) =>
+            column.Alias == alias
+                ? Expression.Call(row, getValueMethod.MakeGenericMethod(column.Type), Expression.Constant(columns.IndexOf(column.Name)))
+                : base.VisitColumn(column);
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
             LambdaExpression subQuery = Expression.Lambda(base.VisitProjection(projectionExpression), row);

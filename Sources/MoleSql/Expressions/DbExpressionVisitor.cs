@@ -31,11 +31,6 @@ namespace MoleSql.Expressions
                           (ExpressionType)DbExpressionType.IsNull => VisitIsNull((IsNullExpression)expression),
                           _ => base.Visit(expression)
                       };
-        //protected override Expression VisitNew(NewExpression newExpression)
-        //{
-        //    var arguments = VisitExpressionList(newExpression.Arguments);
-        //    return arguments == newExpression.Arguments ? newExpression : Expression.New(newExpression.Constructor, arguments);
-        //}
         protected virtual Expression VisitTable(TableExpression table) => table;
         protected virtual Expression VisitColumn(ColumnExpression column) => column;
         protected virtual Expression VisitSelect(SelectExpression selectExpression)

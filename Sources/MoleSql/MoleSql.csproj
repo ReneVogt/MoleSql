@@ -19,6 +19,7 @@ THIS IS AN EXPERIMENTAL/EDUCATIONAL PACKAGE!</Description>
     <AssemblyOriginatorKeyFile>MoleSql.pfx</AssemblyOriginatorKeyFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
