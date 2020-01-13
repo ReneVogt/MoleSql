@@ -37,7 +37,7 @@ namespace MoleSqlTests.DatabaseTests
         public async Task Table_EmployeesAsync_ExpectedTableProjection()
         {
             using var context = GetDbContext();
-            await ((IAsyncEnumerable<Employees>)context.Employees).ToListAsync();
+            await context.Employees.ToListAsync();
             AssertSql(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0");
         }
         [TestMethod]
@@ -78,13 +78,13 @@ namespace MoleSqlTests.DatabaseTests
                       .Where(e => e.ObjectName == nameof(ProjectionReader<Employees>));
         }
         [TestMethod]
-        public async Task Basics_DontUseQueryTwice_Async()
+        public void Basics_DontUseQueryTwice_Async()
         {
             using var context = GetDbContext();
             var query = context.Employees;
-            var enumerable = (IAsyncEnumerable<Employees>)query.Provider.Execute(query.Expression);
-            (await enumerable.ToListAsync()).Should().HaveCountGreaterThan(0);
-            enumerable.Awaiting(async e => await e.ToListAsync())
+            var enumerable = (IEnumerable<Employees>)query.Provider.Execute(query.Expression);
+            enumerable.ToList().Should().HaveCountGreaterThan(0);
+            enumerable.Invoking(e => e.ToList())
                       .Should()
                       .Throw<ObjectDisposedException>()
                       .Where(e => e.ObjectName == nameof(ProjectionReader<Employees>));

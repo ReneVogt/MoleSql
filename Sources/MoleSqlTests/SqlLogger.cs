@@ -23,14 +23,14 @@ namespace MoleSqlTests
         public SqlLogger(TestContext testContext, StringBuilder buffer)
         {
             this.testContext = testContext;
-            this.buffer = new StringWriter(buffer);
+            this.buffer = buffer != null ? new StringWriter(buffer) : null;
         }
         public override void WriteLine(string value)
         {
             if (Environment.UserInteractive)
                 Console.WriteLine(value);
-            testContext.WriteLine(value);
-            buffer.WriteLine(value);
+            testContext?.WriteLine(value);
+            buffer?.WriteLine(value);
             base.WriteLine(value);
         }
     }

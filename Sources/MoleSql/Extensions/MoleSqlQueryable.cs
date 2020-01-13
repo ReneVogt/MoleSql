@@ -31,32 +31,16 @@ namespace MoleSql.Extensions
         /// <returns>A task that on completion returns a list of the resulting rows.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
         /// <exception cref="NotSupportedException">This method can only be used with a <see cref="QueryProvider"/>.</exception>
-        public static Task<List<T>> ToListAsync<T>([NotNull] this IQueryable<T> source, CancellationToken cancellationToken = default)
+        public static async Task<List<T>> ToListAsync<T>([NotNull] this IQueryable<T> source, CancellationToken cancellationToken = default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (!(source.Provider is QueryProvider provider))
                 throw nameof(ToListAsync).DoesNotSupportDifferentQueryProvider();
 
-            return provider.ExecuteAsync<T>(source.Expression, cancellationToken).ToListAsync(cancellationToken);
-        }
-        /// <summary>
-        /// Asynchronously iterates the <paramref name="source"/> sequence and stores the elements in a list.
-        /// </summary>
-        /// <typeparam name="T">The type of the elements in the input sequence.</typeparam>
-        /// <param name="source">The asynchronous input sequence.</param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
-        /// <returns>A task that on completion returns a list of the sequence elements.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        public static async Task<List<T>> ToListAsync<T>([NotNull] this IAsyncEnumerable<T> source, CancellationToken cancellationToken = default)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
             List<T> list = new List<T>();
-            await foreach (var element in source.WithCancellation(cancellationToken))
+            await foreach (var element in provider.ExecuteAsync<T>(source.Expression, cancellationToken))
                 list.Add(element);
-
             return list;
         }
         /// <summary>

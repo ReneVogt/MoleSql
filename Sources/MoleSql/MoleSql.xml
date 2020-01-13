@@ -475,16 +475,6 @@
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
             <exception cref="T:System.NotSupportedException">This method can only be used with a <see cref="T:MoleSql.QueryProvider"/>.</exception>
         </member>
-        <member name="M:MoleSql.Extensions.MoleSqlQueryable.ToListAsync``1(System.Collections.Generic.IAsyncEnumerable{``0},System.Threading.CancellationToken)">
-            <summary>
-            Asynchronously iterates the <paramref name="source"/> sequence and stores the elements in a list.
-            </summary>
-            <typeparam name="T">The type of the elements in the input sequence.</typeparam>
-            <param name="source">The asynchronous input sequence.</param>
-            <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken"/> to cancel this asynchronous operation.</param>
-            <returns>A task that on completion returns a list of the sequence elements.</returns>
-            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> was <code>null</code>.</exception>
-        </member>
         <member name="M:MoleSql.Extensions.MoleSqlQueryable.AsAsyncEnumerable``1(System.Linq.IQueryable{``0})">
             <summary>
             Lets the query provider execute the <paramref name="source"/> query asynchronously and returns an asynchronous sequence of the results.

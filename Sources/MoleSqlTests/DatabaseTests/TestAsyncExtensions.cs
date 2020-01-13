@@ -29,13 +29,6 @@ namespace MoleSqlTests.DatabaseTests
             query.Awaiting(q => q.ToListAsync()).Should().Throw<ArgumentNullException>().Where(e => e.ParamName == "source");
         }
         [TestMethod]
-        public void ToListAsync_NoSourceSequence_Exception()
-        {
-            IAsyncEnumerable<int> query = null;
-            // ReSharper disable once ExpressionIsAlwaysNull
-            query.Awaiting(q => q.ToListAsync()).Should().Throw<ArgumentNullException>().Where(e => e.ParamName == "source");
-        }
-        [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
         public async Task ToListAsync_WrongQueryProvider_Exception()
         {

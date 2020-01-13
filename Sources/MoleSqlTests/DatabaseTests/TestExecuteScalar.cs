@@ -33,7 +33,7 @@ namespace MoleSqlTests.DatabaseTests
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Awaiting(async ctx => await ctx.ExecuteScalarAsync($""))
+            context.Invoking(ctx => ctx.ExecuteScalarAsync($""))
                    .Should()
                    .Throw<ObjectDisposedException>()
                    .Where(e => e.ObjectName == nameof(QueryProvider));

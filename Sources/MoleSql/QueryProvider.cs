@@ -114,10 +114,15 @@ namespace MoleSql
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects<T>();
         }
-        internal async IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, [EnumeratorCancellation] CancellationToken cancellationToken = default) where T : class, new()
+        internal IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new()
         {
             CheckDisposed();
-
+            return ExecuteQueryAsyncInternal<T>(query, cancellationToken);
+        }
+        async IAsyncEnumerable<T> ExecuteQueryAsyncInternal<T>(FormattableString query,
+                                                               [EnumeratorCancellation] CancellationToken cancellationToken = default)
+            where T : class, new()
+        {
             using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
@@ -136,10 +141,14 @@ namespace MoleSql
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects();
         }
-        internal async IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        internal IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
-
+            return ExecuteQueryAsyncInternal(query, cancellationToken);
+        }
+        async IAsyncEnumerable<dynamic> ExecuteQueryAsyncInternal(FormattableString query,
+                                                                  [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
             using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
             LogCommand(cmd);
@@ -237,11 +246,14 @@ namespace MoleSql
                 new object[] { reader, projector, this },
                 null);
         }
-        [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
-        internal async IAsyncEnumerable<T> ExecuteAsync<T>(Expression expression, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        internal IAsyncEnumerable<T> ExecuteAsync<T>(Expression expression, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
-
+            return ExecuteAsyncInternal<T>(expression, cancellationToken);
+        }
+        [SuppressMessage("Microsoft.Security", "CA2100", Justification = "This is what this is all about.")]
+        async IAsyncEnumerable<T> ExecuteAsyncInternal<T>(Expression expression, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
             using var cmd = Connection.CreateCommand();
             cmd.Transaction = Transaction;
 

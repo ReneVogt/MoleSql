@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoleSql;
-using MoleSql.Extensions;
 using MoleSqlTests.TestDb;
 
 namespace MoleSqlTests.DatabaseTests
@@ -46,7 +45,7 @@ namespace MoleSqlTests.DatabaseTests
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Awaiting(async ctx => await ctx.ExecuteQueryAsync<object>($"").ToListAsync())
+            context.Invoking(ctx => ctx.ExecuteQueryAsync<object>($""))
                    .Should()
                    .Throw<ObjectDisposedException>()
                    .Where(e => e.ObjectName == nameof(QueryProvider));
@@ -66,7 +65,7 @@ namespace MoleSqlTests.DatabaseTests
         {
             var context = GetDbContext();
             context.Dispose();
-            context.Awaiting(async ctx => await ctx.ExecuteQueryAsync($"").ToListAsync())
+            context.Invoking(ctx => ctx.ExecuteQueryAsync($""))
                    .Should()
                    .Throw<ObjectDisposedException>()
                    .Where(e => e.ObjectName == nameof(QueryProvider));
