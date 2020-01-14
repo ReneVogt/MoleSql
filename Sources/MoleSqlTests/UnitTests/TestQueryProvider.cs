@@ -9,9 +9,11 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MoleSql;
 
 namespace MoleSqlTests.UnitTests
 {
@@ -24,9 +26,13 @@ namespace MoleSqlTests.UnitTests
         {
             using var context = GetDbContext();
             var query = context.Employees;
-            var provider = query.Provider;
+            var provider = (QueryProvider)query.Provider;
 
-            provider.Invoking(p => p.CreateQuery(Expression.Constant("throw"))).Should().Throw<ArgumentOutOfRangeException>();
+            provider.Invoking(p => ((IQueryProvider)p).CreateQuery(Expression.Constant("throw"))).Should().Throw<ArgumentOutOfRangeException>();
+
+            // just for code-coverage: not disposed twice
+            provider.Dispose();
+            context.Dispose(); 
         }
         [TestMethod]
         public void QueryProvider_CreateQueryNonGeneric_Works()

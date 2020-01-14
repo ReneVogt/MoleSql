@@ -62,6 +62,7 @@ namespace MoleSqlTests
                 if (contains != null) e.Message.Should().Contain(contains);
             }
         }
+        
         [AssemblyInitialize]
         [SuppressMessage("Stil", "IDE0060:Nicht verwendete Parameter entfernen", Justification = "Test framework dictates signature.")]
         public static void InitializeTestAssembly(TestContext testContext)

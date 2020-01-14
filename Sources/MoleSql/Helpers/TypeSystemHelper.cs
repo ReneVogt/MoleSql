@@ -8,7 +8,11 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using MoleSql.Exceptions;
 
 namespace MoleSql.Helpers 
 {
@@ -20,6 +24,60 @@ namespace MoleSql.Helpers
     /// </summary>
     static class TypeSystemHelper
     {
+        static readonly MethodInfo changeTypeMethod = typeof(TypeSystemHelper)
+            .GetMethod(
+                nameof(ChangeType),
+                BindingFlags.Static | BindingFlags.NonPublic,
+                null,
+                new[] {typeof(object)}, null);
+
+        /// <summary>
+        /// Tries to convert an object into another type.
+        /// This method is used to convert for example an <see cref="Int32"/> into an <see cref="Nullable{Int32}"/>.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <param name="type">The <see cref="Type"/> to convert the <paramref name="value"/> to.</param>
+        /// <returns>The <paramref name="value"/> represented as <paramref name="type"/>.</returns>
+        internal static object ChangeType(object value, Type type)
+        {
+            try
+            {
+                var method = changeTypeMethod.MakeGenericMethod(type);
+                return method.Invoke(null, new[] {value});
+            }
+            catch (TargetInvocationException tie) when (tie.InnerException != null)
+            {
+                throw tie.InnerException;
+            }
+            //if (value is null || value.GetType() == type) return value;
+
+            //if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Nullable<>))
+            //    return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
+
+            //var underlyingType = Nullable.GetUnderlyingType(type);
+            //Debug.Assert(underlyingType?.IsValueType == true);
+            //return Activator.CreateInstance(
+            //    typeof(Nullable<>).MakeGenericType(underlyingType),
+            //    Convert.ChangeType(value, underlyingType, CultureInfo.InvariantCulture));
+        }
+        internal static T ChangeType<T>(object value)
+        {
+            Type type = typeof(T);
+
+            if (value == null)
+            {
+                if (type.IsValueType && Nullable.GetUnderlyingType(type) == null)
+                    throw type.CannotBeConvertedToFromNull();
+
+                return default;
+            }
+            if (value.GetType() == typeof(T)) return (T)value;
+
+            type = Nullable.GetUnderlyingType(type) ?? type;
+            Debug.Assert(type != null);
+
+            return (T)Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
+        }
         /// <summary>
         /// Determines if the given <paramref name="sequenceType"/> is in any way
         /// assignable to an <see cref="IEnumerable{T}"/> and if so, returns the

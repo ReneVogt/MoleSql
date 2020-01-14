@@ -234,7 +234,7 @@ namespace MoleSql
 
             OpenConnection();
             if (isTopLevelAggregation)
-                return ChangeType(cmd.ExecuteScalar(), expression.Type);
+                return TypeSystemHelper.ChangeType(cmd.ExecuteScalar(), expression.Type);
 
             SqlDataReader reader = cmd.ExecuteReader();
             Type elementType = TypeSystemHelper.GetElementType(expression.Type);
@@ -288,7 +288,7 @@ namespace MoleSql
             LogCommand(cmd);
 
             await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return (T)ChangeType(await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false), typeof(T));
+            return TypeSystemHelper.ChangeType<T>(await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false));
         }
 
         void LogCommand(SqlCommand command)
@@ -320,20 +320,6 @@ namespace MoleSql
             CheckDisposed();
             if (Connection.State == ConnectionState.Closed)
                 await Connection.OpenAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        static object ChangeType(object value, Type type)
-        {
-            if (value is null || value.GetType() == type) return value;
-
-            if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Nullable<>))
-                return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
-
-            var underlyingType = Nullable.GetUnderlyingType(type);
-            Debug.Assert(underlyingType?.IsValueType == true);
-            return Activator.CreateInstance(
-                typeof(Nullable<>).MakeGenericType(underlyingType), 
-                Convert.ChangeType(value, underlyingType, CultureInfo.InvariantCulture));
         }
     }
 }

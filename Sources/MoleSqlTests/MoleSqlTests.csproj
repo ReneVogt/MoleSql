@@ -96,6 +96,7 @@
     <Compile Include="DatabaseTests\TestAggregators.Sum.cs">
       <DependentUpon>TestAggregators.cs</DependentUpon>
     </Compile>
+    <Compile Include="TestDb\NullableTestTable.cs" />
     <Compile Include="TestDb\AggregatorTestTable.cs" />
     <Compile Include="DatabaseTests\TestNestedQueries.cs" />
     <Compile Include="DatabaseTests\TestAsyncExtensions.cs" />
@@ -122,10 +123,13 @@
     <Compile Include="UnitTests\TestQuery.cs" />
     <Compile Include="UnitTests\TestQueryProvider.cs" />
     <Compile Include="UnitTests\TestDataContext.cs" />
-    <Compile Include="UnitTests\TestTypeSystemHelper.GetElementType.cs">
+    <Compile Include="UnitTests\TestTypeSystemHelper.ChangeType.cs">
       <DependentUpon>TestTypeSystemHelper.cs</DependentUpon>
     </Compile>
     <Compile Include="UnitTests\TestTypeSystemHelper.cs" />
+    <Compile Include="UnitTests\TestTypeSystemHelper.GetElementType.cs">
+      <DependentUpon>TestTypeSystemHelper.cs</DependentUpon>
+    </Compile>
     <Compile Include="UnitTests\TestTypeSystemHelper.GetSequenceType.cs">
       <DependentUpon>TestTypeSystemHelper.cs</DependentUpon>
     </Compile>

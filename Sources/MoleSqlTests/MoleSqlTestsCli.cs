@@ -19,12 +19,18 @@ namespace MoleSqlTests
         {
             try
             {
-                // enter command line test scenarios here
+                MoleSqlTestBase.InitializeTestAssembly(null);
+
                 await Task.Yield();
+                //// enter command line test scenarios here
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+            }
+            finally
+            {
+                MoleSqlTestBase.CleanupTestAssembly();
             }
 
             Console.Write("Done");

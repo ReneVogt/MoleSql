@@ -25,6 +25,7 @@ namespace MoleSqlTests.TestDb
         internal Query<Products> Products => GetTable<Products>();
         internal Query<ProductsToOrders> ProductsToOrders => GetTable<ProductsToOrders>();
         internal Query<AggregatorTestTable> AggregatorTest => GetTable<AggregatorTestTable>();
+        internal Query<NullableTestTable> NullableTest => GetTable<NullableTestTable>();
 
         internal StringBuilder LogBuilder { get; } = new StringBuilder();
 

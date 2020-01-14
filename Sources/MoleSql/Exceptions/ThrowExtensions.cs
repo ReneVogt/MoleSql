@@ -51,5 +51,7 @@ namespace MoleSql.Exceptions
             new NotSupportedException(string.Format(CultureInfo.InvariantCulture, Resources.Exception_AggregateTypeNotSupported, aggregateType));
         internal static NotSupportedException IsUnsupportedAggregateType(this string aggregateType) =>
             new NotSupportedException(string.Format(CultureInfo.InvariantCulture, Resources.Exception_AggregateTypeNotSupported, aggregateType));
+        internal static InvalidCastException CannotBeConvertedToFromNull(this Type type) =>
+            new InvalidCastException(string.Format(CultureInfo.InvariantCulture, Resources.Exception_NullCannotBeCastToType, type.FullName));
     }
 }

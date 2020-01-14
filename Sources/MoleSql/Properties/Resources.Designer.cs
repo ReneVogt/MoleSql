@@ -160,6 +160,15 @@ namespace MoleSql.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die Cannot convert  a null reference to &apos;{0}&apos;. ähnelt.
+        /// </summary>
+        internal static string Exception_NullCannotBeCastToType {
+            get {
+                return ResourceManager.GetString("Exception_NullCannotBeCastToType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die NULL values are not supported on the left side of binary operands. ähnelt.
         /// </summary>
         internal static string Exception_NullValuesOnLeftSideNotSupported {

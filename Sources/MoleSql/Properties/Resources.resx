@@ -150,6 +150,9 @@
   <data name="Exception_NodeTypeIsInvalidSelectSourceType" xml:space="preserve">
     <value>The expression node type '{0}' is not a valid type for a SELECT source.</value>
   </data>
+  <data name="Exception_NullCannotBeCastToType" xml:space="preserve">
+    <value>Cannot convert  a null reference to '{0}'.</value>
+  </data>
   <data name="Exception_NullValuesOnLeftSideNotSupported" xml:space="preserve">
     <value>NULL values are not supported on the left side of binary operands.</value>
   </data>

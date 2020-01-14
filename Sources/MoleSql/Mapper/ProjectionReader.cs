@@ -43,8 +43,8 @@ namespace MoleSql.Mapper
             }
 
             internal override TColumn GetValue<TColumn>(int index) => values == null
-                                                                ? reader.IsDBNull(index) ? default : (TColumn)reader.GetValue(index)
-                                                                : (TColumn)values[index];
+                                                                ? reader.IsDBNull(index) ? default : TypeSystemHelper.ChangeType<TColumn>(reader.GetValue(index))
+                                                                : TypeSystemHelper.ChangeType<TColumn>(values[index]);
             internal override IEnumerable<TSubQuery> ExecuteSubQuery<TSubQuery>(LambdaExpression subQueryExpression)
             {
                 var projection = (ProjectionExpression)subQueryExpression.Body;
