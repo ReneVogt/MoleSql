@@ -45,6 +45,30 @@ ORDER BY [t3].[Id]
 -- @p0 Int Input [5]");
         }
         [TestMethod]
+        public void NestedQuery_DoubleNesting_CorrectResult()
+        {
+            using var context = GetDbContext();
+            var query = from employee in context.Employees
+                        where employee.Name == "René"
+                        select new
+                        {
+                            employee.Name,
+                            Orders = context.Orders
+                                            .Where(order => order.EmployeeId == employee.Id)
+                                            .OrderBy(order => order.Id)
+                                            .Select(order => new {order.Id, Customers = context.Customers.Where(customer => customer.Id == order.CustomerId)})
+                        };
+            var result = query.AsEnumerable().Select(x => new { x.Name, Orders = x.Orders.AsEnumerable().Select(order => new {order.Id, Customers = order.Customers.ToList()}).ToList() }).ToList();
+
+            result.Should().HaveCount(1);
+            result[0].Name.Should().Be("René");
+            result[0].Orders.Should().HaveCountGreaterThan(0);
+            result[0].Orders[0].Id.Should().Be(1);
+            result[0].Orders[0].Customers.Should().HaveCount(1);
+            result[0].Orders[0].Customers[0].Id.Should().Be(0);
+            AssertSql(context, @"");
+        }
+        [TestMethod]
         public void NestedQuery_GroupedToIGroupings_IEnumerableToIQueryable()
         {
             using var context = GetDbContext();

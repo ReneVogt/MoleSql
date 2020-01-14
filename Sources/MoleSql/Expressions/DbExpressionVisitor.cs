@@ -66,8 +66,6 @@ namespace MoleSql.Expressions
         }
         protected virtual Expression VisitAggregate(AggregateExpression aggregateExpression)
         {
-            if (aggregateExpression == null) return null;
-
             var argument = Visit(aggregateExpression.Argument);
             return argument != aggregateExpression.Argument
                        ? new AggregateExpression(argument?.Type ?? aggregateExpression.Type, aggregateExpression.AggregateType, argument)
@@ -90,8 +88,6 @@ namespace MoleSql.Expressions
         }
         protected virtual Expression VisitIsNull(IsNullExpression isNullExpression)
         {
-            if (isNullExpression == null) return null;
-
             var expression = Visit(isNullExpression.Expression);
             return expression != isNullExpression.Expression
                        ? new IsNullExpression(expression)
