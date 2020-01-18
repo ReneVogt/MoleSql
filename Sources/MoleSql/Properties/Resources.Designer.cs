@@ -88,6 +88,15 @@ namespace MoleSql.Properties {
         }
         
         /// <summary>
+        ///   Sucht eine lokalisierte Zeichenfolge, die The result set contains multiple columns and cannot be converted to &apos;{0}&apos;. ähnelt.
+        /// </summary>
+        internal static string Exception_CannotBeCreatedFromMultipleColumns {
+            get {
+                return ResourceManager.GetString("Exception_CannotBeCreatedFromMultipleColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Sucht eine lokalisierte Zeichenfolge, die A result set can only be iterated once (in &apos;{0}&apos;). ähnelt.
         /// </summary>
         internal static string Exception_CanOnlyBeIteratedOnce {

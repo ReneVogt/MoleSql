@@ -126,6 +126,9 @@
   <data name="Exception_BinaryExpressionIsNotSupported" xml:space="preserve">
     <value>The binary operator '{0}' is not supported.</value>
   </data>
+  <data name="Exception_CannotBeCreatedFromMultipleColumns" xml:space="preserve">
+    <value>The result set contains multiple columns and cannot be converted to '{0}'.</value>
+  </data>
   <data name="Exception_CanOnlyBeIteratedOnce" xml:space="preserve">
     <value>A result set can only be iterated once (in '{0}').</value>
   </data>

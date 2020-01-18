@@ -122,6 +122,8 @@
         <member name="M:MoleSql.DataContext.ExecuteQuery(System.FormattableString)">
             <summary>
             Executes the given query and returns a sequence of dynmic instances.
+            If the result set contains only one column, these values are returned themselfes without wrapping
+            them in a dynamic object.
             </summary>
             <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
             <returns>An enumerator for the query results. Those will be dynamic objects.</returns>
@@ -129,6 +131,8 @@
         <member name="M:MoleSql.DataContext.ExecuteQueryAsync(System.FormattableString,System.Threading.CancellationToken)">
             <summary>
             Executes the given query and returns an asynchronous sequence of dynmic instances.
+            If the result set contains only one column, these values are returned themselfes without wrapping
+            them in a dynamic object.
             </summary>
             <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
             <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to cancel this asynchronous operation.</param>
@@ -826,6 +830,8 @@
             <summary>
             Reads rows from a <see cref="T:System.Data.SqlClient.SqlDataReader"/> and stores the values in <see cref="T:System.Dynamic.ExpandoObject"/> instances
             to be used as dynamic objects.
+            If the <paramref name="reader"/> contains only one column, these values are returned themselfes without wrapping
+            them in a dynamic object.
             </summary>
             <param name="reader">The <see cref="T:System.Data.SqlClient.SqlDataReader"/> to read from.</param>
             <returns>A sequence of dynamic objects representing the rows from the <paramref name="reader"/>.</returns>
@@ -834,6 +840,8 @@
             <summary>
             Reads rows from a <see cref="T:System.Data.SqlClient.SqlDataReader"/> asynchronously and stores the values in <see cref="T:System.Dynamic.ExpandoObject"/> instances
             to be used as dynamic objects.
+            If the <paramref name="reader"/> contains only one column, these values are returned themselfes without wrapping
+            them in a dynamic object.
             </summary>
             <param name="reader">The <see cref="T:System.Data.SqlClient.SqlDataReader"/> to read from.</param>
             <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to cancel this asynchronous operation.</param>
@@ -868,6 +876,11 @@
         <member name="P:MoleSql.Properties.Resources.Exception_BinaryExpressionIsNotSupported">
             <summary>
               Sucht eine lokalisierte Zeichenfolge, die The binary operator &apos;{0}&apos; is not supported. ähnelt.
+            </summary>
+        </member>
+        <member name="P:MoleSql.Properties.Resources.Exception_CannotBeCreatedFromMultipleColumns">
+            <summary>
+              Sucht eine lokalisierte Zeichenfolge, die The result set contains multiple columns and cannot be converted to &apos;{0}&apos;. ähnelt.
             </summary>
         </member>
         <member name="P:MoleSql.Properties.Resources.Exception_CanOnlyBeIteratedOnce">

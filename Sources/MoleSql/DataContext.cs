@@ -146,7 +146,7 @@ namespace MoleSql
         /// <typeparam name="T">The result type of the queried enumeration.</typeparam>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <returns>An enumerator for the query results.</returns>
-        public IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new() => provider.ExecuteQuery<T>(query);
+        public IEnumerable<T> ExecuteQuery<T>(FormattableString query) => provider.ExecuteQuery<T>(query);
         /// <summary>
         /// Executes the given query and returns an asynchronous sequence of results.
         /// </summary>
@@ -154,20 +154,24 @@ namespace MoleSql
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>An asynchronous enumeration of the query results.</returns>
-        public IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new() => provider.ExecuteQueryAsync<T>(query, cancellationToken);
+        public IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteQueryAsync<T>(query, cancellationToken);
         /// <summary>
         /// Executes the given query and returns a sequence of dynmic instances.
+        /// If the result set contains only one column, these values are returned themselfes without wrapping
+        /// them in a dynamic object.
         /// </summary>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <returns>An enumerator for the query results. Those will be dynamic objects.</returns>
         public IEnumerable ExecuteQuery(FormattableString query) => provider.ExecuteQuery(query);
         /// <summary>
         /// Executes the given query and returns an asynchronous sequence of dynmic instances.
+        /// If the result set contains only one column, these values are returned themselfes without wrapping
+        /// them in a dynamic object.
         /// </summary>
         /// <param name="query">The sql command to execute. Format parameters will be turned into query parameters.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel this asynchronous operation.</param>
         /// <returns>An asynchronous enumeratorion of the query results. Those will be dynamic objects.</returns>
-        public IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteQueryAsync(query, cancellationToken);
+        public IAsyncEnumerable<object> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken = default) => provider.ExecuteQueryAsync(query, cancellationToken);
         /// <summary>
         /// Executes the query, and returns the first column of the first row in the result set returned by the query. Additional columns or rows are ignored.
         /// </summary>

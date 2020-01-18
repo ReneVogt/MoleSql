@@ -22,6 +22,7 @@ namespace MoleSqlTests.DatabaseTests
     [ExcludeFromCodeCoverage]
     public class TestExecuteQuery : MoleSqlTestBase
     {
+        // ReSharper disable once ClassNeverInstantiated.Local
         sealed class TestRow
         {
             // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -131,10 +132,142 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
             var query = context.ExecuteQueryAsync($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description FROM Departments ORDER BY [Id]", CancellationToken.None);
 
             var resultList = new List<(int, string)>();
-            await foreach (var element in query)
+            await foreach (dynamic element in query)
                 resultList.Add((element.Identifier, element.Description));
 
             resultList.Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
+        }
+        [TestMethod]
+        public void ExecuteQuery_String_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQuery<string>($"SELECT TOP 4 [Name] FROM Departments ORDER BY [Id]");
+
+            var resultList = query.ToList();
+            resultList.Should().BeOfType<List<string>>();
+            resultList.Should().Equal("Marketing", "Sales", "Support", "Development");
+        }
+        [TestMethod]
+        public void ExecuteQuery_Double_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQuery<double>($"SELECT [DoubleValue] FROM AggregatorTestTable ORDER BY [DoubleValue]");
+            var resultList = query.ToList();
+            resultList.Should().BeOfType<List<double>>();
+            resultList.Should().Equal(-1d, 0d, 1d, 2d, 3d, 4d, 5d);
+        }
+        [TestMethod]
+        public void ExecuteQuery_NullableDouble_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQuery<double?>($"SELECT [DoubleValue] FROM NullableTestTable ORDER BY [DoubleValue]");
+            var resultList = query.ToList();
+            resultList.Should().BeOfType<List<double?>>();
+            resultList.Should().Equal(null, 0d, 1d, 2d);
+        }
+        [TestMethod]
+        public void ExecuteQuery_MultipleRows_Exception()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQuery<int>($"SELECT [IntValue], [DoubleValue] FROM NullableTestTable ORDER BY [DoubleValue]");
+            query.Invoking(q => q.ToList()).Should().Throw<InvalidOperationException>().WithMessage($"*{typeof(int).Name}*");
+        }
+        [TestMethod]
+        public async Task ExecuteQueryAsync_String_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQueryAsync<string>($"SELECT TOP 4 [Name] FROM Departments ORDER BY [Id]");
+
+            List<string> result = new List<string>();
+            await foreach (string s in query)
+                result.Add(s);
+            result.Should().Equal("Marketing", "Sales", "Support", "Development");
+        }
+        [TestMethod]
+        public async Task ExecuteQueryAsync_Double_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQueryAsync<double>($"SELECT [DoubleValue] FROM AggregatorTestTable ORDER BY [DoubleValue]");
+            List<double> result = new List<double>();
+            await foreach (double d in query)
+                result.Add(d);
+            result.Should().Equal(-1d, 0d, 1d, 2d, 3d, 4d, 5d);
+        }
+        [TestMethod]
+        public async Task ExecuteQueryAsync_NullableDouble_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQueryAsync<double?>($"SELECT [DoubleValue] FROM NullableTestTable ORDER BY [DoubleValue]");
+            List<double?> result = new List<double?>();
+            await foreach (double? d in query)
+                result.Add(d);
+            result.Should().Equal(null, 0d, 1d, 2d);
+        }
+        [TestMethod]
+        public void ExecuteQueryAsync_MultipleRows_Exception()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQueryAsync<int>($"SELECT [IntValue], [DoubleValue] FROM NullableTestTable ORDER BY [DoubleValue]");
+            query.Awaiting(async q => await q.GetAsyncEnumerator().MoveNextAsync()).Should().Throw<InvalidOperationException>().WithMessage($"*{typeof(int).Name}*");
+        }
+        [TestMethod]
+        public void ExecuteQuery_NonGeneric_String_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQuery($"SELECT TOP 4 [Name] FROM Departments ORDER BY [Id]");
+
+            var resultList = query.Cast<string>().ToList();
+            resultList.Should().BeOfType<List<string>>();
+            resultList.Should().Equal("Marketing", "Sales", "Support", "Development");
+        }
+        [TestMethod]
+        public void ExecuteQuery_NonGeneric_Double_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQuery($"SELECT [DoubleValue] FROM AggregatorTestTable ORDER BY [DoubleValue]");
+            var resultList = query.Cast<double>().ToList();
+            resultList.Should().BeOfType<List<double>>();
+            resultList.Should().Equal(-1d, 0d, 1d, 2d, 3d, 4d, 5d);
+        }
+        [TestMethod]
+        public void ExecuteQuery_NonGeneric_NullableDouble_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQuery($"SELECT [DoubleValue] FROM NullableTestTable ORDER BY [DoubleValue]");
+            var resultList = query.Cast<double?>().ToList();
+            resultList.Should().BeOfType<List<double?>>();
+            resultList.Should().Equal(null, 0d, 1d, 2d);
+        }
+        [TestMethod]
+        public async Task ExecuteQueryAsync_NonGeneric_String_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQueryAsync($"SELECT TOP 4 [Name] FROM Departments ORDER BY [Id]");
+
+            List<string> result = new List<string>();
+            await foreach (string s in query)
+                result.Add(s);
+            result.Should().Equal("Marketing", "Sales", "Support", "Development");
+        }
+        [TestMethod]
+        public async Task ExecuteQueryAsync_NonGeneric_Double_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQueryAsync($"SELECT [DoubleValue] FROM AggregatorTestTable ORDER BY [DoubleValue]");
+            List<double> result = new List<double>();
+            await foreach (double d in query)
+                result.Add(d);
+            result.Should().Equal(-1d, 0d, 1d, 2d, 3d, 4d, 5d);
+        }
+        [TestMethod]
+        public async Task ExecuteQueryAsync_NonGeneric_NullableDouble_CorrectResults()
+        {
+            using var context = GetDbContext();
+            var query = context.ExecuteQueryAsync($"SELECT [DoubleValue] FROM NullableTestTable ORDER BY [DoubleValue]");
+            List<double?> result = new List<double?>();
+            await foreach (double? d in query)
+                result.Add(d);
+            result.Should().Equal(null, 0d, 1d, 2d);
         }
     }
 }

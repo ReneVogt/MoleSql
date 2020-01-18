@@ -104,7 +104,7 @@ namespace MoleSql
             return Connection.BeginTransaction(iso, transactionName);
         }
 
-        internal IEnumerable<T> ExecuteQuery<T>(FormattableString query) where T : class, new()
+        internal IEnumerable<T> ExecuteQuery<T>(FormattableString query)
         {
             CheckDisposed();
 
@@ -114,14 +114,13 @@ namespace MoleSql
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects<T>();
         }
-        internal IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default) where T : class, new()
+        internal IAsyncEnumerable<T> ExecuteQueryAsync<T>(FormattableString query, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
             return ExecuteQueryAsyncInternal<T>(query, cancellationToken);
         }
         async IAsyncEnumerable<T> ExecuteQueryAsyncInternal<T>(FormattableString query,
                                                                [EnumeratorCancellation] CancellationToken cancellationToken = default)
-            where T : class, new()
         {
             using var cmd = Connection.CreateParameterizedCommand(query);
             cmd.Transaction = Transaction;
@@ -141,12 +140,12 @@ namespace MoleSql
             OpenConnection();
             return cmd.ExecuteReader().ReadObjects();
         }
-        internal IAsyncEnumerable<dynamic> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
+        internal IAsyncEnumerable<object> ExecuteQueryAsync(FormattableString query, CancellationToken cancellationToken = default)
         {
             CheckDisposed();
             return ExecuteQueryAsyncInternal(query, cancellationToken);
         }
-        async IAsyncEnumerable<dynamic> ExecuteQueryAsyncInternal(FormattableString query,
+        async IAsyncEnumerable<object> ExecuteQueryAsyncInternal(FormattableString query,
                                                                   [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var cmd = Connection.CreateParameterizedCommand(query);

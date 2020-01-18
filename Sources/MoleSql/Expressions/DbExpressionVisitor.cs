@@ -16,21 +16,19 @@ namespace MoleSql.Expressions
     class DbExpressionVisitor : ExpressionVisitor
     {
         public override Expression Visit(Expression expression) =>
-            expression == null
-                ? null
-                : expression.NodeType switch
-                      {
-                          (ExpressionType)DbExpressionType.Table => VisitTable((TableExpression)expression),
-                          (ExpressionType)DbExpressionType.Column => VisitColumn((ColumnExpression)expression),
-                          (ExpressionType)DbExpressionType.Select => VisitSelect((SelectExpression)expression),
-                          (ExpressionType)DbExpressionType.Projection => VisitProjection((ProjectionExpression)expression),
-                          (ExpressionType)DbExpressionType.Join => VisitJoin((JoinExpression)expression),
-                          (ExpressionType)DbExpressionType.Aggregate => VisitAggregate((AggregateExpression)expression),
-                          (ExpressionType)DbExpressionType.SubQuery => VisitSubQuery((SubQueryExpression)expression),
-                          (ExpressionType)DbExpressionType.AggregateSubQuery => VisitAggregateSubQuery((AggregateSubQueryExpression)expression),
-                          (ExpressionType)DbExpressionType.IsNull => VisitIsNull((IsNullExpression)expression),
-                          _ => base.Visit(expression)
-                      };
+            expression?.NodeType switch
+            {
+                (ExpressionType)DbExpressionType.Table => VisitTable((TableExpression)expression),
+                (ExpressionType)DbExpressionType.Column => VisitColumn((ColumnExpression)expression),
+                (ExpressionType)DbExpressionType.Select => VisitSelect((SelectExpression)expression),
+                (ExpressionType)DbExpressionType.Projection => VisitProjection((ProjectionExpression)expression),
+                (ExpressionType)DbExpressionType.Join => VisitJoin((JoinExpression)expression),
+                (ExpressionType)DbExpressionType.Aggregate => VisitAggregate((AggregateExpression)expression),
+                (ExpressionType)DbExpressionType.SubQuery => VisitSubQuery((SubQueryExpression)expression),
+                (ExpressionType)DbExpressionType.AggregateSubQuery => VisitAggregateSubQuery((AggregateSubQueryExpression)expression),
+                (ExpressionType)DbExpressionType.IsNull => VisitIsNull((IsNullExpression)expression),
+                _ => base.Visit(expression)
+            };
         protected virtual Expression VisitTable(TableExpression table) => table;
         protected virtual Expression VisitColumn(ColumnExpression column) => column;
         protected virtual Expression VisitSelect(SelectExpression selectExpression)
