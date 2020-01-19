@@ -38,10 +38,7 @@ namespace MoleSql.Extensions
             if (!(source.Provider is QueryProvider provider))
                 throw nameof(ToListAsync).DoesNotSupportDifferentQueryProvider();
 
-            List<T> list = new List<T>();
-            await foreach (var element in provider.ExecuteAsync<T>(source.Expression, cancellationToken))
-                list.Add(element);
-            return list;
+            return await provider.ExecuteAsync<T>(source.Expression, cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
         }
         /// <summary>
         /// Lets the query provider execute the <paramref name="source"/> query asynchronously and returns an asynchronous sequence of the results.
@@ -55,18 +52,18 @@ namespace MoleSql.Extensions
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
-            return source.Provider is QueryProvider 
-                       ? (IAsyncEnumerable<T>)source
+            return source.Provider is QueryProvider provider 
+                       ? provider.ExecuteAsync<T>(source.Expression)
                        : throw nameof(AsAsyncEnumerable).DoesNotSupportDifferentQueryProvider();
         }
 
-#pragma warning disable IDE0060, CA1801 // Nicht verwendete Parameter entfernen
+#pragma warning disable IDE0060, CA1801
         // ReSharper disable UnusedParameter.Local
         [ExcludeFromCodeCoverage]
         static MethodInfo GetMethodInfo<T1, T2, T3>(Func<T1, T2, T3> f, T1 unused1, T2 unused2) => f.Method;
         [ExcludeFromCodeCoverage]
         static MethodInfo GetMethodInfo<T1, T2, T3, T4>(Func<T1, T2, T3, T4> f, T1 unused1, T2 unused2, T3 unused) => f.Method;
         // ReSharper restore UnusedParameter.Local
-#pragma warning restore IDE0060, CA1801 // Nicht verwendete Parameter entfernen
+#pragma warning restore IDE0060, CA1801
     }
 }

@@ -966,9 +966,6 @@
         <member name="M:MoleSql.Query`1.GetEnumerator">
             <inheritdoc />
         </member>
-        <member name="M:MoleSql.Query`1.GetAsyncEnumerator(System.Threading.CancellationToken)">
-            <inheritdoc />
-        </member>
         <member name="P:MoleSql.QueryProvider.Log">
             <summary>
             When writing to this <see cref="T:System.IO.TextWriter"/>, please only

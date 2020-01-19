@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using JetBrains.Annotations;
 
 namespace MoleSql
@@ -20,7 +19,7 @@ namespace MoleSql
     /// The root element for MoleSql queries.
     /// </summary>
     /// <typeparam name="T">The type of the table.</typeparam>
-    public class Query<T> : IQueryable<T>, IQueryable, IEnumerable<T>, IEnumerable, IOrderedQueryable<T>, IOrderedQueryable, IAsyncEnumerable<T>
+    public class Query<T> : IQueryable<T>, IQueryable, IOrderedQueryable<T>, IOrderedQueryable, IEnumerable<T>, IEnumerable
     {
         readonly QueryProvider provider;
 
@@ -50,9 +49,5 @@ namespace MoleSql
         public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)provider.Execute(Expression)).GetEnumerator();
         [ExcludeFromCodeCoverage]
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-        /// <inheritdoc />
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default) =>
-            provider.ExecuteAsync<T>(Expression, cancellationToken).GetAsyncEnumerator(cancellationToken);
-
     }
 }
