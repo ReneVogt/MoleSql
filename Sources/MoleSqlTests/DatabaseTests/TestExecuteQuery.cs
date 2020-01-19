@@ -98,10 +98,7 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
             using var context = GetDbContext();
             var query = context.ExecuteQueryAsync<TestRow>($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description, [Name] AS IDontGetMapped FROM Departments ORDER BY [Id]", CancellationToken.None);
 
-            var resultList = new List<(int, string)>();
-            await foreach (var element in query)
-                resultList.Add((element.Identifier, element.Description));
-
+            var resultList = await query.Select(element => (element.Identifier, element.Description)).ToListAsync();
             resultList.Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
         }
         [TestMethod]
@@ -131,10 +128,7 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
             using var context = GetDbContext();
             var query = context.ExecuteQueryAsync($"SELECT TOP 4 [Id] AS Identifier, [Name] AS Description FROM Departments ORDER BY [Id]", CancellationToken.None);
 
-            var resultList = new List<(int, string)>();
-            await foreach (dynamic element in query)
-                resultList.Add((element.Identifier, element.Description));
-
+            var resultList = await query.Cast<dynamic>().Select(element => (element.Identifier, element.Description)).ToListAsync();
             resultList.Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
         }
         [TestMethod]
@@ -178,9 +172,7 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
             using var context = GetDbContext();
             var query = context.ExecuteQueryAsync<string>($"SELECT TOP 4 [Name] FROM Departments ORDER BY [Id]");
 
-            List<string> result = new List<string>();
-            await foreach (string s in query)
-                result.Add(s);
+            var result = await query.ToListAsync();
             result.Should().Equal("Marketing", "Sales", "Support", "Development");
         }
         [TestMethod]
@@ -188,9 +180,7 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
         {
             using var context = GetDbContext();
             var query = context.ExecuteQueryAsync<double>($"SELECT [DoubleValue] FROM AggregatorTestTable ORDER BY [DoubleValue]");
-            List<double> result = new List<double>();
-            await foreach (double d in query)
-                result.Add(d);
+            var result = await query.ToListAsync();
             result.Should().Equal(-1d, 0d, 1d, 2d, 3d, 4d, 5d);
         }
         [TestMethod]
@@ -198,9 +188,7 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
         {
             using var context = GetDbContext();
             var query = context.ExecuteQueryAsync<double?>($"SELECT [DoubleValue] FROM NullableTestTable ORDER BY [DoubleValue]");
-            List<double?> result = new List<double?>();
-            await foreach (double? d in query)
-                result.Add(d);
+            var result = await query.ToListAsync();
             result.Should().Equal(null, 0d, 1d, 2d);
         }
         [TestMethod]
@@ -244,9 +232,7 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
             using var context = GetDbContext();
             var query = context.ExecuteQueryAsync($"SELECT TOP 4 [Name] FROM Departments ORDER BY [Id]");
 
-            List<string> result = new List<string>();
-            await foreach (string s in query)
-                result.Add(s);
+            var result = await query.ToListAsync();
             result.Should().Equal("Marketing", "Sales", "Support", "Development");
         }
         [TestMethod]
@@ -254,9 +240,7 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
         {
             using var context = GetDbContext();
             var query = context.ExecuteQueryAsync($"SELECT [DoubleValue] FROM AggregatorTestTable ORDER BY [DoubleValue]");
-            List<double> result = new List<double>();
-            await foreach (double d in query)
-                result.Add(d);
+            var result = await query.ToListAsync();
             result.Should().Equal(-1d, 0d, 1d, 2d, 3d, 4d, 5d);
         }
         [TestMethod]
@@ -264,9 +248,7 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
         {
             using var context = GetDbContext();
             var query = context.ExecuteQueryAsync($"SELECT [DoubleValue] FROM NullableTestTable ORDER BY [DoubleValue]");
-            List<double?> result = new List<double?>();
-            await foreach (double? d in query)
-                result.Add(d);
+            var result = await query.ToListAsync();
             result.Should().Equal(null, 0d, 1d, 2d);
         }
     }

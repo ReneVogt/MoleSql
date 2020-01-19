@@ -6,7 +6,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,9 +58,7 @@ namespace MoleSqlTests.DatabaseTests
         {
             using var context = GetDbContext();
             var query = context.Employees.OrderBy(e => e.Name).Select(e => e.Name).AsAsyncEnumerable();
-            List<string> results = new List<string>();
-            await foreach (var name in query)
-                results.Add(name);
+            var results = await query.ToListAsync();
             results.Should().Equal("Marc", "Marcel", "René", "Steve");
         }
     }
