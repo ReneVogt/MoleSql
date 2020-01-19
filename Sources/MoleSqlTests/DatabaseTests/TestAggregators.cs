@@ -40,14 +40,22 @@ namespace MoleSqlTests.DatabaseTests
                         select new
                         {
                             employee.Name,
-                            OrderCount = context.Orders.Where(order => order.EmployeeId == employee.Id).OrderBy(order => order.Id).Select(order => order.Id).Count()
+                            OrderCount = context.Orders.Where(order => order.EmployeeId == employee.Id).Select(order => order.Id).Count()
                         };
             var result = query.ToList();
 
             result.Should().HaveCount(1);
             result[0].Name.Should().Be("René");
-            TestContext.WriteLine($"OrderCount: {result[0].OrderCount})");
-            AssertSql(context, @"");
+            result[0].OrderCount.Should().Be(2);
+            AssertSql(context, @"
+SELECT [t0].[Name], (
+  SELECT COUNT(*)
+  FROM [Orders] AS t3
+  WHERE ([t3].[EmployeeId] = [t0].[Id])
+  ) AS c0
+FROM [Employees] AS t0
+WHERE ([t0].[Name] = @p0)
+-- @p0 NVarChar Input [René]");
         }
     }
 }

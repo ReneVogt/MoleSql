@@ -20,5 +20,7 @@ namespace MoleSql.Expressions
             OrderType = orderType;
             Expression = expression;
         }
+
+        public override string ToString() => $"({Expression}) {OrderType}";
     }
 }

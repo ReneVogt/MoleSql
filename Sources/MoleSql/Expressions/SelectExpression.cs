@@ -43,7 +43,8 @@ namespace MoleSql.Expressions
         public override string ToString()
         {
             string groups = GroupBy == null ? null : $" GROUP: ({string.Join(", ", GroupBy.Select(g => $"({g})"))})";
-            return $"SELECT ({string.Join(", ", Columns)}) FROM ({From}) WHERE ({Where}) AS '{Alias}'{groups}";
+            string orders = OrderBy == null ? null : $" ORDER BY: ({string.Join(", ", OrderBy.Select(o => $"({o})"))})";
+            return $"SELECT ({string.Join(", ", Columns)}) FROM ({From}) WHERE ({Where}){orders}{groups} AS '{Alias}'";
         }
     }
 }
