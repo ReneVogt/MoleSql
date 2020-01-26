@@ -17,6 +17,7 @@ using MoleSql.Exceptions;
 using MoleSql.Expressions;
 using MoleSql.Extensions;
 using MoleSql.Helpers;
+using MoleSql.Mapper;
 
 namespace MoleSql.Translators
 {
@@ -440,12 +441,12 @@ namespace MoleSql.Translators
             List<MemberBinding> bindings = new List<MemberBinding>();
             List<ColumnDeclaration> columns = new List<ColumnDeclaration>();
 
-            foreach (MemberInfo mi in GetMappedMembers(table.ElementType))
+            foreach (PropertyInfo propertyInfo in GetMappedMembers(table.ElementType))
             {
-                string columnName = GetColumnName(mi);
-                Type columnType = GetColumnType(mi);
+                string columnName = GetColumnName(propertyInfo);
+                Type columnType = GetColumnType(propertyInfo);
 
-                bindings.Add(Expression.Bind(mi, new ColumnExpression(columnType, selectAlias, columnName)));
+                bindings.Add(Expression.Bind(propertyInfo, new ColumnExpression(columnType, selectAlias, columnName)));
                 columns.Add(new ColumnDeclaration(columnName, new ColumnExpression(columnType, tableAlias, columnName)));
             }
 
@@ -455,7 +456,6 @@ namespace MoleSql.Translators
             return new ProjectionExpression(
                 new SelectExpression(resultType, selectAlias, columns,
                                      new TableExpression(resultType, tableAlias, GetTableName(table)),
-
                                      null),
                 projector);
         }
@@ -469,10 +469,10 @@ namespace MoleSql.Translators
         };
         static bool IsTable(Expression expression) => IsTable((expression as ConstantExpression)?.Value);
         static bool IsTable(object value) => value is IQueryable query && query.Expression.NodeType == ExpressionType.Constant;
-        static string GetTableName(object table) => ((IQueryable)table).ElementType.Name;
-        static string GetColumnName(MemberInfo member) => member.Name;
-        static Type GetColumnType(MemberInfo member) => ((PropertyInfo)member).PropertyType;
-        static IEnumerable<MemberInfo> GetMappedMembers(Type rowType) => rowType.GetProperties().Where(prop => prop.CanWrite);
+        static string GetTableName(object table) => TypeMapper.GetTableName(((IQueryable)table).ElementType);
+        static string GetColumnName(PropertyInfo member) => TypeMapper.GetColumnName(member);
+        static Type GetColumnType(PropertyInfo member) => member.PropertyType;
+        static IEnumerable<PropertyInfo> GetMappedMembers(Type rowType) => TypeMapper.GetMappedMembers(rowType);
         static bool MembersMatch(MemberInfo a, MemberInfo b)
         {
             if (a == b) return true;

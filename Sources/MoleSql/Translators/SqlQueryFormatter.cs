@@ -182,7 +182,7 @@ namespace MoleSql.Translators
             {
                 case DbExpressionType.Table:
                     TableExpression table = (TableExpression)source;
-                    commandTextBuilder.Append($"[{table.Name}] AS {table.Alias}");
+                    commandTextBuilder.Append($"{table.Name} AS {table.Alias}");
                     break;
                 case DbExpressionType.Select:
                     SelectExpression select = (SelectExpression)source;

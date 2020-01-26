@@ -807,6 +807,23 @@
             <returns>An <see cref="T:System.Collections.Generic.IEnumerable`1"/> that is in any way implemented by <paramref name="sequenceType"/> or
             <code>null</code> <paramref name="sequenceType"/> is not assignable to any version of <see cref="T:System.Collections.Generic.IEnumerable`1"/>.</returns>
         </member>
+        <member name="T:MoleSql.Mapper.ColumnAttribute">
+            <summary>
+            Marks a property as a table column and can define
+            an alternative column name or mark the property as ignored.
+            </summary>
+        </member>
+        <member name="P:MoleSql.Mapper.ColumnAttribute.Name">
+            <summary>
+            The column name to use when querying objects. If this is not
+            defined, the property's name will be used as table name.
+            </summary>
+        </member>
+        <member name="P:MoleSql.Mapper.ColumnAttribute.Ignore">
+            <summary>
+            Set to <code>true</code> if the property should not be included in SQL queries.
+            </summary>
+        </member>
         <member name="M:MoleSql.Mapper.SqlDataReaderMapper.ReadObjects``1(System.Data.SqlClient.SqlDataReader)">
             <summary>
             Reads rows from a <see cref="T:System.Data.SqlClient.SqlDataReader"/> and stores the values in instances of <typeparamref name="T"/>.
@@ -846,6 +863,24 @@
             <param name="reader">The <see cref="T:System.Data.SqlClient.SqlDataReader"/> to read from.</param>
             <param name="cancellationToken">The <see cref="T:System.Threading.CancellationToken"/> to cancel this asynchronous operation.</param>
             <returns>A task that on completion returns a sequence of dynamic objects representing the rows from the <paramref name="reader"/>.</returns>
+        </member>
+        <member name="T:MoleSql.Mapper.TableAttribute">
+            <summary>
+            Marks a class or struct as a database table and can define
+            an alternative table name or schema.
+            </summary>
+        </member>
+        <member name="P:MoleSql.Mapper.TableAttribute.Schema">
+            <summary>
+            The database schema the table is declared in.
+            If this is not defined, no schema information will be used.
+            </summary>
+        </member>
+        <member name="P:MoleSql.Mapper.TableAttribute.Name">
+            <summary>
+            The table name to use when querying objects. If this is not
+            defined, the type's name will be used as table name.
+            </summary>
         </member>
         <member name="T:MoleSql.Properties.Resources">
             <summary>

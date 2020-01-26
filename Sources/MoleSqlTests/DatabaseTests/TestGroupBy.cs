@@ -236,24 +236,5 @@ FROM (
     GROUP BY [t8].[Id], [t8].[Name] 
 -- @p0 Int Input [2]");
         }
-        [TestMethod]
-        public async Task GroupBy_HowToFailIGrouping()
-        {
-            using var context = GetDbContext();
-            var query = from product in context.Products
-                        group product by product.Category
-                        into x
-                        orderby x.Key
-                        select new
-                        {
-                            Category = x.Key,
-                            DoesItFail = x.Where(p => p.Id > 5).OrderBy(n => n).Select(p => p.Name)
-                        };
-
-            var result = await query.ToListAsync();
-            result.Should().HaveCountGreaterThan(0);
-            // TODO: check result when query works
-            AssertSql(context, @"");
-        }
     }
 }
