@@ -25,7 +25,7 @@ namespace MoleSqlTests.DatabaseTests
                         select customer.Id;
             var result = query.AsEnumerable().OrderBy(i => i).ToList();
             result.Should().Equal(1, 2, 3);
-            AssertSql(context, $"SELECT [t0].[Id] FROM [Customers] AS t0 WHERE (([t0].[Id] < @p0) AND ([t0].[Name] IS NOT NULL)) {context.ContextInfo} -- @p0 Int Input [4] ");
+            AssertSql(context, $"SELECT [t0].[Id] FROM [Customers] AS t0 WHERE (([t0].[Id] < @p0) AND ([t0].[Name] IS NOT NULL)) -- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [4] {context.ContextInfo}");
         }
         [TestMethod]
         public void SelectAndWhere_ValueTypes()
@@ -36,7 +36,7 @@ namespace MoleSqlTests.DatabaseTests
                         select customer.Id;
             var result = query.AsEnumerable().OrderBy(i => i).ToList();
             result.Should().Equal(1, 2, 3);
-            AssertSql(context, $"SELECT [t0].[Id] FROM [Customers] AS t0 WHERE ([t0].[Id] < @p0) {context.ContextInfo} -- @p0 Int Input [4]");
+            AssertSql(context, $"SELECT [t0].[Id] FROM [Customers] AS t0 WHERE ([t0].[Id] < @p0) -- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [4] {context.ContextInfo}");
         }
 
         sealed class TestTable
@@ -60,7 +60,7 @@ namespace MoleSqlTests.DatabaseTests
             var result = query.AsEnumerable().Single();
             result.ID.Should().Be(1);
             result.Name.Should().Be("Alfons Allerlei");
-            AssertSql(context, $"SELECT [t0].[Id], [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Id] < @p0) {context.ContextInfo} -- @p0 Int Input [2]");
+            AssertSql(context, $"SELECT [t0].[Id], [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Id] < @p0) -- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [2] {context.ContextInfo}");
         }
         [TestMethod]
         public void Select_ProjectionWithMemberInit()
@@ -72,7 +72,7 @@ namespace MoleSqlTests.DatabaseTests
             var result = query.AsEnumerable().Single();
             result.ID.Should().Be(1);
             result.Name.Should().Be("Alfons Allerlei");
-            AssertSql(context, $"SELECT [t0].[Id], [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Id] < @p0) {context.ContextInfo} -- @p0 Int Input [2]");
+            AssertSql(context, $"SELECT [t0].[Id], [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Id] < @p0) -- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [2] {context.ContextInfo}");
         }
         [TestMethod]
         public void Select_Coalesce()
@@ -84,7 +84,7 @@ namespace MoleSqlTests.DatabaseTests
             var result = query.AsEnumerable().Single();
             result.Name.Should().Be("WithNullAddress");
             result.City.Should().Be("ThisCityWasNull");
-            AssertSql(context, $"SELECT [t0].[Name], [t0].[City] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) {context.ContextInfo} -- @p0 NVarChar Input [WithNullAddress]");
+            AssertSql(context, $"SELECT [t0].[Name], [t0].[City] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) -- @p0 Input NVarChar (Size = 15; Prec = 0; Scale = 0) [WithNullAddress] {context.ContextInfo}");
         }
         [TestMethod]
         public void Select_WhereWithMethodCall()
@@ -96,7 +96,7 @@ namespace MoleSqlTests.DatabaseTests
             var result = query.AsEnumerable().Single();
             result.Should().Be("WithNullAddress");
 
-            AssertSql(context, $"SELECT [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) {context.ContextInfo} -- @p0 NVarChar Input [WithNullAddress]");
+            AssertSql(context, $"SELECT [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) -- @p0 Input NVarChar (Size = 15; Prec = 0; Scale = 0) [WithNullAddress] {context.ContextInfo}");
         }
         [TestMethod]
         public void Select_WithMethodCall()
@@ -108,7 +108,7 @@ namespace MoleSqlTests.DatabaseTests
             var result = query.AsEnumerable().Single();
             result.Should().Be(15);
 
-            AssertSql(context, $"SELECT [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) {context.ContextInfo} -- @p0 NVarChar Input [WithNullAddress]");
+            AssertSql(context, $"SELECT [t0].[Name] FROM [Customers] AS t0 WHERE ([t0].[Name] = @p0) -- @p0 Input NVarChar (Size = 15; Prec = 0; Scale = 0) [WithNullAddress] {context.ContextInfo}");
         }
         static string GetName() => "WithNullAddress";
         static int GetLength(string s) => s.Length;

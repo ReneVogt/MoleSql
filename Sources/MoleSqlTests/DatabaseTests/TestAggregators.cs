@@ -55,8 +55,9 @@ SELECT [t0].[Name], (
   ) AS c0
 FROM [Employees] AS t0
 WHERE ([t0].[Name] = @p0)
+-- @p0 Input NVarChar (Size = 4; Prec = 0; Scale = 0) [René]
 {context.ContextInfo}
--- @p0 NVarChar Input [René]");
+");
         }
     }
 }

@@ -299,10 +299,10 @@ namespace MoleSql
             StringBuilder logbuilder = new StringBuilder();
             logbuilder.AppendLine(command.CommandText);
 
-            logbuilder.AppendLine($"-- Context: {ProviderInfo}, {command.Connection.DataSource}\\{command.Connection.Database}");
-
             foreach (SqlParameter parameter in command.Parameters)
-                logbuilder.AppendLine($"-- {parameter.ParameterName} {parameter.SqlDbType} {parameter.Direction} [{parameter.SqlValue}]");
+                logbuilder.AppendLine($"-- {parameter.ParameterName} {parameter.Direction} {parameter.SqlDbType} (Size = {parameter.Size}; Prec = {parameter.Precision}; Scale = {parameter.Scale}) [{parameter.SqlValue}]");
+
+            logbuilder.AppendLine($"-- Context: {ProviderInfo}, {command.Connection.DataSource}\\{command.Connection.Database}");
 
             log.WriteLine(logbuilder.ToString());
         }

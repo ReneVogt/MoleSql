@@ -40,14 +40,15 @@ namespace MoleSqlTests.DatabaseTests
             AssertSql(context, $@"
 SELECT [t0].[Name], [t0].[Id] 
 FROM [Employees] AS t0 WHERE ([t0].[Name] = @p0) 
+-- @p0 Input NVarChar (Size = 4; Prec = 0; Scale = 0) [René]
 {context.ContextInfo}
--- @p0 NVarChar Input [René] 
             
 SELECT [t3].[Id], [t3].[CustomerId], [t3].[EmployeeId], [t3].[Date], [t3].[Discount] 
 FROM [Orders] AS t3 WHERE ([t3].[EmployeeId] = @p0) 
 ORDER BY [t3].[Id] 
+-- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [5]
 {context.ContextInfo}
--- @p0 Int Input [5]");
+");
         }
 
         [Table(Schema="dbo", Name="Employees")]

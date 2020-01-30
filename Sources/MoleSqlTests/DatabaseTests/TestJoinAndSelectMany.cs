@@ -52,8 +52,9 @@ FROM (
         ON ([t4].[EmployeeId] = [t5].[Id]) 
 ) AS t7 
 WHERE ([t7].[Name1] = @p0) 
+-- @p0 Input NVarChar (Size = 4; Prec = 0; Scale = 0) [René]
 {context.ContextInfo} 
--- @p0 NVarChar Input [René]");
+");
         }
         [TestMethod]
         public void SimpleSelectMany()
@@ -74,8 +75,9 @@ SELECT [t0].[Salary], [t2].[Date]
 FROM [Employees] AS t0 
 CROSS JOIN [Orders] AS t2 
 WHERE (([t0].[Name] = @p0) AND ([t0].[Id] = [t2].[EmployeeId]))
+-- @p0 Input NVarChar (Size = 4; Prec = 0; Scale = 0) [René]
 {context.ContextInfo} 
--- @p0 NVarChar Input [René]");
+");
         }
         [TestMethod]
         public void LittleMoreComplexSelectMany()
@@ -106,8 +108,9 @@ FROM (
     CROSS JOIN [Customers] AS t5
 ) AS t7 
 WHERE ((([t7].[Name] = @p0) AND ([t7].[Id] = [t7].[EmployeeId])) AND ([t7].[CustomerId] = [t7].[Id2])) 
+-- @p0 Input NVarChar (Size = 4; Prec = 0; Scale = 0) [René]
 {context.ContextInfo}
--- @p0 NVarChar Input [René]");
+");
         }
     }
 }

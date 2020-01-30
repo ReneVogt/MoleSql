@@ -96,8 +96,9 @@ namespace MoleSqlTests.DatabaseTests
             result.Should().Be(2);
             AssertSql(context, $@"
 SELECT [Id] FROM Departments WHERE [Name] = @p0
+-- @p0 Input NVarChar (Size = 5; Prec = 0; Scale = 0) [Sales]
 {context.ContextInfo}
--- @p0 NVarChar Input [Sales]");
+");
         }
         [TestMethod]
         public async Task ExecuteScalarAsync_IntParameter_CorrectResults()
@@ -107,8 +108,9 @@ SELECT [Id] FROM Departments WHERE [Name] = @p0
             result.Should().Be(2);
             AssertSql(context, $@"
 SELECT [Id] FROM Departments WHERE [Id] = @p0
+-- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [2]
 {context.ContextInfo}
--- @p0 Int Input [2]");
+");
         }
     }
 }

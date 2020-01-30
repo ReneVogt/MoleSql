@@ -30,9 +30,10 @@ namespace MoleSqlTests.DatabaseTests
 SELECT [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
-ORDER BY [t0].[Name] 
+ORDER BY [t0].[Name]
+-- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [7]
 {context.ContextInfo} 
--- @p0 Int Input [7]");
+");
         }
         [TestMethod]
         public void SimpleOrderByDescending()
@@ -49,8 +50,9 @@ SELECT [t0].[Name]
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
 ORDER BY [t0].[Name] DESC 
+-- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [7]
 {context.ContextInfo} 
--- @p0 Int Input [7]");
+");
         }
         [TestMethod]
         public void MixedOrderByDescending()
@@ -79,8 +81,8 @@ SELECT [t0].[Id], [t0].[Name]
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
 ORDER BY [t0].[Name] DESC, [t0].[Id] 
-{context.ContextInfo}
--- @p0 Int Input [7]");
+-- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [7]
+{context.ContextInfo}");
         }
     }
 }

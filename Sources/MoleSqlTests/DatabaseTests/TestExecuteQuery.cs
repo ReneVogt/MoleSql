@@ -87,11 +87,12 @@ namespace MoleSqlTests.DatabaseTests
             query.Select(department => (department.Id, department.Name)).Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
             AssertSql(context, $@"
 SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY [Id]
+-- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [1]
+-- @p1 Input Int (Size = 0; Prec = 0; Scale = 0) [2]
+-- @p2 Input Int (Size = 0; Prec = 0; Scale = 0) [3]
+-- @p3 Input Int (Size = 0; Prec = 0; Scale = 0) [4]
 {context.ContextInfo}
--- @p0 Int Input [1]
--- @p1 Int Input [2]
--- @p2 Int Input [3]
--- @p3 Int Input [4]");
+");
         }
         [TestMethod]
         public async Task ExecuteQueryAsync_Generic_CorrectResults()
