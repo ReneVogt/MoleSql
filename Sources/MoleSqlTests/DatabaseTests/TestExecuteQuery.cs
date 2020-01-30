@@ -85,8 +85,9 @@ namespace MoleSqlTests.DatabaseTests
             var ids = new[] { 1, 2, 3, 4 };
             var query = context.ExecuteQuery<Departments>($"SELECT [Id], [Name] FROM Departments WHERE [Id] IN {ids:int} ORDER BY [Id]");
             query.Select(department => (department.Id, department.Name)).Should().Equal((1, "Marketing"), (2, "Sales"), (3, "Support"), (4, "Development"));
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY [Id]
+{context.ContextInfo}
 -- @p0 Int Input [1]
 -- @p1 Int Input [2]
 -- @p2 Int Input [3]

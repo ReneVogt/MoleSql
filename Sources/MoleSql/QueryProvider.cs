@@ -30,6 +30,7 @@ namespace MoleSql
 {
     sealed class QueryProvider : IQueryProvider, IDisposable
     {
+        static readonly string ProviderInfo = $"{typeof(QueryProvider).FullName} v{typeof(QueryProvider).Assembly.GetName().Version}";
         readonly bool disposeConnection;
 
         bool disposed;
@@ -297,6 +298,8 @@ namespace MoleSql
 
             StringBuilder logbuilder = new StringBuilder();
             logbuilder.AppendLine(command.CommandText);
+
+            logbuilder.AppendLine($"-- Context: {ProviderInfo}, {command.Connection.DataSource}\\{command.Connection.Database}");
 
             foreach (SqlParameter parameter in command.Parameters)
                 logbuilder.AppendLine($"-- {parameter.ParameterName} {parameter.SqlDbType} {parameter.Direction} [{parameter.SqlValue}]");

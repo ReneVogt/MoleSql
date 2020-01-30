@@ -6,6 +6,8 @@
  * Original source code taken from Matt Warren (https://github.com/mattwar/iqtoolkit).
  *
  */
+
+using System;
 using System.Linq.Expressions;
 using MoleSql.Expressions;
 
@@ -13,16 +15,15 @@ namespace MoleSql.Translators
 {
     class ExpressionReplacer : DbExpressionVisitor
     {
-        readonly Expression searchFor, replaceWith;
+        readonly Func<Expression, Expression> replaceWith;
 
-        ExpressionReplacer(Expression searchFor, Expression replaceWith)
+        ExpressionReplacer(Func<Expression, Expression> replaceWith)
         {
-            this.searchFor = searchFor;
             this.replaceWith = replaceWith;
         }
 
-        public override Expression Visit(Expression node) => node == searchFor ? replaceWith : base.Visit(node);
+        public override Expression Visit(Expression node) => replaceWith(node) ?? base.Visit(node);
 
-        internal static Expression Replace(Expression expression, Expression searchFor, Expression replaceWith) => new ExpressionReplacer(searchFor, replaceWith).Visit(expression);
+        internal static Expression Replace(Expression expression, Func<Expression, Expression> replaceWith) => new ExpressionReplacer(replaceWith).Visit(expression);
     }
 }

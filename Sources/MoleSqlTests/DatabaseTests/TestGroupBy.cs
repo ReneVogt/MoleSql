@@ -38,7 +38,7 @@ namespace MoleSqlTests.DatabaseTests
             result[2].Key.Should().Be(3);
             result[2].Count().Should().Be(3);
 
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t7].[Category]
 FROM (
   SELECT [t0].[Category]
@@ -47,11 +47,13 @@ FROM (
   GROUP BY [t0].[Category]
 ) AS t7
 ORDER BY [t7].[Category]
+{context.ContextInfo}
 -- @p0 Int Input [10]
 
 SELECT [t3].[Id], [t3].[Name], [t3].[Price], [t3].[Category]
 FROM [Products] AS t3
 WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3].[Category] = @p2)))
+{context.ContextInfo}
 -- @p0 Int Input [10]
 -- @p1 Int Input [1]
 -- @p2 Int Input [1]
@@ -59,6 +61,7 @@ WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3]
 SELECT [t3].[Id], [t3].[Name], [t3].[Price], [t3].[Category]
 FROM [Products] AS t3
 WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3].[Category] = @p2)))
+{context.ContextInfo}
 -- @p0 Int Input [10]
 -- @p1 Int Input [2]
 -- @p2 Int Input [2]
@@ -66,6 +69,7 @@ WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3]
 SELECT [t3].[Id], [t3].[Name], [t3].[Price], [t3].[Category]
 FROM [Products] AS t3
 WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3].[Category] = @p2)))
+{context.ContextInfo}
 -- @p0 Int Input [10]
 -- @p1 Int Input [3]
 -- @p2 Int Input [3]");
@@ -84,7 +88,7 @@ WHERE (([t3].[Id] < @p0) AND (([t3].[Category] IS NULL AND @p1 IS NULL) OR ([t3]
             var result = await query.ToListAsync();
 
             result.Should().Equal(4, 2, 3);
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT 
     ( 
         SELECT COUNT(*) 
@@ -98,6 +102,7 @@ FROM
         WHERE ([t0].[Id] < @p1) 
         GROUP BY [t0].[Category] 
     ) AS t7 
+{context.ContextInfo}
 -- @p0 Int Input [10] -- @p1 Int Input [10]");
         }
         [TestMethod]
@@ -148,7 +153,7 @@ FROM
             result[2].AveragePrice.Should().Be(52.3333m);
             result[2].TotalPrice.Should().Be(157);
 
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT 
     [t7].[Category], 
     ( 
@@ -187,6 +192,7 @@ SELECT
         WHERE ([t0].[Id] < @p7) 
         GROUP BY [t0].[Category] 
     ) AS t7 
+{context.ContextInfo}
 -- @p0 Int Input [10] 
 -- @p1 Int Input [10] 
 -- @p2 Decimal Input [17] 
@@ -214,7 +220,7 @@ SELECT
             result[0].Name.Should().Be("Marc");
             result[0].Total.Should().Be(130);
 
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t8].[Name], SUM([t9].[Price]) AS agg2 
 FROM ( 
     SELECT [t5].[Id], [t5].[Name], [t6].[ProductId] 
@@ -234,6 +240,7 @@ FROM (
     INNER JOIN [Products] AS t9 
         ON ([t8].[ProductId] = [t9].[Id]) 
     GROUP BY [t8].[Id], [t8].[Name] 
+{context.ContextInfo}
 -- @p0 Int Input [2]");
         }
     }

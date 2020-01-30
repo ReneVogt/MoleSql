@@ -94,8 +94,9 @@ namespace MoleSqlTests.DatabaseTests
             // ReSharper disable once InterpolatedStringExpressionIsNotIFormattable
             var result = await context.ExecuteScalarAsync<int>($"SELECT [Id] FROM Departments WHERE [Name] = {departmentName:NVarChar}");
             result.Should().Be(2);
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [Id] FROM Departments WHERE [Name] = @p0
+{context.ContextInfo}
 -- @p0 NVarChar Input [Sales]");
         }
         [TestMethod]
@@ -104,8 +105,9 @@ SELECT [Id] FROM Departments WHERE [Name] = @p0
             using var context = GetDbContext();
             var result = await context.ExecuteScalarAsync<int>($"SELECT [Id] FROM Departments WHERE [Id] = {2:Int}");
             result.Should().Be(2);
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [Id] FROM Departments WHERE [Id] = @p0
+{context.ContextInfo}
 -- @p0 Int Input [2]");
         }
     }

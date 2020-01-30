@@ -16,6 +16,9 @@ namespace MoleSqlTests.TestDb
     [ExcludeFromCodeCoverage]
     class TestDbContext : DataContext
     {
+        static readonly string ProviderInfo = typeof(QueryProvider).FullName + " v" + typeof(QueryProvider).Assembly.GetName().Version;
+        internal readonly string ContextInfo;
+
         internal static string ConnectionString => ConfigurationManager.ConnectionStrings["TestDb"].ConnectionString;
         readonly bool disposeTransaction;
         internal Query<Customers> Customers => GetTable<Customers>();
@@ -32,9 +35,9 @@ namespace MoleSqlTests.TestDb
         public TestDbContext(TestContext testContext, bool disposeTransaction = false)
             : base(ConnectionString)
         {
+            ContextInfo = $"-- Context: {ProviderInfo}, {Connection.DataSource}\\{Connection.Database}";
             this.disposeTransaction = disposeTransaction;
             Log = new SqlLogger(testContext, LogBuilder);
-
             if (!disposeTransaction) return;
             Transaction = BeginTransaction();
         }

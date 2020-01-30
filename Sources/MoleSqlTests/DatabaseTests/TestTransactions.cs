@@ -47,11 +47,13 @@ namespace MoleSqlTests.DatabaseTests
         {
             StringBuilder logBuilder = new StringBuilder();
             using var context = new DataContext(TestDbContext.ConnectionString) {Log = new StringWriter(logBuilder)};
+            string contextInfo =
+                $"-- Context: {typeof(QueryProvider).FullName} v{typeof(QueryProvider).Assembly.GetName().Version}, {context.Connection.DataSource}\\{context.Connection.Database}";
             context.Connection.Should().NotBeNull();
             using var _ = context.Transaction = context.BeginTransaction(transactionName);
             var result = await context.ExecuteScalarAsync<string>($"SELECT name FROM sys.dm_tran_active_transactions WHERE name = {transactionName}");
             result.Should().Be(transactionName);
-            AssertSql(logBuilder.ToString(), $"SELECT name FROM sys.dm_tran_active_transactions WHERE name = @p0 -- @p0 NVarChar Input [{transactionName}]");
+            AssertSql(logBuilder.ToString(), $"SELECT name FROM sys.dm_tran_active_transactions WHERE name = @p0 {contextInfo} -- @p0 NVarChar Input [{transactionName}]");
         }
         [TestMethod]
         public async Task Transaction_NameAndLevel()

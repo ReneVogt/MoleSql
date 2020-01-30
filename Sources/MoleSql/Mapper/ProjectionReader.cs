@@ -47,14 +47,21 @@ namespace MoleSql.Mapper
                                                                 : TypeSystemHelper.ChangeType<TColumn>(values[index]);
             internal override IEnumerable<TSubQuery> ExecuteSubQuery<TSubQuery>(LambdaExpression subQueryExpression)
             {
+                var replacement = Expression.Constant(this);
                 var projection = (ProjectionExpression)subQueryExpression.Body;
-                var projectionWithReplacedOuterColumnReferences = ExpressionReplacer.Replace(projection, subQueryExpression.Parameters[0], Expression.Constant(this));
+                var projectionWithReplacedOuterColumnReferences = ExpressionReplacer.Replace(projection, ReplaceWith);
                 var projectionWithEvaluatedOuterColumnReferences = projectionWithReplacedOuterColumnReferences.EvaluateLocally(CanExpressionBeEvaluatedLocally);
 
                 var result = ((IEnumerable<TSubQuery>)queryProvider.Execute(projectionWithEvaluatedOuterColumnReferences)).ToList();
                 return typeof(IQueryable<TSubQuery>).IsAssignableFrom(subQueryExpression.Body.Type)
                            ? result.AsQueryable()
                            : (IEnumerable<TSubQuery>)result;
+
+                Expression ReplaceWith(Expression expression) =>
+                    expression == subQueryExpression.Parameters[0] ||
+                    typeof(ProjectionRow).IsAssignableFrom(expression.Type) 
+                        ? replacement 
+                        : null; 
             }
             public T Current { get; private set; }
             [ExcludeFromCodeCoverage]
@@ -100,7 +107,14 @@ namespace MoleSql.Mapper
             }
 
             static bool CanExpressionBeEvaluatedLocally(Expression expression) =>
-                expression.NodeType != ExpressionType.Parameter && !expression.IsDbExpression();
+                expression.NodeType != ExpressionType.Parameter &&
+                !expression.IsDbExpression() &&
+                !IsExecuteSubQueryExpression(expression);
+
+            static bool IsExecuteSubQueryExpression(Expression expression) =>
+                expression is MethodCallExpression methodCall &&
+                methodCall.Method.DeclaringType == typeof(ProjectionRow) &&
+                methodCall.Method.Name == nameof(ExecuteSubQuery);
         }
 
         readonly SqlDataReader reader;

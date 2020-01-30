@@ -46,9 +46,10 @@ namespace MoleSqlTests.DatabaseTests
                 result[i].NullableDoubleValue.Should().Be(d);
                 result[i].NullableDecimalValue.Should().Be(d);
             }
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[IntValue], [t0].[LongValue], [t0].[FloatValue], [t0].[DoubleValue], [t0].[DecimalValue], [t0].[NullableIntValue], [t0].[NullableLongValue], [t0].[NullableFloatValue], [t0].[NullableDoubleValue], [t0].[NullableDecimalValue] 
-FROM [AggregatorTestTable] AS t0");
+FROM [AggregatorTestTable] AS t0
+{context.ContextInfo}");
         }
         [TestMethod]
         public async Task Table_AggregatorTestsAsync_ExpectedTableProjectionAndValues()
@@ -72,9 +73,10 @@ FROM [AggregatorTestTable] AS t0");
                 result[i].NullableDoubleValue.Should().Be(d);
                 result[i].NullableDecimalValue.Should().Be(d);
             }
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[IntValue], [t0].[LongValue], [t0].[FloatValue], [t0].[DoubleValue], [t0].[DecimalValue], [t0].[NullableIntValue], [t0].[NullableLongValue], [t0].[NullableFloatValue], [t0].[NullableDoubleValue], [t0].[NullableDecimalValue] 
-FROM [AggregatorTestTable] AS t0");
+FROM [AggregatorTestTable] AS t0
+{context.ContextInfo}");
         }
         [TestMethod]
         public void Table_NullableTests_ExpectedTableProjectionAndValues()
@@ -100,10 +102,10 @@ FROM [AggregatorTestTable] AS t0");
                 result[i].DoubleValue.Should().Be(d);
                 result[i].DecimalValue.Should().Be(d);
             }
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[IntValue], [t0].[LongValue], [t0].[FloatValue], [t0].[DoubleValue], [t0].[DecimalValue]
 FROM [NullableTestTable] AS t0
-");
+{context.ContextInfo}");
         }
         [TestMethod]
         public async Task Table_NullableTestsAsync_ExpectedTableProjectionAndValues()
@@ -129,10 +131,10 @@ FROM [NullableTestTable] AS t0
                 result[i].DoubleValue.Should().Be(d);
                 result[i].DecimalValue.Should().Be(d);
             }
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[IntValue], [t0].[LongValue], [t0].[FloatValue], [t0].[DoubleValue], [t0].[DecimalValue]
 FROM [NullableTestTable] AS t0
-");
+{context.ContextInfo}");
         }
         [TestMethod]
         public void Table_Employees_ExpectedTableProjection()
@@ -141,14 +143,14 @@ FROM [NullableTestTable] AS t0
             context.Log.Should().NotBeNull();
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             context.Employees.ToList();
-            AssertSql(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0");
+            AssertSql(context, $"SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0 {context.ContextInfo}");
         }
         [TestMethod]
         public async Task Table_EmployeesAsync_ExpectedTableProjection()
         {
             using var context = GetDbContext();
             await context.Employees.ToListAsync();
-            AssertSql(context, "SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0");
+            AssertSql(context, $"SELECT [t0].[Id], [t0].[DepartmentId], [t0].[Name], [t0].[DateOfBirth], [t0].[LastSeen], [t0].[Salary] FROM [Employees] AS t0 {context.ContextInfo}");
         }
         [TestMethod]
         public void Table_EmployeesAfterDisposed_ObjectDisposedException()

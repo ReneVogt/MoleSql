@@ -34,7 +34,7 @@ namespace MoleSqlTests.DatabaseTests
             const string Name = "Alfons Allerlei";
             using var context = GetDbContextWithTransaction();
             context.ExecuteNonQuery($"UPDATE Customers SET Name = 'Hello World' WHERE [Name] = {Name}").Should().Be(1);
-            AssertSql(context, "UPDATE Customers SET Name = 'Hello World' WHERE [Name] = @p0 -- @p0 NVarChar Input [Alfons Allerlei]");
+            AssertSql(context, $"UPDATE Customers SET Name = 'Hello World' WHERE [Name] = @p0 {context.ContextInfo} -- @p0 NVarChar Input [Alfons Allerlei]");
         }
         [TestMethod]
         public void ExecuteNonQueryAsync_AfterDispose_ObjectDisposedException()

@@ -26,11 +26,12 @@ namespace MoleSqlTests.DatabaseTests
                         select department.Name;
             var result = query.ToList();
             result.Should().Equal("Development", "DoubleName", "DoubleName", "Marketing", "Sales", "Support");
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
 ORDER BY [t0].[Name] 
+{context.ContextInfo} 
 -- @p0 Int Input [7]");
         }
         [TestMethod]
@@ -43,11 +44,12 @@ ORDER BY [t0].[Name]
                         select department.Name;
             var result = query.ToList();
             result.Should().Equal("Support", "Sales", "Marketing", "DoubleName", "DoubleName", "Development");
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
 ORDER BY [t0].[Name] DESC 
+{context.ContextInfo} 
 -- @p0 Int Input [7]");
         }
         [TestMethod]
@@ -72,11 +74,12 @@ ORDER BY [t0].[Name] DESC
             result[4].Name.Should().Be("DoubleName");
             result[5].Id.Should().Be(4);
             result[5].Name.Should().Be("Development");
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[Id], [t0].[Name] 
 FROM [Departments] AS t0 
 WHERE ([t0].[Id] < @p0) 
 ORDER BY [t0].[Name] DESC, [t0].[Id] 
+{context.ContextInfo}
 -- @p0 Int Input [7]");
         }
     }

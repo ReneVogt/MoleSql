@@ -37,14 +37,16 @@ namespace MoleSqlTests.DatabaseTests
             result[0].Name.Should().Be("René");
             result[0].Orders.Should().HaveCountGreaterThan(0);
             result[0].Orders[0].Id.Should().Be(1);
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[Name], [t0].[Id] 
 FROM [Employees] AS t0 WHERE ([t0].[Name] = @p0) 
+{context.ContextInfo}
 -- @p0 NVarChar Input [René] 
             
 SELECT [t3].[Id], [t3].[CustomerId], [t3].[EmployeeId], [t3].[Date], [t3].[Discount] 
 FROM [Orders] AS t3 WHERE ([t3].[EmployeeId] = @p0) 
 ORDER BY [t3].[Id] 
+{context.ContextInfo}
 -- @p0 Int Input [5]");
         }
 
@@ -52,7 +54,6 @@ ORDER BY [t3].[Id]
         class ShortEmployees
         {
             public int Id { get; set; }
-            public string Name { get; set; }
         }
         [Table(Name="Orders")]
         class ShortOrders
@@ -80,19 +81,17 @@ ORDER BY [t3].[Id]
             var orders = context.GetTable<ShortOrders>();
             var customers = context.GetTable<ShortCustomers>();
             var query = from employee in employees
-                        where employee.Name == "René"
+                        where employee.Id == 5
                         select new
                         {
-                            employee.Name,
                             Orders = orders
                                             .Where(order => order.Employee == employee.Id)
                                             .OrderBy(order => order.Id)
                                             .Select(order => new {order.Id, Customers = customers.Where(customer => customer.Id == order.Customer)})
                         };
-            var result = query.AsEnumerable().Select(x => new { x.Name, Orders = x.Orders.AsEnumerable().Select(order => new {order.Id, Customers = order.Customers.ToList()}).ToList() }).ToList();
+            var result = query.AsEnumerable().Select(x => new { Orders = x.Orders.AsEnumerable().Select(order => new {order.Id, Customers = order.Customers.ToList()}).ToList() }).ToList();
 
             result.Should().HaveCount(1);
-            result[0].Name.Should().Be("René");
             result[0].Orders.Should().HaveCountGreaterThan(0);
             result[0].Orders[0].Id.Should().Be(1);
             result[0].Orders[0].Customers.Should().HaveCount(1);

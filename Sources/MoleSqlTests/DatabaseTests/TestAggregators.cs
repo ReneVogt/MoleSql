@@ -47,7 +47,7 @@ namespace MoleSqlTests.DatabaseTests
             result.Should().HaveCount(1);
             result[0].Name.Should().Be("René");
             result[0].OrderCount.Should().Be(2);
-            AssertSql(context, @"
+            AssertSql(context, $@"
 SELECT [t0].[Name], (
   SELECT COUNT(*)
   FROM [Orders] AS t3
@@ -55,6 +55,7 @@ SELECT [t0].[Name], (
   ) AS c0
 FROM [Employees] AS t0
 WHERE ([t0].[Name] = @p0)
+{context.ContextInfo}
 -- @p0 NVarChar Input [René]");
         }
     }
