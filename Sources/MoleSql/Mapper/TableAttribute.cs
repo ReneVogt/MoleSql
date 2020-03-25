@@ -13,11 +13,11 @@ namespace MoleSql.Mapper
         /// The database schema the table is declared in.
         /// If this is not defined, no schema information will be used.
         /// </summary>
-        public string Schema { get; set; }
+        public string? Schema { get; set; }
         /// <summary>
         /// The table name to use when querying objects. If this is not
         /// defined, the type's name will be used as table name.
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 }

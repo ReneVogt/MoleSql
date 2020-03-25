@@ -17,14 +17,14 @@ namespace MoleSql.Expressions
         /// </summary>
         /// <param name="expression">The expression to remove outer quotes from.</param>
         /// <returns>The "naked" lambda expression without outer quotes.</returns>
-        internal static Expression StripQuotes(this Expression expression)
+        internal static Expression? StripQuotes(this Expression? expression)
         { 
             while (expression?.NodeType == ExpressionType.Quote)
                 expression = ((UnaryExpression)expression).Operand;
 
             return expression;
         }
-        internal static bool IsDbExpression(this Expression expression) =>
+        internal static bool IsDbExpression(this Expression? expression) =>
             expression != null && Enum.IsDefined(typeof(DbExpressionType), (DbExpressionType)expression.NodeType);
 
     }

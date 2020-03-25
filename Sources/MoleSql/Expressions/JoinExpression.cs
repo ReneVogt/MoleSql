@@ -18,13 +18,13 @@ namespace MoleSql.Expressions
         internal Expression Left { get; }
         internal Expression Right { get; }
 #pragma warning disable 109 // it "hides" a static method
-        internal new Expression Condition { get; }
+        internal new Expression? Condition { get; }
 #pragma warning restore 109
 
         public override Type Type { get; }
         public override ExpressionType NodeType { get; }
 
-        internal JoinExpression(Type type, JoinType joinType, Expression left, Expression right, Expression condition)
+        internal JoinExpression(Type type, JoinType joinType, Expression left, Expression right, Expression? condition)
         {
             JoinType = joinType;
             Left = left;

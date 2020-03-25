@@ -36,7 +36,7 @@ namespace MoleSql
         bool disposed;
 
         internal SqlConnection Connection { get; }
-        internal SqlTransaction Transaction { get; set; }
+        internal SqlTransaction? Transaction { get; set; }
         /// <summary>
         /// When writing to this <see cref="TextWriter"/>, please only
         /// use the <see cref="TextWriter.WriteLine(string)"/> overload.
@@ -44,7 +44,7 @@ namespace MoleSql
         /// a class deriving from <see cref="TextWriter"/> to use with
         /// this provider.
         /// </summary>
-        internal TextWriter Log { get; set; }
+        internal TextWriter? Log { get; set; }
 
         internal QueryProvider(SqlConnection connection, bool ownConnection)
         {

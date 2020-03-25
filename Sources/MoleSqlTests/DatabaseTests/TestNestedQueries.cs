@@ -31,6 +31,7 @@ namespace MoleSqlTests.DatabaseTests
                         {
                             employee.Name, Orders = context.Orders.Where(order => order.EmployeeId == employee.Id).OrderBy(order => order.Id)
                         };
+            // ReSharper disable once AssignNullToNotNullAttribute
             var result = query.AsEnumerable().Select(x => new {x.Name, Orders = x.Orders.AsEnumerable().ToList()}).ToList();
 
             result.Should().HaveCount(1);
@@ -90,6 +91,7 @@ ORDER BY [t3].[Id]
                                             .OrderBy(order => order.Id)
                                             .Select(order => new {order.Id, Customers = customers.Where(customer => customer.Id == order.Customer)})
                         };
+            // ReSharper disable once AssignNullToNotNullAttribute
             var result = query.AsEnumerable().Select(x => new { Orders = x.Orders.AsEnumerable().Select(order => new {order.Id, Customers = order.Customers.ToList()}).ToList() }).ToList();
 
             result.Should().HaveCount(1);

@@ -106,8 +106,8 @@ namespace MoleSql.Translators
                 if (i > 0)
                     commandTextBuilder.Append(", ");
 
-                Expression columnSource = Visit(columnDeclaration.Expression);
-                if (!string.IsNullOrWhiteSpace(columnDeclaration?.Name) && (!(columnSource is ColumnExpression columnExpression) || columnExpression.Name != selectExpression.Columns[i].Name))
+                Expression columnSource = Visit(columnDeclaration.Expression)!;
+                if (!string.IsNullOrWhiteSpace(columnDeclaration.Name) && (!(columnSource is ColumnExpression columnExpression) || columnExpression.Name != selectExpression.Columns[i].Name))
                     commandTextBuilder.Append($" AS {columnDeclaration.Name}");
             }
 

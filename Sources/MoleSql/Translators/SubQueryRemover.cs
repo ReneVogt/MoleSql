@@ -29,16 +29,16 @@ namespace MoleSql.Translators
         }
 
         protected override Expression VisitSelect(SelectExpression selectExpression) =>
-            selectsToRemove.Contains(selectExpression) ? Visit(selectExpression.From) : base.VisitSelect(selectExpression);
+            selectsToRemove.Contains(selectExpression) ? Visit(selectExpression.From)! : base.VisitSelect(selectExpression)!;
         protected override Expression VisitColumn(ColumnExpression columnExpression) => map.TryGetValue(columnExpression.Alias, out var nameMap)
                                                                                             ? nameMap.TryGetValue(columnExpression.Name,
                                                                                                                   out var expression)
-                                                                                                  ? Visit(expression)
+                                                                                                  ? Visit(expression)!
                                                                                                   : throw ThrowExtensions.ReferenceToUndefinedColumn()
                                                                                             : columnExpression;
 
         internal static SelectExpression Remove(SelectExpression outerSelect, params SelectExpression[] selectsToRemove) => Remove(outerSelect, (IEnumerable<SelectExpression>)selectsToRemove);
-        internal static SelectExpression Remove(SelectExpression outerSelect, IEnumerable<SelectExpression> selectsToRemove) => (SelectExpression)new SubQueryRemover(selectsToRemove).Visit(outerSelect);
-        internal static ProjectionExpression Remove(ProjectionExpression projection, IEnumerable<SelectExpression> selectsToRemove) => (ProjectionExpression)new SubQueryRemover(selectsToRemove).Visit(projection);
+        internal static SelectExpression Remove(SelectExpression outerSelect, IEnumerable<SelectExpression> selectsToRemove) => (SelectExpression)new SubQueryRemover(selectsToRemove).Visit(outerSelect)!;
+        internal static ProjectionExpression Remove(ProjectionExpression projection, IEnumerable<SelectExpression> selectsToRemove) => (ProjectionExpression)new SubQueryRemover(selectsToRemove).Visit(projection)!;
     }
 }

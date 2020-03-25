@@ -33,7 +33,7 @@ namespace MoleSql.Translators
                 this.isEvaluatable = isEvaluatable;
             }
 
-            public override Expression Visit(Expression node)
+            public override Expression? Visit(Expression? node)
             {
                 if (node == null) return null;
 
@@ -73,7 +73,7 @@ namespace MoleSql.Translators
                 this.candidates = candidates;
             }
 
-            public override Expression Visit(Expression node) => node == null ? null : candidates.Contains(node) ? Evaluate(node) : base.Visit(node);
+            public override Expression? Visit(Expression? node) => node == null ? null : candidates.Contains(node) ? Evaluate(node) : base.Visit(node);
 
             static Expression Evaluate(Expression expression)
             {
@@ -85,7 +85,7 @@ namespace MoleSql.Translators
                 return Expression.Constant(function.DynamicInvoke(null), expression.Type);
             }
 
-            internal static Expression Evaluate(Expression expression, HashSet<Expression> nominees) => new Evaluator(nominees).Visit(expression);
+            internal static Expression Evaluate(Expression expression, HashSet<Expression> nominees) => new Evaluator(nominees).Visit(expression)!;
         }
         /// <summary>
         /// Traverses the given <paramref name="expression"/> and evaluates all parts of it that can be

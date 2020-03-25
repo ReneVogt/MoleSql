@@ -60,7 +60,7 @@ namespace MoleSql.Helpers
             //    typeof(Nullable<>).MakeGenericType(underlyingType),
             //    Convert.ChangeType(value, underlyingType, CultureInfo.InvariantCulture));
         }
-        internal static T ChangeType<T>(object value)
+        internal static T ChangeType<T>(object? value)
         {
             Type type = typeof(T);
 
@@ -69,7 +69,7 @@ namespace MoleSql.Helpers
                 if (type.IsValueType && Nullable.GetUnderlyingType(type) == null)
                     throw type.CannotBeConvertedToFromNull();
 
-                return default;
+                return default!;
             }
             if (value.GetType() == typeof(T)) return (T)value;
 
@@ -91,7 +91,7 @@ namespace MoleSql.Helpers
         /// kind of <see cref="IEnumerable{T}"/> or that "T" if one is found.</returns>
         internal static Type GetElementType(Type sequenceType)
         {
-            Type enumerable = FindIEnumerable(sequenceType);
+            Type? enumerable = FindIEnumerable(sequenceType);
             if (enumerable == null) return sequenceType;
             return enumerable.GetGenericArguments()[0];
         }
@@ -113,7 +113,7 @@ namespace MoleSql.Helpers
         /// <param name="sequenceType">The <see cref="Type"/> to investigate.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> that is in any way implemented by <paramref name="sequenceType"/> or
         /// <code>null</code> <paramref name="sequenceType"/> is not assignable to any version of <see cref="IEnumerable{T}"/>.</returns>
-        static Type FindIEnumerable(Type sequenceType)
+        static Type? FindIEnumerable(Type? sequenceType)
         {
             if (sequenceType == null || sequenceType == typeof(string))
                 return null;
@@ -121,7 +121,7 @@ namespace MoleSql.Helpers
             if (sequenceType.IsArray)
                 return typeof(IEnumerable<>).MakeGenericType(sequenceType.GetElementType());
 
-            Type enumerationType;
+            Type? enumerationType;
             if (sequenceType.IsGenericType)
             {
                 var ienumTypes = from arg in sequenceType.GetGenericArguments()

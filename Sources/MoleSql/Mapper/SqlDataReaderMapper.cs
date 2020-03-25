@@ -42,7 +42,7 @@ namespace MoleSql.Mapper
                 {
                     if (reader.VisibleFieldCount > 1)
                         throw typeof(T).CannotBeCreatedFromMultipleColumns();
-                    yield return reader.IsDBNull(0) ? (T)(object)null : reader.GetFieldValue<T>(0);
+                    yield return reader.IsDBNull(0) ? (T)(object)null! : reader.GetFieldValue<T>(0);
                 }
             }
             finally
@@ -57,7 +57,7 @@ namespace MoleSql.Mapper
                 var propertiesByName = typeof(T).GetProperties().Where(prop => prop.CanWrite).ToDictionary(prop => prop.Name, prop => prop);
                 var propertyMappings = Enumerable.Range(0, reader.VisibleFieldCount)
                                                  .Select(i => (i, propertiesByName.TryGetValue(reader.GetName(i), out var p) ? p : null))
-                                                 .Where(((int fieldIndex, PropertyInfo property) x) => x.property != null)
+                                                 .Where(((int fieldIndex, PropertyInfo? property) x) => x.property != null)
                                                  .ToArray();
 
                 while (reader.Read())
@@ -99,7 +99,7 @@ namespace MoleSql.Mapper
                     if (reader.VisibleFieldCount > 1)
                         throw typeof(T).CannotBeCreatedFromMultipleColumns();
                     yield return await reader.IsDBNullAsync(0, cancellationToken).ConfigureAwait(false)
-                                     ? (T)(object)null
+                                     ? (T)(object)null!
                                      : await reader.GetFieldValueAsync<T>(0, cancellationToken).ConfigureAwait(false);
                 }
             }
@@ -115,7 +115,7 @@ namespace MoleSql.Mapper
                 var propertiesByName = typeof(T).GetProperties().Where(prop => prop.CanWrite).ToDictionary(prop => prop.Name, prop => prop);
                 var propertyMappings = Enumerable.Range(0, reader.VisibleFieldCount)
                                                  .Select(i => (i, propertiesByName.TryGetValue(reader.GetName(i), out var p) ? p : null))
-                                                 .Where(((int fieldIndex, PropertyInfo property) x) => x.property != null)
+                                                 .Where(((int fieldIndex, PropertyInfo? property) x) => x.property != null)
                                                  .ToArray();
 
                 while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
@@ -152,7 +152,7 @@ namespace MoleSql.Mapper
                     {
                         IDictionary<string, object> element = new ExpandoObject();
                         for (int index = 0; index < reader.VisibleFieldCount; index++)
-                            element[reader.GetName(index)] = reader.IsDBNull(index) ? null : reader.GetValue(index);
+                            element[reader.GetName(index)] = reader.IsDBNull(index) ? null! : reader.GetValue(index);
                         yield return element;
                     }
                 }
@@ -179,14 +179,14 @@ namespace MoleSql.Mapper
                 {
                     if (reader.VisibleFieldCount == 1)
                         yield return await reader.IsDBNullAsync(0, cancellationToken).ConfigureAwait(false)
-                                         ? null
+                                         ? null!
                                          : await reader.GetFieldValueAsync<object>(0, cancellationToken).ConfigureAwait(false);
                     else
                     {
                         IDictionary<string, object> element = new ExpandoObject();
                         for (int index = 0; index < reader.VisibleFieldCount; index++)
                             element[reader.GetName(index)] = await reader.IsDBNullAsync(index, cancellationToken).ConfigureAwait(false)
-                                                                 ? null
+                                                                 ? null!
                                                                  : await reader.GetFieldValueAsync<object>(index, cancellationToken)
                                                                                .ConfigureAwait(false);
                         yield return element;

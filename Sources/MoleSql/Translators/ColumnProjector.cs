@@ -23,7 +23,7 @@ namespace MoleSql.Translators
 
             Nominator() { }
 
-            public override Expression Visit(Expression expression)
+            public override Expression? Visit(Expression? expression)
             {
                 if (expression == null) return null;
                 
@@ -73,8 +73,9 @@ namespace MoleSql.Translators
             this.existingAliases = existingAliases;
         }
 
-        public override Expression Visit(Expression expression)
+        public override Expression? Visit(Expression? expression)
         {
+            if (expression == null) return null;
             if (!candidates.Contains(expression)) return base.Visit(expression);
 
             string columnName;
@@ -117,7 +118,7 @@ namespace MoleSql.Translators
         internal static (Expression projector, ReadOnlyCollection<ColumnDeclaration> columns) ProjectColumns(Expression expression, string newAlias, params string[] existingAliases)
         {
             var projector = new ColumnProjector(Nominator.Nominate(expression), newAlias, existingAliases);
-            return (projector.Visit(expression), projector.columns.AsReadOnly());
+            return (projector.Visit(expression)!, projector.columns.AsReadOnly());
         }
 
     }

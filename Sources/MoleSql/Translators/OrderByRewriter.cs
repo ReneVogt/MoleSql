@@ -16,7 +16,7 @@ namespace MoleSql.Translators
 {
     sealed class OrderByRewriter : DbExpressionVisitor
     {
-        IEnumerable<OrderClause> gatheredOrderings;
+        IEnumerable<OrderClause>? gatheredOrderings;
         bool isOuterMostSelect = true;
 
         OrderByRewriter()
@@ -37,7 +37,7 @@ namespace MoleSql.Translators
                 bool canHaveOrderBy = saveIsOuterMostSelect;
                 bool canPassOnOrderings = !saveIsOuterMostSelect;
 
-                IEnumerable<OrderClause> orderings = canHaveOrderBy ? gatheredOrderings : null;
+                IEnumerable<OrderClause>? orderings = canHaveOrderBy ? gatheredOrderings : null;
                 ReadOnlyCollection<ColumnDeclaration> columns = selectExpression.Columns;
                 if (gatheredOrderings != null)
                 {
@@ -62,21 +62,21 @@ namespace MoleSql.Translators
         protected override Expression VisitJoin(JoinExpression joinExpression)
         { 
             Expression left = VisitSource(joinExpression.Left);
-            IEnumerable<OrderClause> leftOrders = gatheredOrderings; 
+            IEnumerable<OrderClause>? leftOrders = gatheredOrderings; 
             
             gatheredOrderings = null;
             Expression right = VisitSource(joinExpression.Right);
             
             PrependOrderings(leftOrders);
 
-            Expression condition = Visit(joinExpression.Condition);
+            Expression? condition = Visit(joinExpression.Condition);
 
             return left != joinExpression.Left || right != joinExpression.Right || condition != joinExpression.Condition
                        ? new JoinExpression(joinExpression.Type, joinExpression.JoinType, left, right, condition)
                        : joinExpression;
         }
 
-        void PrependOrderings(IEnumerable<OrderClause> newOrderings)
+        void PrependOrderings(IEnumerable<OrderClause>? newOrderings)
         {
             if (newOrderings == null) return;
             if (gatheredOrderings == null)
@@ -92,7 +92,7 @@ namespace MoleSql.Translators
         
         static (ReadOnlyCollection<ColumnDeclaration> columns, ReadOnlyCollection<OrderClause> orderClauses) RebindOrderings(IEnumerable<OrderClause> orderings, string alias, HashSet<string> existingAliases, ReadOnlyCollection<ColumnDeclaration> existingColumns)
         {
-            List<ColumnDeclaration> newColumns = null;
+            List<ColumnDeclaration>? newColumns = null;
             List<ColumnDeclaration> existingColumnDeclarations = new List<ColumnDeclaration>(existingColumns);
 
             List<OrderClause> newOrderings = new List<OrderClause>();
@@ -100,7 +100,7 @@ namespace MoleSql.Translators
             foreach (OrderClause ordering in orderings)
             {
                 Expression expression = ordering.Expression;
-                ColumnExpression columnExpression = expression as ColumnExpression;
+                ColumnExpression? columnExpression = expression as ColumnExpression;
 
                 if (columnExpression != null && existingAliases?.Contains(columnExpression.Alias) != true) continue;
 
@@ -135,6 +135,6 @@ namespace MoleSql.Translators
             return (existingColumns.ToList().AsReadOnly(), newOrderings.ToList().AsReadOnly());
         }
 
-        internal static ProjectionExpression Rewrite(ProjectionExpression expression) => (ProjectionExpression)new OrderByRewriter().Visit(expression);
+        internal static ProjectionExpression Rewrite(ProjectionExpression expression) => (ProjectionExpression)new OrderByRewriter().Visit(expression)!;
     }
 }

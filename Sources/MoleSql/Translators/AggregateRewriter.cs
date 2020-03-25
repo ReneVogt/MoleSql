@@ -70,8 +70,8 @@ namespace MoleSql.Translators
         protected override Expression VisitAggregateSubQuery(AggregateSubQueryExpression aggregateSubQueryExpression) =>
             map.TryGetValue(aggregateSubQueryExpression, out var mapped)
                 ? mapped
-                : Visit(aggregateSubQueryExpression.AggregateAsSubQuery);
+                : Visit(aggregateSubQueryExpression.AggregateAsSubQuery)!;
 
-        internal static Expression Rewrite(Expression expression) => new AggregateRewriter(expression).Visit(expression);
+        internal static Expression Rewrite(Expression expression) => new AggregateRewriter(expression).Visit(expression)!;
     }
 }

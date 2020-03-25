@@ -19,15 +19,15 @@ namespace MoleSql.Expressions
     {
         internal string Alias { get; }
         internal Expression From { get; }
-        internal Expression Where { get; }
+        internal Expression? Where { get; }
         internal ReadOnlyCollection<ColumnDeclaration> Columns { get; }
-        internal ReadOnlyCollection<OrderClause> OrderBy { get; }
-        internal ReadOnlyCollection<Expression> GroupBy { get; }
+        internal ReadOnlyCollection<OrderClause>? OrderBy { get; }
+        internal ReadOnlyCollection<Expression>? GroupBy { get; }
 
         public override Type Type { get; }
         public override ExpressionType NodeType { get; }
 
-        internal SelectExpression(Type type, string alias, IEnumerable<ColumnDeclaration> columns, Expression from, Expression where, IEnumerable<OrderClause> orderBy = null, IEnumerable<Expression> groupby = null)
+        internal SelectExpression(Type type, string alias, IEnumerable<ColumnDeclaration> columns, Expression from, Expression? where, IEnumerable<OrderClause>? orderBy = null, IEnumerable<Expression>? groupby = null)
         {
             Alias = alias;
             From = from;
@@ -42,8 +42,8 @@ namespace MoleSql.Expressions
         [ExcludeFromCodeCoverage]
         public override string ToString()
         {
-            string groups = GroupBy == null ? null : $" GROUP: ({string.Join(", ", GroupBy.Select(g => $"({g})"))})";
-            string orders = OrderBy == null ? null : $" ORDER BY: ({string.Join(", ", OrderBy.Select(o => $"({o})"))})";
+            string? groups = GroupBy == null ? null : $" GROUP: ({string.Join(", ", GroupBy.Select(g => $"({g})"))})";
+            string? orders = OrderBy == null ? null : $" ORDER BY: ({string.Join(", ", OrderBy.Select(o => $"({o})"))})";
             return $"SELECT ({string.Join(", ", Columns)}) FROM ({From}) WHERE ({Where}){orders}{groups} AS '{Alias}'";
         }
     }

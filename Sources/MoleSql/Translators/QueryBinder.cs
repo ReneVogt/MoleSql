@@ -38,13 +38,14 @@ namespace MoleSql.Translators
         readonly Dictionary<Type, Func<MethodCallExpression, Expression>> methodTypeHandlers;
         readonly Dictionary<ParameterExpression, Expression> map = new Dictionary<ParameterExpression, Expression>();
         readonly Dictionary<Expression, GroupByInfo> groupByMap = new Dictionary<Expression, GroupByInfo>();
-        Expression root;
-        List<OrderClause> thenBys;
+        readonly Expression root;
+        List<OrderClause>? thenBys;
         Int32 aliasCount;
-        Expression currentGroupElement;
+        Expression? currentGroupElement;
 
-        QueryBinder()
+        QueryBinder(Expression root)
         {
+            this.root = root;
             methodTypeHandlers = new Dictionary<Type, Func<MethodCallExpression, Expression>>
             {
                 [typeof(Queryable)] = VisitQueryableMethodCall,
@@ -63,47 +64,47 @@ namespace MoleSql.Translators
             return callExpression.Method.Name switch
             {
                 nameof(Queryable.Where) => BindWhere(callExpression.Type, callExpression.Arguments[0],
-                                                     (LambdaExpression)callExpression.Arguments[1].StripQuotes()),
+                                                     (LambdaExpression)callExpression.Arguments[1].StripQuotes()!),
                 nameof(Queryable.Select) => BindSelect(callExpression.Type, callExpression.Arguments[0],
-                                                       (LambdaExpression)callExpression.Arguments[1].StripQuotes()),
+                                                       (LambdaExpression)callExpression.Arguments[1].StripQuotes()!),
                 nameof(Queryable.Join) => BindJoin(callExpression.Type,
                                                    callExpression.Arguments[0],
                                                    callExpression.Arguments[1],
-                                                   (LambdaExpression)callExpression.Arguments[2].StripQuotes(),
-                                                   (LambdaExpression)callExpression.Arguments[3].StripQuotes(),
-                                                   (LambdaExpression)callExpression.Arguments[4].StripQuotes()),
+                                                   (LambdaExpression)callExpression.Arguments[2].StripQuotes()!,
+                                                   (LambdaExpression)callExpression.Arguments[3].StripQuotes()!,
+                                                   (LambdaExpression)callExpression.Arguments[4].StripQuotes()!),
                 nameof(Queryable.SelectMany) => BindSelectMany(callExpression.Type,
                                                                callExpression.Arguments[0],
-                                                               (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                               (LambdaExpression)callExpression.Arguments[1].StripQuotes()!,
                                                                callExpression.Arguments.Count > 2
-                                                                   ? (LambdaExpression)callExpression.Arguments[2].StripQuotes()
+                                                                   ? (LambdaExpression)callExpression.Arguments[2].StripQuotes()!
                                                                    : null),
                 nameof(Queryable.OrderBy) => BindOrderBy(callExpression.Type,
                                                          callExpression.Arguments[0],
-                                                         (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                         (LambdaExpression)callExpression.Arguments[1].StripQuotes()!,
                                                          OrderType.Ascending),
                 nameof(Queryable.OrderByDescending) => BindOrderBy(callExpression.Type,
                                                                    callExpression.Arguments[0],
-                                                                   (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                                   (LambdaExpression)callExpression.Arguments[1].StripQuotes()!,
                                                                    OrderType.Descending),
                 nameof(Queryable.ThenBy) => BindThenBy(callExpression.Arguments[0],
-                                                       (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                       (LambdaExpression)callExpression.Arguments[1].StripQuotes()!,
                                                        OrderType.Ascending),
                 nameof(Queryable.ThenByDescending) => BindThenBy(callExpression.Arguments[0],
-                                                                 (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                                 (LambdaExpression)callExpression.Arguments[1].StripQuotes()!,
                                                                  OrderType.Descending),
                 nameof(Queryable.GroupBy) => BindGroupBy(callExpression.Arguments[0],
-                                                         (LambdaExpression)callExpression.Arguments[1].StripQuotes(),
+                                                         (LambdaExpression)callExpression.Arguments[1].StripQuotes()!,
                                                          callExpression.Arguments.Count > 2
-                                                             ? (LambdaExpression)callExpression.Arguments[2].StripQuotes()
+                                                             ? (LambdaExpression?)callExpression.Arguments[2].StripQuotes()
                                                              : null,
                                                          callExpression.Arguments.Count > 3
-                                                             ? (LambdaExpression)callExpression.Arguments[3].StripQuotes()
+                                                             ? (LambdaExpression?)callExpression.Arguments[3].StripQuotes()
                                                              : null),
                 var name when Enum.GetNames(typeof(AggregateType)).Contains(name) => BindAggregate(
                     callExpression.Arguments[0], callExpression.Method.DeclaringType, GetAggregateType(name), callExpression.Method.ReturnType,
                     callExpression.Method.GetGenericArguments(),
-                    callExpression.Arguments.Count > 1 ? (LambdaExpression)callExpression.Arguments[1].StripQuotes() : null,
+                    callExpression.Arguments.Count > 1 ? (LambdaExpression?)callExpression.Arguments[1].StripQuotes() : null,
                     callExpression == root),
                 _ => throw callExpression.Method.IsNotSupported()
             };
@@ -131,9 +132,10 @@ namespace MoleSql.Translators
             map.TryGetValue(parameter, out var expression) ? expression : parameter;
         protected override Expression VisitMember(MemberExpression member)
         {
-            Expression source = Visit(member.Expression);
+            Expression? source = Visit(member.Expression);
+            if (source == null) return member;
 
-            switch (source?.NodeType)
+            switch (source.NodeType)
             {
                 case ExpressionType.MemberInit:
                     MemberInitExpression memberInit = (MemberInitExpression)source;
@@ -161,11 +163,9 @@ namespace MoleSql.Translators
 
         Expression BindWhere(Type resultType, Expression source, LambdaExpression predicate)
         {
-            ProjectionExpression projection = VisitSequence(source);
-            Debug.Assert(projection != null);
-
+            ProjectionExpression projection = VisitSequence(source)!;
             map[predicate.Parameters[0]] = projection.Projector;
-            Expression where = Visit(predicate.Body); 
+            Expression where = Visit(predicate.Body)!; 
             
             string alias = GetNextAlias();
             var (projector, columns) = ColumnProjector.ProjectColumns(projection.Projector, alias, GetExpressionAlias(projection.Source));
@@ -177,10 +177,9 @@ namespace MoleSql.Translators
         Expression BindSelect(Type resultType, Expression source, LambdaExpression selector)
         {
             ProjectionExpression projection = VisitSequence(source);
-            Debug.Assert(projection != null);
 
             map[selector.Parameters[0]] = projection.Projector; 
-            Expression expression = Visit(selector.Body);
+            Expression expression = Visit(selector.Body)!;
 
             string alias = GetNextAlias();
             var (projector, columns) = ColumnProjector.ProjectColumns(expression, alias, projection.Source.Alias);
@@ -191,22 +190,20 @@ namespace MoleSql.Translators
         }
         Expression BindJoin(Type resultType, Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector)
         {
-            ProjectionExpression outerProjection = VisitSequence(outerSource);
-            ProjectionExpression innerProjection = VisitSequence(innerSource);
-
-            Debug.Assert(innerProjection != null && outerProjection != null);
+            ProjectionExpression outerProjection = VisitSequence(outerSource)!;
+            ProjectionExpression innerProjection = VisitSequence(innerSource)!;
 
             map[outerKey.Parameters[0]] = outerProjection.Projector;
-            Expression outerKeyExpression = Visit(outerKey.Body);
+            Expression outerKeyExpression = Visit(outerKey.Body)!;
             Debug.Assert(outerKeyExpression != null);
 
             map[innerKey.Parameters[0]] = innerProjection.Projector;
-            Expression innerKeyExpression = Visit(innerKey.Body);
+            Expression innerKeyExpression = Visit(innerKey.Body)!;
             Debug.Assert(innerKeyExpression != null);
 
             map[resultSelector.Parameters[0]] = outerProjection.Projector;
             map[resultSelector.Parameters[1]] = innerProjection.Projector;
-            Expression resultExpression = Visit(resultSelector.Body);
+            Expression resultExpression = Visit(resultSelector.Body)!;
 
             JoinExpression join = new JoinExpression(
                 resultType, 
@@ -221,16 +218,15 @@ namespace MoleSql.Translators
 
             return new ProjectionExpression(new SelectExpression(resultType, alias, columns, join, null), projector);
         }
-        Expression BindSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+        Expression BindSelectMany(Type resultType, Expression source, LambdaExpression collectionSelector, LambdaExpression? resultSelector)
         {
-            ProjectionExpression projection = VisitSequence(source);
-            Debug.Assert(projection != null);
+            ProjectionExpression projection = VisitSequence(source)!;
             map[collectionSelector.Parameters[0]] = projection.Projector;
 
-            ProjectionExpression collectionProjection = (ProjectionExpression)Visit(collectionSelector.Body);
-            Debug.Assert(collectionProjection != null);
+            ProjectionExpression collectionProjection = (ProjectionExpression)Visit(collectionSelector.Body)!;
 
             JoinType joinType = IsTable(collectionSelector.Body) ? JoinType.CrossJoin : JoinType.CrossApply;
+            // ReSharper disable once PossibleNullReferenceException - compiler knows better
             JoinExpression joinExpression = new JoinExpression(resultType, joinType, projection.Source, collectionProjection.Source, null);
 
             string alias = GetNextAlias();
@@ -242,8 +238,7 @@ namespace MoleSql.Translators
             {
                 map[resultSelector.Parameters[0]] = projection.Projector;
                 map[resultSelector.Parameters[1]] = collectionProjection.Projector;
-                Expression resultExpression = Visit(resultSelector.Body); //VisitSequence(resultSelector.Body);
-                Debug.Assert(resultExpression != null);
+                Expression resultExpression = Visit(resultSelector.Body)!;
 
                 (projector, columns) = ColumnProjector.ProjectColumns(resultExpression, alias, projection.Source.Alias, collectionProjection.Source.Alias);
             }
@@ -259,13 +254,12 @@ namespace MoleSql.Translators
             thenBys = null;
             oldThenBys?.Reverse();
 
-            ProjectionExpression projection = VisitSequence(source);
-            Debug.Assert(projection != null);
+            ProjectionExpression projection = VisitSequence(source)!;
             map[orderSelector.Parameters[0]] = projection.Projector;
 
             List<OrderClause> orderings = new List<OrderClause>
             {
-                new OrderClause(orderType, Visit(orderSelector.Body))
+                new OrderClause(orderType, Visit(orderSelector.Body)!)
             };
 
             if (oldThenBys != null)
@@ -274,7 +268,7 @@ namespace MoleSql.Translators
                 {
                     LambdaExpression lambda = (LambdaExpression)thenBy.Expression;
                     map[lambda.Parameters[0]] = projection.Projector;
-                    orderings.Add(new OrderClause(thenBy.OrderType, Visit(lambda.Body)));
+                    orderings.Add(new OrderClause(thenBy.OrderType, Visit(lambda.Body)!));
                 }
             }
 
@@ -293,21 +287,20 @@ namespace MoleSql.Translators
         {
             thenBys ??=  new List<OrderClause>();
             thenBys.Add(new OrderClause(orderType, orderSelector));
-            return Visit(source);
+            return Visit(source)!;
         }
-        Expression BindGroupBy(Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+        Expression BindGroupBy(Expression source, LambdaExpression keySelector, LambdaExpression? elementSelector, LambdaExpression? resultSelector)
         {
             ProjectionExpression projection = VisitSequence(source);
             map[keySelector.Parameters[0]] = projection.Projector;
             
-            Expression keyExpression = Visit(keySelector.Body);
-            Debug.Assert(keyExpression != null);
+            Expression keyExpression = Visit(keySelector.Body)!;
             Expression elementExpression = projection.Projector;
 
             if (elementSelector != null)
             {
                 map[elementSelector.Parameters[0]] = projection.Projector;
-                elementExpression = Visit(elementSelector.Body);
+                elementExpression = Visit(elementSelector.Body)!;
             }
             
             var (keyProjector, keyColumns) = ColumnProjector.ProjectColumns(keyExpression, projection.Source.Alias, projection.Source.Alias);
@@ -316,24 +309,24 @@ namespace MoleSql.Translators
             ProjectionExpression subqueryBasis = VisitSequence(source);
 
             map[keySelector.Parameters[0]] = subqueryBasis.Projector;
-            Expression subqueryKey = Visit(keySelector.Body);
+            Expression subqueryKey = Visit(keySelector.Body)!;
             
             var (_, subqueryKeyColumns) = ColumnProjector.ProjectColumns(subqueryKey, subqueryBasis.Source.Alias, subqueryBasis.Source.Alias);
             IEnumerable<Expression> subqueryGroupExpressions = subqueryKeyColumns.Select(c => c.Expression);
 
-            Expression subqueryCorrelation = BuildPredicateWithNullsEqual(subqueryGroupExpressions, groupExpressions);
+            Expression? subqueryCorrelation = BuildPredicateWithNullsEqual(subqueryGroupExpressions, groupExpressions);
             
             Expression subqueryElementExpression = subqueryBasis.Projector;
             if (elementSelector != null)
             {
                 map[elementSelector.Parameters[0]] = subqueryBasis.Projector;
-                subqueryElementExpression = Visit(elementSelector.Body);
+                subqueryElementExpression = Visit(elementSelector.Body)!;
             }
-            Debug.Assert(subqueryElementExpression != null);
 
             string elementAlias = GetNextAlias();
             var (elementProjector, elementColumns) = ColumnProjector.ProjectColumns(subqueryElementExpression, elementAlias, subqueryBasis.Source.Alias);
 
+            // ReSharper disable once PossibleNullReferenceException - compiler knows better
             ProjectionExpression elementSubquery = new ProjectionExpression(
                 new SelectExpression(TypeSystemHelper.GetSequenceType(subqueryElementExpression.Type), elementAlias, elementColumns, subqueryBasis.Source, subqueryCorrelation), 
                 elementProjector);
@@ -345,32 +338,32 @@ namespace MoleSql.Translators
             Expression resultExpression;
             if (resultSelector != null)
             {
-                Expression saveGroupElement = currentGroupElement;
+                Expression? saveGroupElement = currentGroupElement;
                 currentGroupElement = elementSubquery;
                 
                 map[resultSelector.Parameters[0]] = keyProjector;
                 map[resultSelector.Parameters[1]] = elementSubquery;
                 
-                resultExpression = Visit(resultSelector.Body);
+                resultExpression = Visit(resultSelector.Body)!;
                 currentGroupElement = saveGroupElement;
             }
             else
+                // ReSharper disable once PossibleNullReferenceException - compiler knows better
                 resultExpression = Expression.New(
                     typeof(Grouping<,>).MakeGenericType(keyExpression.Type, subqueryElementExpression.Type)
                                        .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0], keyExpression, elementSubquery);
-
-            Debug.Assert(resultExpression != null);
 
             var (projector, columns) = ColumnProjector.ProjectColumns(resultExpression, alias, projection.Source.Alias);
 
             Expression projectedElementSubquery = ((NewExpression)projector).Arguments[1];
             groupByMap.Add(projectedElementSubquery, info);
 
+            // ReSharper disable once PossibleNullReferenceException - compiler knows better
             return new ProjectionExpression(
                 new SelectExpression(TypeSystemHelper.GetSequenceType(resultExpression.Type), alias, columns, projection.Source, null, null, groupExpressions),
                 projector);
         }
-        Expression BindAggregate(Expression source, Type declaringType, AggregateType aggregateType, Type returnType, Type[] genericArguments, LambdaExpression argument, bool isRoot)
+        Expression BindAggregate(Expression source, Type declaringType, AggregateType aggregateType, Type returnType, Type[] genericArguments, LambdaExpression? argument, bool isRoot)
         {
             bool hasPredicateArgument = HasPredicateArgument(aggregateType);
             bool argumentHasPredicate = false;
@@ -386,11 +379,11 @@ namespace MoleSql.Translators
             }
 
             ProjectionExpression projection = VisitSequence(source);
-            Expression argumentExpression = null;
+            Expression? argumentExpression = null;
             if (argument != null)
             {
                 map[argument.Parameters[0]] = projection.Projector;
-                argumentExpression = Visit(argument.Body);
+                argumentExpression = Visit(argument.Body)!;
             }
             else if (!hasPredicateArgument)
                 argumentExpression = projection.Projector;
@@ -430,7 +423,7 @@ namespace MoleSql.Translators
 
             return subQuery;
         }
-        ProjectionExpression VisitSequence(Expression source) => ConvertToSequence(Visit(source));
+        ProjectionExpression VisitSequence(Expression source) => ConvertToSequence(Visit(source)!);
         
         ProjectionExpression GetTableProjection(object value)
         {
@@ -468,7 +461,7 @@ namespace MoleSql.Translators
             _ => throw source.NodeType.IsInvalid()
         };
         static bool IsTable(Expression expression) => IsTable((expression as ConstantExpression)?.Value);
-        static bool IsTable(object value) => value is IQueryable query && query.Expression.NodeType == ExpressionType.Constant;
+        static bool IsTable(object? value) => value is IQueryable query && query.Expression.NodeType == ExpressionType.Constant;
         static string GetTableName(object table) => TypeMapper.GetTableName(((IQueryable)table).ElementType);
         static string GetColumnName(PropertyInfo member) => TypeMapper.GetColumnName(member);
         static Type GetColumnType(PropertyInfo member) => member.PropertyType;
@@ -495,21 +488,22 @@ namespace MoleSql.Translators
                                                                                       typeof(Grouping<,>)
                                                                                         ? (ProjectionExpression)newExpression.Arguments[1]
                                                                                         : throw expression.IsNotASequence();
-        static Expression BuildPredicateWithNullsEqual(IEnumerable<Expression> source1, IEnumerable<Expression> source2)
+        static Expression? BuildPredicateWithNullsEqual(IEnumerable<Expression> source1, IEnumerable<Expression> source2)
         {
             // ReSharper disable once GenericEnumeratorNotDisposed - r# mistake
             using var enumerator1 = source1.GetEnumerator();
             // ReSharper disable once GenericEnumeratorNotDisposed - r# mistake
             using var enumerator2 = source2.GetEnumerator();
-            Expression result = null;
+            Expression? result = null;
             while (enumerator1.MoveNext() && enumerator2.MoveNext())
             {
-                Debug.Assert(enumerator1.Current != null && enumerator2.Current != null);
+                // ReSharper disable AssignNullToNotNullAttribute - compiler knows better
                 Expression compare =
                     Expression.Or(
                         Expression.And(new IsNullExpression(enumerator1.Current), new IsNullExpression(enumerator2.Current)),
-                        Expression.Equal(enumerator1.Current, enumerator2.Current)
+                        Expression.Equal(enumerator1.Current!, enumerator2.Current!)
                     );
+                // ReSharper restore AssignNullToNotNullAttribute
                 result = result == null ? compare : Expression.And(result, compare);
             }
 
@@ -525,10 +519,10 @@ namespace MoleSql.Translators
             var name = methodName.Substring(0, methodName.Length - 5);
             return Enum.GetNames(typeof(AggregateType)).Contains(name);
         }
-        static LambdaExpression GetSelectorFromAsyncAggregate(ReadOnlyCollection<Expression> arguments) =>
-            arguments.Count == 3 ? (LambdaExpression)arguments[1].StripQuotes() : null;
+        static LambdaExpression? GetSelectorFromAsyncAggregate(ReadOnlyCollection<Expression> arguments) =>
+            arguments.Count == 3 ? (LambdaExpression?)arguments[1].StripQuotes() : null;
         static bool HasPredicateArgument(AggregateType aggregateType) => aggregateType == AggregateType.Count;
         
-        internal static ProjectionExpression Bind(Expression expression) => (ProjectionExpression)new QueryBinder{root = expression}.Visit(expression);
+        internal static ProjectionExpression Bind(Expression expression) => (ProjectionExpression)new QueryBinder(root: expression).Visit(expression)!;
     }
 }

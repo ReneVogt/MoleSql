@@ -34,7 +34,7 @@ namespace MoleSql
         /// statement. So when providing a custom implementation, only this overload needs to be
         /// overwritten to catch all log messages.
         /// </summary>
-        public TextWriter Log
+        public TextWriter? Log
         {
             get => provider.Log;
             set => provider.Log = value;
@@ -46,7 +46,7 @@ namespace MoleSql
         /// <summary>
         /// Gets or sets the transaction to use when interacting with the database.
         /// </summary>
-        public SqlTransaction Transaction
+        public SqlTransaction? Transaction
         {
             get => provider.Transaction;
             set => provider.Transaction = value;

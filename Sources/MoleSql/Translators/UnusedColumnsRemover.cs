@@ -34,13 +34,13 @@ namespace MoleSql.Translators
         {
             ReadOnlyCollection<ColumnDeclaration> columns = selectExpression.Columns;
 
-            List<ColumnDeclaration> alternate = null;
+            List<ColumnDeclaration>? alternate = null;
             for (int i = 0; i < selectExpression.Columns.Count; i++)
             {
-                ColumnDeclaration columnDeclaration = selectExpression.Columns[i];
+                ColumnDeclaration? columnDeclaration = selectExpression.Columns[i];
                 if (IsColumnUsed(selectExpression.Alias, columnDeclaration.Name))
                 {
-                    Expression expr = Visit(columnDeclaration.Expression);
+                    Expression expr = Visit(columnDeclaration.Expression)!;
                     if (expr != columnDeclaration.Expression)
                         columnDeclaration = new ColumnDeclaration(columnDeclaration.Name, expr);
                 }
@@ -56,10 +56,10 @@ namespace MoleSql.Translators
             if (alternate != null)
                 columns = alternate.AsReadOnly();
 
-            ReadOnlyCollection<Expression> groupbys = VisitExpressionList(selectExpression.GroupBy);
-            ReadOnlyCollection<OrderClause> orderbys = VisitOrderBy(selectExpression.OrderBy);
-            Expression where = Visit(selectExpression.Where);
-            Expression from = Visit(selectExpression.From);
+            ReadOnlyCollection<Expression>? groupbys = VisitExpressionList(selectExpression.GroupBy);
+            ReadOnlyCollection<OrderClause>? orderbys = VisitOrderBy(selectExpression.OrderBy);
+            Expression? where = Visit(selectExpression.Where);
+            Expression from = Visit(selectExpression.From)!;
 
             ClearColumnsUsed(selectExpression.Alias);
 
@@ -73,15 +73,15 @@ namespace MoleSql.Translators
         }
         protected override Expression VisitProjection(ProjectionExpression projection)
         {
-            Expression projector = Visit(projection.Projector);
-            SelectExpression source = (SelectExpression)Visit(projection.Source);
+            Expression projector = Visit(projection.Projector)!;
+            SelectExpression source = (SelectExpression)Visit(projection.Source)!;
             return projector != projection.Projector || source != projection.Source
                        ? new ProjectionExpression(source, projector, projection.IsTopLevelAggregation)
                        : projection;
         }
         protected override Expression VisitJoin(JoinExpression joinExpression)
         {
-            Expression condition = Visit(joinExpression.Condition);
+            Expression? condition = Visit(joinExpression.Condition);
             Expression right = VisitSource(joinExpression.Right);
             Expression left = VisitSource(joinExpression.Left);
             return left != joinExpression.Left || right != joinExpression.Right || condition != joinExpression.Condition
@@ -105,6 +105,6 @@ namespace MoleSql.Translators
             allColumnsUsed[alias] = new HashSet<string>();
         }
 
-        internal static Expression Remove(Expression expression) => new UnusedColumnsRemover().Visit(expression);
+        internal static Expression Remove(Expression expression) => new UnusedColumnsRemover().Visit(expression)!;
     }
 }

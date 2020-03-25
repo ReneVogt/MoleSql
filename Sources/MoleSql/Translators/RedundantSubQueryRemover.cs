@@ -17,7 +17,7 @@ namespace MoleSql.Translators
     {
         sealed class RedundantSubqueryGatherer : DbExpressionVisitor
         {
-            List<SelectExpression> redundant;
+            List<SelectExpression>? redundant;
 
             RedundantSubqueryGatherer()
             {
@@ -38,7 +38,7 @@ namespace MoleSql.Translators
                 !(selectExpression.OrderBy?.Count > 0) &&
                 !(selectExpression.GroupBy?.Count > 0);
 
-            internal static List<SelectExpression> Gather(Expression source)
+            internal static List<SelectExpression>? Gather(Expression source)
             {
                 RedundantSubqueryGatherer gatherer = new RedundantSubqueryGatherer();
                 gatherer.Visit(source);
@@ -52,7 +52,7 @@ namespace MoleSql.Translators
         {
             selectExpression = (SelectExpression)base.VisitSelect(selectExpression);
 
-            List<SelectExpression> redundant = RedundantSubqueryGatherer.Gather(selectExpression.From);
+            List<SelectExpression>? redundant = RedundantSubqueryGatherer.Gather(selectExpression.From);
             if (redundant != null)
                 selectExpression = SubQueryRemover.Remove(selectExpression, redundant);
 
@@ -61,7 +61,7 @@ namespace MoleSql.Translators
                 SelectExpression fromSelect = (SelectExpression)selectExpression.From;
                 selectExpression = SubQueryRemover.Remove(selectExpression, fromSelect);
 
-                Expression where = selectExpression.Where;
+                Expression? where = selectExpression.Where;
                 if (fromSelect.Where != null)
                 {
                     where = where == null 
@@ -87,7 +87,7 @@ namespace MoleSql.Translators
             projection = (ProjectionExpression)base.VisitProjection(projection);
             if (!(projection.Source.From is SelectExpression)) return projection;
 
-            List<SelectExpression> redundant = RedundantSubqueryGatherer.Gather(projection.Source);
+            List<SelectExpression>? redundant = RedundantSubqueryGatherer.Gather(projection.Source);
             return redundant == null 
                    ? projection
                    : SubQueryRemover.Remove(projection, redundant);
@@ -113,6 +113,6 @@ namespace MoleSql.Translators
             return true;
         }
 
-        internal static Expression Remove(Expression expression) => new RedundantSubQueryRemover().Visit(expression);
+        internal static Expression Remove(Expression expression) => new RedundantSubQueryRemover().Visit(expression)!;
     }
 }

@@ -15,11 +15,11 @@ namespace MoleSql.Expressions
     sealed class AggregateExpression : Expression
     {
         internal AggregateType AggregateType { get; }
-        internal Expression Argument { get; }
+        internal Expression? Argument { get; }
         public override Type Type { get; }
         public override ExpressionType NodeType { get; }
 
-        internal AggregateExpression(Type type, AggregateType aggregateType, Expression argument)
+        internal AggregateExpression(Type type, AggregateType aggregateType, Expression? argument)
         {
             AggregateType = aggregateType;
             Argument = argument;

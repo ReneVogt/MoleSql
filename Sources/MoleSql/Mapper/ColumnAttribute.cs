@@ -13,7 +13,7 @@ namespace MoleSql.Mapper
         /// The column name to use when querying objects. If this is not
         /// defined, the property's name will be used as table name.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         /// <summary>
         /// Set to <code>true</code> if the property should not be included in SQL queries.
         /// </summary>

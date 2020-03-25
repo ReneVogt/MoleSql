@@ -36,8 +36,8 @@ namespace MoleSql.Translators
         /// </remarks>
         sealed class FormatCapturingParameter : IFormattable
         {
-            readonly SqlParameter parameter;
-            readonly SqlParameter[] parameters;
+            readonly SqlParameter? parameter;
+            readonly SqlParameter[]? parameters;
 
             internal IEnumerable<SqlParameter> Parameters
             {

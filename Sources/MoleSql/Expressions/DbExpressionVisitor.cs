@@ -15,7 +15,7 @@ namespace MoleSql.Expressions
 {
     class DbExpressionVisitor : ExpressionVisitor
     {
-        public override Expression Visit(Expression expression) =>
+        public override Expression? Visit(Expression? expression) =>
             expression?.NodeType switch
             {
                 (ExpressionType)DbExpressionType.Table => VisitTable((TableExpression)expression),
@@ -34,20 +34,20 @@ namespace MoleSql.Expressions
         protected virtual Expression VisitSelect(SelectExpression selectExpression)
         {
             Expression from = VisitSource(selectExpression.From);
-            Expression where = Visit(selectExpression.Where);
+            Expression? where = Visit(selectExpression.Where);
             ReadOnlyCollection<ColumnDeclaration> columns = VisitColumnDeclarations(selectExpression.Columns);
-            ReadOnlyCollection<OrderClause> orderBy = VisitOrderBy(selectExpression.OrderBy);
-            ReadOnlyCollection<Expression> groupBy = VisitExpressionList(selectExpression.GroupBy);
+            ReadOnlyCollection<OrderClause>? orderBy = VisitOrderBy(selectExpression.OrderBy);
+            ReadOnlyCollection<Expression>? groupBy = VisitExpressionList(selectExpression.GroupBy);
 
             return from != selectExpression.From || where != selectExpression.Where || columns != selectExpression.Columns || orderBy != selectExpression.OrderBy || groupBy != selectExpression.GroupBy
                        ? new SelectExpression(selectExpression.Type, selectExpression.Alias, columns, from, where, orderBy, groupBy)
                        : selectExpression;
         }
-        protected virtual Expression VisitSource(Expression source) => Visit(source);
+        protected virtual Expression VisitSource(Expression source) => Visit(source)!;
         protected virtual Expression VisitProjection(ProjectionExpression projection)
         {
-            SelectExpression source = (SelectExpression)Visit(projection.Source);
-            Expression projector = Visit(projection.Projector);
+            SelectExpression source = (SelectExpression)Visit(projection.Source)!;
+            Expression projector = Visit(projection.Projector)!;
 
             return source != projection.Source || projector != projection.Projector
                        ? new ProjectionExpression(source, projector, projection.IsTopLevelAggregation)
@@ -55,8 +55,8 @@ namespace MoleSql.Expressions
         }
         protected virtual Expression VisitJoin(JoinExpression joinExpression)
         {
-            var left = Visit(joinExpression.Left);
-            var right = Visit(joinExpression.Right);
+            var left = Visit(joinExpression.Left)!;
+            var right = Visit(joinExpression.Right)!;
             var condition = Visit(joinExpression.Condition);
             return left != joinExpression.Left || right != joinExpression.Right || condition != joinExpression.Condition
                    ? new JoinExpression(joinExpression.Type, joinExpression.JoinType, left, right, condition)
@@ -71,14 +71,14 @@ namespace MoleSql.Expressions
         }
         protected virtual Expression VisitSubQuery(SubQueryExpression subQuery)
         {
-            SelectExpression selectExpression = (SelectExpression)Visit(subQuery.SelectExpression);
+            SelectExpression selectExpression = (SelectExpression)Visit(subQuery.SelectExpression)!;
             return selectExpression != subQuery.SelectExpression
                        ? new SubQueryExpression(subQuery.Type, selectExpression)
                        : subQuery;
         }
         protected virtual Expression VisitAggregateSubQuery(AggregateSubQueryExpression aggregateSubQueryExpression)
         {
-            var subQuery = (SubQueryExpression)Visit(aggregateSubQueryExpression.AggregateAsSubQuery);
+            var subQuery = (SubQueryExpression)Visit(aggregateSubQueryExpression.AggregateAsSubQuery)!;
             return subQuery != aggregateSubQueryExpression.AggregateAsSubQuery
                        ? new AggregateSubQueryExpression(aggregateSubQueryExpression.GroupByAlias, aggregateSubQueryExpression.AggregateInGroupSelect,
                                                          subQuery)
@@ -86,18 +86,18 @@ namespace MoleSql.Expressions
         }
         protected virtual Expression VisitIsNull(IsNullExpression isNullExpression)
         {
-            var expression = Visit(isNullExpression.Expression);
+            var expression = Visit(isNullExpression.Expression)!;
             return expression != isNullExpression.Expression
                        ? new IsNullExpression(expression)
                        : isNullExpression;
         }
         protected virtual ReadOnlyCollection<ColumnDeclaration> VisitColumnDeclarations(ReadOnlyCollection<ColumnDeclaration> columns)
         {
-            List<ColumnDeclaration> alternate = null;
+            List<ColumnDeclaration>? alternate = null;
             for (int i = 0; i < columns.Count; i++)
             {
                 ColumnDeclaration column = columns[i];
-                Expression e = Visit(column.Expression);
+                Expression e = Visit(column.Expression)!;
                 if (alternate == null && e != column.Expression)
                     alternate = columns.Take(i).ToList();
 
@@ -106,15 +106,15 @@ namespace MoleSql.Expressions
 
             return alternate?.AsReadOnly() ?? columns;
         }
-        protected virtual ReadOnlyCollection<OrderClause> VisitOrderBy(ReadOnlyCollection<OrderClause> orderBy)
+        protected virtual ReadOnlyCollection<OrderClause>? VisitOrderBy(ReadOnlyCollection<OrderClause>? orderBy)
         {
             if (orderBy == null) return null;
 
-            List<OrderClause> alternate = null;
+            List<OrderClause>? alternate = null;
             for (int i = 0; i < orderBy.Count; i++)
             {
                 OrderClause order = orderBy[i];
-                Expression e = Visit(order.Expression);
+                Expression e = Visit(order.Expression)!;
                 if (alternate == null && e != order.Expression)
                     alternate = orderBy.Take(i).ToList();
 
@@ -123,15 +123,15 @@ namespace MoleSql.Expressions
 
             return alternate?.AsReadOnly() ?? orderBy;
         }
-        protected virtual ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
+        protected virtual ReadOnlyCollection<Expression>? VisitExpressionList(ReadOnlyCollection<Expression>? expressions)
         {
             if (expressions == null) return null;
 
-            List<Expression> alternate = null;
+            List<Expression>? alternate = null;
             for (int i = 0; i < expressions.Count; i++)
             {
                 Expression expression = expressions[i];
-                Expression result = Visit(expression);
+                Expression result = Visit(expression)!;
                 if (result != expression && alternate == null)
                     alternate = expressions.Take(i).ToList();
                 alternate?.Add(result);

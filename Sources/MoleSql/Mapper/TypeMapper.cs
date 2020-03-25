@@ -17,9 +17,9 @@ namespace MoleSql.Mapper
         {
             if (tableNames.TryGetValue(type, out var name)) return name;
 
-            var attribute = type.GetCustomAttribute<TableAttribute>();
+            TableAttribute? attribute = type.GetCustomAttribute<TableAttribute>();
             string table = $"[{attribute?.Name ?? type.Name}]"; 
-            string schema = attribute?.Schema;
+            string? schema = attribute?.Schema;
             name = schema == null ? table : $"[{schema}].{table}";
             tableNames[type] = name;
             return name;
