@@ -91,10 +91,10 @@ WHERE (([t0].[Name] = @p0) AND ([t0].[Id] = [t2].[EmployeeId]))
             var result = query.AsEnumerable().OrderBy(x => x.Date).ToList();
             result.Should().HaveCount(2);
             result[0].Name.Should().Be("Alfons Allerlei");
-            result[0].Salary.Should().Be(1);
+            result[0].Salary.Should().Be(5000);
             result[0].Date.Should().Be(new DateTime(2020, 1, 7));
             result[1].Name.Should().Be("Alfons Allerlei");
-            result[1].Salary.Should().Be(1);
+            result[1].Salary.Should().Be(5000);
             result[1].Date.Should().Be(new DateTime(2020, 1, 8));
             AssertSql(context, $@"
 SELECT [t7].[Name1], [t7].[Salary], [t7].[Date] 

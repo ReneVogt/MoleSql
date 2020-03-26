@@ -153,7 +153,7 @@ FROM
             result[2].MinPrice.Should().Be(12);
             result[2].MaxPrice.Should().Be(75);
             result[2].Expensive.Should().Be(2);
-            result[2].AveragePrice.Should().Be(52.3333m);
+            result[2].AveragePrice.Should().Be(52.333333m);
             result[2].TotalPrice.Should().Be(157);
 
             AssertSql(context, $@"

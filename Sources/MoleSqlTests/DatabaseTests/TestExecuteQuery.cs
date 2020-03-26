@@ -117,12 +117,12 @@ SELECT [Id], [Name] FROM Departments WHERE [Id] IN (@p0, @p1, @p2, @p3) ORDER BY
             var query = context.ExecuteQuery($"SELECT TOP 2 [Name], [DateOfBirth], [LastSeen] FROM [Employees] ORDER BY [Id]");
             var result = query.Cast<dynamic>().ToList();
             result.Should().HaveCount(2);
-            Assert.AreEqual(result[0].Name, "Marc");
-            Assert.AreEqual(result[0].DateOfBirth, new DateTime(1970, 1, 1));
+            Assert.AreEqual(result[0].Name, "René");
+            Assert.AreEqual(result[0].DateOfBirth, new DateTime(1979, 5, 3));
             Assert.IsNull(result[0].LastSeen);
-            Assert.AreEqual(result[1].Name, "Marcel");
+            Assert.AreEqual(result[1].Name, "Marc");
             Assert.IsNull(result[1].DateOfBirth);
-            Assert.AreEqual(result[1].LastSeen, new DateTime(2010, 10, 25));
+            Assert.AreEqual(result[1].LastSeen, new DateTime(1954, 4, 1));
         }
         [TestMethod]
         public async Task ExecuteQueryAsync_Dynamic_CorrectResults()
