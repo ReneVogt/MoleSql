@@ -66,9 +66,9 @@ WHERE ([t7].[Name1] = @p0)
                         select new {employee.Salary, order.Date};
             var result = query.AsEnumerable().OrderBy(x => x.Date).ToList();
             result.Should().HaveCount(2);
-            result[0].Salary.Should().Be(1);
+            result[0].Salary.Should().Be(5000);
             result[0].Date.Should().Be(new DateTime(2020, 1, 7));
-            result[1].Salary.Should().Be(1);
+            result[1].Salary.Should().Be(5000);
             result[1].Date.Should().Be(new DateTime(2020, 1, 8));
             AssertSql(context, $@"
 SELECT [t0].[Salary], [t2].[Date] 

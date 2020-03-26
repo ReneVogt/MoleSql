@@ -32,7 +32,7 @@ namespace MoleSqlTests.DatabaseTests
         public void Count_WithPredicate_CorrectValues()
         {
             using var context = GetDbContext();
-            context.AggregatorTest.Count(c => c.IntValue < 4).Should().Be(3);
+            context.AggregatorTest.Count(c => c.IntValue < 4).Should().Be(5);
         }
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
@@ -84,7 +84,7 @@ namespace MoleSqlTests.DatabaseTests
         {
             using var context = GetDbContext();
             var result = await context.AggregatorTest.CountAsync(c => c.IntValue < 4);
-            result.Should().Be(3);
+            result.Should().Be(5);
         }
     }
 }
