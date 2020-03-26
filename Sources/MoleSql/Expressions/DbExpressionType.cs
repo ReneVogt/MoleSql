@@ -23,7 +23,6 @@ namespace MoleSql.Expressions
         Join,
         Aggregate,
         SubQuery,
-        Grouping,
         AggregateSubQuery,
         IsNull
     }

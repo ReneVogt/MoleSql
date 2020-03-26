@@ -65,9 +65,8 @@ namespace MoleSql.Expressions
         protected virtual Expression VisitAggregate(AggregateExpression aggregateExpression)
         {
             var argument = Visit(aggregateExpression.Argument);
-            return argument != aggregateExpression.Argument
-                       ? new AggregateExpression(argument?.Type ?? aggregateExpression.Type, aggregateExpression.AggregateType, argument)
-                       : aggregateExpression;
+            if (argument == null) return aggregateExpression;
+            return new AggregateExpression(argument.Type, aggregateExpression.AggregateType, argument);
         }
         protected virtual Expression VisitSubQuery(SubQueryExpression subQuery)
         {

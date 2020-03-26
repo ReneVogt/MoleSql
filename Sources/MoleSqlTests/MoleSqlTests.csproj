@@ -123,6 +123,13 @@
     <Compile Include="DatabaseTests\TestGroupBy.cs" />
     <Compile Include="DatabaseTests\TestTransactions.cs" />
     <Compile Include="DatabaseTests\TestTablesAndBasics.cs" />
+    <Compile Include="UnitTests\TestExpressionExtensions.cs" />
+    <Compile Include="UnitTests\TestExpressionExtensions.IsDbExpression.cs">
+      <DependentUpon>TestExpressionExtensions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UnitTests\TestExpressionExtensions.StripQuotes.cs">
+      <DependentUpon>TestExpressionExtensions.cs</DependentUpon>
+    </Compile>
     <Compile Include="UnitTests\TestQuery.cs" />
     <Compile Include="UnitTests\TestQueryProvider.cs" />
     <Compile Include="UnitTests\TestDataContext.cs" />
