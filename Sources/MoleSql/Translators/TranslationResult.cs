@@ -14,7 +14,7 @@ namespace MoleSql.Translators
     /// Includes the sql query text (<see cref="CommandText"/>), a lambda expression to project the results
     /// into objects (<see cref="Projection"/> and a list of parameters for the sql query (<see cref="Parameters"/>).
     /// </summary>
-    internal struct TranslationResult
+    internal readonly struct TranslationResult
     {
         internal string CommandText { get; }
         internal LambdaExpression Projection { get; }

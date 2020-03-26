@@ -29,13 +29,13 @@ namespace MoleSqlTests.DatabaseTests
         public void Sum_WithoutSelector_CorrectValues()
         {
             using var context = GetDbContext();
-            context.AggregatorTest.Select(c => c.IntValue).Sum().Should().Be(14);
+            context.AggregatorTest.Select(c => c.IntValue).Sum().Should().Be(10);
         }
         [TestMethod]
         public void Sum_WithSelector_CorrectValues()
         {
             using var context = GetDbContext();
-            context.AggregatorTest.Sum(c => c.IntValue).Should().Be(14);
+            context.AggregatorTest.Sum(c => c.IntValue).Should().Be(10);
         }
         [TestMethod]
         public void SumAsync_NotOnTop_NotSupportedException()
@@ -146,27 +146,27 @@ namespace MoleSqlTests.DatabaseTests
         public async Task SumAsync_CorrectValues()
         {
             using var context = GetDbContext();
-            (await context.AggregatorTest.Select(a => a.IntValue).SumAsync()).Should().Be(14, "should work for Int314");
-            (await context.AggregatorTest.SumAsync(a => a.IntValue)).Should().Be(14, "should work for Int314 with selector");
-            (await context.AggregatorTest.Select(a => a.LongValue).SumAsync()).Should().Be(14, "should work for Int64");
-            (await context.AggregatorTest.SumAsync(a => a.LongValue)).Should().Be(14, "should work for Int64 with selector");
-            (await context.AggregatorTest.Select(a => a.FloatValue).SumAsync()).Should().Be(14, "should work for Float");
-            (await context.AggregatorTest.SumAsync(a => a.FloatValue)).Should().Be(14, "should work for Float with selector");
-            (await context.AggregatorTest.Select(a => a.DoubleValue).SumAsync()).Should().Be(14, "should work for Double");
-            (await context.AggregatorTest.SumAsync(a => a.DoubleValue)).Should().Be(14, "should work for Double with selector");
-            (await context.AggregatorTest.Select(a => a.DecimalValue).SumAsync()).Should().Be(14, "should work for Decimal");
-            (await context.AggregatorTest.SumAsync(a => a.DecimalValue)).Should().Be(14, "should work for Decimal with selector");
+            (await context.AggregatorTest.Select(a => a.IntValue).SumAsync()).Should().Be(10, "should work for Int314");
+            (await context.AggregatorTest.SumAsync(a => a.IntValue)).Should().Be(10, "should work for Int314 with selector");
+            (await context.AggregatorTest.Select(a => a.LongValue).SumAsync()).Should().Be(10, "should work for Int64");
+            (await context.AggregatorTest.SumAsync(a => a.LongValue)).Should().Be(10, "should work for Int64 with selector");
+            (await context.AggregatorTest.Select(a => a.FloatValue).SumAsync()).Should().Be(10, "should work for Float");
+            (await context.AggregatorTest.SumAsync(a => a.FloatValue)).Should().Be(10, "should work for Float with selector");
+            (await context.AggregatorTest.Select(a => a.DoubleValue).SumAsync()).Should().Be(10, "should work for Double");
+            (await context.AggregatorTest.SumAsync(a => a.DoubleValue)).Should().Be(10, "should work for Double with selector");
+            (await context.AggregatorTest.Select(a => a.DecimalValue).SumAsync()).Should().Be(10, "should work for Decimal");
+            (await context.AggregatorTest.SumAsync(a => a.DecimalValue)).Should().Be(10, "should work for Decimal with selector");
 
-            (await context.AggregatorTest.Select(a => a.NullableIntValue).SumAsync()).Should().Be(14, "should work for Int314?");
-            (await context.AggregatorTest.SumAsync(a => a.NullableIntValue)).Should().Be(14, "should work for Int314? with selector");
-            (await context.AggregatorTest.Select(a => a.NullableLongValue).SumAsync()).Should().Be(14, "should work for Int64?");
-            (await context.AggregatorTest.SumAsync(a => a.NullableLongValue)).Should().Be(14, "should work for Int64? with selector");
-            (await context.AggregatorTest.Select(a => a.NullableFloatValue).SumAsync()).Should().Be(14, "should work for Float?");
-            (await context.AggregatorTest.SumAsync(a => a.NullableFloatValue)).Should().Be(14, "should work for Float? with selector");
-            (await context.AggregatorTest.Select(a => a.NullableDoubleValue).SumAsync()).Should().Be(14, "should work for Double?");
-            (await context.AggregatorTest.SumAsync(a => a.NullableDoubleValue)).Should().Be(14, "should work for Double? with selector");
-            (await context.AggregatorTest.Select(a => a.NullableDecimalValue).SumAsync()).Should().Be(14, "should work for Decimal?");
-            (await context.AggregatorTest.SumAsync(a => a.NullableDecimalValue)).Should().Be(14, "should work for Decimal? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableIntValue).SumAsync()).Should().Be(8, "should work for Int314?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableIntValue)).Should().Be(8, "should work for Int314? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableLongValue).SumAsync()).Should().Be(8, "should work for Int64?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableLongValue)).Should().Be(8, "should work for Int64? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableFloatValue).SumAsync()).Should().Be(8, "should work for Float?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableFloatValue)).Should().Be(8, "should work for Float? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableDoubleValue).SumAsync()).Should().Be(8, "should work for Double?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableDoubleValue)).Should().Be(8, "should work for Double? with selector");
+            (await context.AggregatorTest.Select(a => a.NullableDecimalValue).SumAsync()).Should().Be(8, "should work for Decimal?");
+            (await context.AggregatorTest.SumAsync(a => a.NullableDecimalValue)).Should().Be(8, "should work for Decimal? with selector");
         }
     }
 }
