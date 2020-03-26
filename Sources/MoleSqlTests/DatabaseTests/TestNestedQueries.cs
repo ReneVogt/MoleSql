@@ -39,15 +39,15 @@ namespace MoleSqlTests.DatabaseTests
             result[0].Orders.Should().HaveCountGreaterThan(0);
             result[0].Orders[0].Id.Should().Be(1);
             AssertSql(context, $@"
-SELECT [t0].[Name], [t0].[Id] 
-FROM [Employees] AS t0 WHERE ([t0].[Name] = @p0) 
+SELECT [t0].[Name], [t0].[Id]
+FROM [Employees] AS t0 WHERE ([t0].[Name] = @p0)
 -- @p0 Input NVarChar (Size = 4; Prec = 0; Scale = 0) [René]
 {context.ContextInfo}
-            
-SELECT [t3].[Id], [t3].[CustomerId], [t3].[EmployeeId], [t3].[Date], [t3].[Discount] 
-FROM [Orders] AS t3 WHERE ([t3].[EmployeeId] = @p0) 
-ORDER BY [t3].[Id] 
--- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [5]
+
+SELECT [t3].[Id], [t3].[CustomerId], [t3].[EmployeeId], [t3].[Date], [t3].[Discount]
+FROM [Orders] AS t3 WHERE ([t3].[EmployeeId] = @p0)
+ORDER BY [t3].[Id]
+-- @p0 Input Int (Size = 0; Prec = 0; Scale = 0) [1]
 {context.ContextInfo}
 ");
         }
@@ -83,7 +83,7 @@ ORDER BY [t3].[Id]
             var orders = context.GetTable<ShortOrders>();
             var customers = context.GetTable<ShortCustomers>();
             var query = from employee in employees
-                        where employee.Id == 5
+                        where employee.Id == 1
                         select new
                         {
                             Orders = orders
@@ -98,7 +98,7 @@ ORDER BY [t3].[Id]
             result[0].Orders.Should().HaveCountGreaterThan(0);
             result[0].Orders[0].Id.Should().Be(1);
             result[0].Orders[0].Customers.Should().HaveCount(1);
-            result[0].Orders[0].Customers[0].Id.Should().Be(0);
+            result[0].Orders[0].Customers[0].Id.Should().Be(1);
             AssertSql(context, @"");
         }
         [TestMethod]
