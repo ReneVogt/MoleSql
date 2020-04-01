@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Manual", "Manual", "{FA062D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BD8BB812-798C-41C5-94CD-EA36BFF102E1}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		..\LICENSE.md = ..\LICENSE.md
 		..\README.md = ..\README.md
 	EndProjectSection

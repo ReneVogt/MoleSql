@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CA1710: Bezeichner müssen ein korrektes Suffix aufweisen
+dotnet_diagnostic.CA1710.severity = none
