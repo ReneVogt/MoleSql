@@ -16,7 +16,7 @@ THIS IS AN EXPERIMENTAL/EDUCATIONAL PACKAGE!</Description>
     <PackageProjectUrl>https://github.com/ReneVogt/MoleSql</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ReneVogt/MoleSql</RepositoryUrl>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>MoleSql.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>René Vogt.pfx</AssemblyOriginatorKeyFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <DelaySign>false</DelaySign>

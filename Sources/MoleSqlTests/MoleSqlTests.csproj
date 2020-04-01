@@ -46,7 +46,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>MoleSql.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>René Vogt.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions, Version=5.10.3.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
@@ -146,7 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="MoleSql.pfx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +155,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="René Vogt.pfx" />
     <None Include="TestDb\TestDb.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

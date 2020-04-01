@@ -226,7 +226,7 @@ namespace MoleSql.Translators
             ProjectionExpression collectionProjection = (ProjectionExpression)Visit(collectionSelector.Body)!;
 
             JoinType joinType = IsTable(collectionSelector.Body) ? JoinType.CrossJoin : JoinType.CrossApply;
-            // ReSharper disable once PossibleNullReferenceException - compiler knows better
+            // ReSharper disable once PossibleNullReferenceException - we know better
             JoinExpression joinExpression = new JoinExpression(resultType, joinType, projection.Source, collectionProjection.Source, null);
 
             string alias = GetNextAlias();
@@ -326,7 +326,7 @@ namespace MoleSql.Translators
             string elementAlias = GetNextAlias();
             var (elementProjector, elementColumns) = ColumnProjector.ProjectColumns(subqueryElementExpression, elementAlias, subqueryBasis.Source.Alias);
 
-            // ReSharper disable once PossibleNullReferenceException - compiler knows better
+            // ReSharper disable once PossibleNullReferenceException - we know better
             ProjectionExpression elementSubquery = new ProjectionExpression(
                 new SelectExpression(TypeSystemHelper.GetSequenceType(subqueryElementExpression.Type), elementAlias, elementColumns, subqueryBasis.Source, subqueryCorrelation), 
                 elementProjector);
@@ -348,7 +348,7 @@ namespace MoleSql.Translators
                 currentGroupElement = saveGroupElement;
             }
             else
-                // ReSharper disable once PossibleNullReferenceException - compiler knows better
+                // ReSharper disable once PossibleNullReferenceException - we know better
                 resultExpression = Expression.New(
                     typeof(Grouping<,>).MakeGenericType(keyExpression.Type, subqueryElementExpression.Type)
                                        .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0], keyExpression, elementSubquery);
@@ -358,7 +358,7 @@ namespace MoleSql.Translators
             Expression projectedElementSubquery = ((NewExpression)projector).Arguments[1];
             groupByMap.Add(projectedElementSubquery, info);
 
-            // ReSharper disable once PossibleNullReferenceException - compiler knows better
+            // ReSharper disable once PossibleNullReferenceException - we know better
             return new ProjectionExpression(
                 new SelectExpression(TypeSystemHelper.GetSequenceType(resultExpression.Type), alias, columns, projection.Source, null, null, groupExpressions),
                 projector);
@@ -497,7 +497,7 @@ namespace MoleSql.Translators
             Expression? result = null;
             while (enumerator1.MoveNext() && enumerator2.MoveNext())
             {
-                // ReSharper disable AssignNullToNotNullAttribute - compiler knows better
+                // ReSharper disable AssignNullToNotNullAttribute -we know better
                 Expression compare =
                     Expression.Or(
                         Expression.And(new IsNullExpression(enumerator1.Current), new IsNullExpression(enumerator2.Current)),
